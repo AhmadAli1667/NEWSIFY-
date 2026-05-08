@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NEWSIFY - Modern News Intelligence</title>
+  <!-- Typography: serif + sans mix for editorial feel. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@300;400;600;700&family=Manrope:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">N</div>
+        <div>
+          <h1>NEWSIFY</h1>
+          <p>Modern news intelligence</p>
+        </div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="welcome">Welcome</button>
+        <button class="nav-item" data-view="search">Search News</button>
+        <button class="nav-item" data-view="summarize">Summarize Text</button>
+        <button class="nav-item" data-view="analyze">Analyze Content</button>
+        <button class="nav-item" data-view="briefing">Morning Briefing</button>
+      </nav>
+      <div class="sidebar-footer">
+        <p class="muted">Powered by Gemini + NewsAPI</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow" id="todayLabel"></p>
+          <h2 id="pageTitle">Welcome to NEWSIFY</h2>
+        </div>
+        <div class="header-actions">
+          <span class="status-pill" id="statusPill">Idle</span>
+        </div>
+      </header>
+
+      <section class="view active" id="view-welcome">
+        <div class="welcome">
+          <div class="welcome-card">
+            <h3>NEWSIFY</h3>
+            <p class="lead">
+              A modern, editorial-grade newsroom interface for searching, summarizing, and analyzing content.
+            </p>
+            <div class="feature-grid">
+              <div class="feature">
+                <h4>Search News</h4>
+                <p>Ask a question. Get a 5-7 paragraph briefing built from today’s headlines.</p>
+              </div>
+              <div class="feature">
+                <h4>Summarize Text</h4>
+                <p>Paste anything and choose a length for a crisp, accurate summary.</p>
+              </div>
+              <div class="feature">
+                <h4>Analyze Content</h4>
+                <p>Newspapers, lyrics, or book excerpts — get structured analysis instantly.</p>
+              </div>
+              <div class="feature">
+                <h4>Morning Briefing</h4>
+                <p>Auto-curated world news with optional deep dives by topic.</p>
+              </div>
+            </div>
+            <div class="hint">Pick a section from the left to begin.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-search">
+        <div class="panel">
+          <h3>Search News</h3>
+          <p class="muted">Ask in natural language and receive a multi-paragraph newsroom briefing.</p>
+          <label class="field">
+            <span>Question</span>
+            <input type="text" id="searchQuestion" placeholder="What is happening with AI?" />
+          </label>
+          <button class="primary" id="searchBtn">Generate Briefing</button>
+        </div>
+        <div class="panel output">
+          <div class="meta" id="searchMeta"></div>
+          <div class="result" id="searchResult"></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-summarize">
+        <div class="panel">
+          <h3>Summarize Text</h3>
+          <label class="field">
+            <span>Text to summarize</span>
+            <textarea id="summaryInput" rows="8" placeholder="Paste any article, passage, or notes..."></textarea>
+          </label>
+          <label class="field">
+            <span>Length</span>
+            <select id="summaryLength">
+              <option value="short">Short (1-2 paragraphs)</option>
+              <option value="medium" selected>Medium (3-4 paragraphs)</option>
+              <option value="long">Long (5-7 paragraphs)</option>
+            </select>
+          </label>
+          <button class="primary" id="summarizeBtn">Summarize</button>
+        </div>
+        <div class="panel output">
+          <div class="result" id="summaryResult"></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-analyze">
+        <div class="panel">
+          <h3>Analyze Content</h3>
+          <label class="field">
+            <span>Content type</span>
+            <select id="analyzeType">
+              <option value="newspaper">Newspaper Article</option>
+              <option value="lyrics">Song Lyrics</option>
+              <option value="book">Book Excerpt</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Analysis style</span>
+            <select id="analyzeStyle"></select>
+          </label>
+          <label class="field">
+            <span>Content</span>
+            <textarea id="analyzeInput" rows="8" placeholder="Paste the article, lyrics, or excerpt..."></textarea>
+          </label>
+          <button class="primary" id="analyzeBtn">Analyze</button>
+        </div>
+        <div class="panel output">
+          <div class="result" id="analyzeResult"></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-briefing">
+        <div class="panel">
+          <h3>Morning Briefing</h3>
+          <p class="muted">Fresh world news with date-range fallback and a deep-dive follow-up.</p>
+          <button class="primary" id="briefingBtn">Fetch Morning Briefing</button>
+          <div class="divider"></div>
+          <label class="field">
+            <span>Deep Dive Topic</span>
+            <input type="text" id="deepDiveTopic" placeholder="Global AI regulation" />
+          </label>
+          <button class="ghost" id="deepDiveBtn">Run Deep Dive</button>
+        </div>
+        <div class="panel output">
+          <div class="meta" id="briefingMeta"></div>
+          <div class="result" id="briefingResult"></div>
+        </div>
+      </section>
+
+      <div class="toast" id="toast"></div>
+      <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <p>Working on your briefing...</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
