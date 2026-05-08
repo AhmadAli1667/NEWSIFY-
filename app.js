@@ -38,6 +38,8 @@ const loader = document.getElementById("loader");
 const analyzeType = document.getElementById("analyzeType");
 const analyzeStyle = document.getElementById("analyzeStyle");
 const lyricsStyle = document.getElementById("lyricsStyle");
+const lyricsVisual = document.getElementById("lyricsVisual");
+const lyricsHeroImage = document.getElementById("lyricsHeroImage");
 
 const searchQuestion = document.getElementById("searchQuestion");
 const searchBtn = document.getElementById("searchBtn");
@@ -73,21 +75,26 @@ const breakingTrack = document.getElementById("breakingTrack");
 const breakingPrev = document.getElementById("breakingPrev");
 const breakingNext = document.getElementById("breakingNext");
 const breakingDots = document.getElementById("breakingDots");
+const breakingTicker = document.getElementById("breakingTicker");
 const briefingHomeBtn = document.getElementById("briefingHomeBtn");
+const homeBriefingOutput = document.getElementById("homeBriefingOutput");
+const homeBriefingMeta = document.getElementById("homeBriefingMeta");
+const homeBriefingResult = document.getElementById("homeBriefingResult");
+
+const searchCarousel = document.getElementById("searchCarousel");
+const searchSlides = searchCarousel
+  ? Array.from(searchCarousel.querySelectorAll(".hero-slide"))
+  : [];
 
 const tourOverlay = document.getElementById("tourOverlay");
 const tourTooltip = document.getElementById("tourTooltip");
 const tourTitle = document.getElementById("tourTitle");
 const tourText = document.getElementById("tourText");
 const tourNext = document.getElementById("tourNext");
-const tourSkip = document.getElementById("tourSkip");
+const tourPrev = document.getElementById("tourPrev");
+const tourClose = document.getElementById("tourClose");
 
 const footerLinks = document.querySelectorAll(".footer-link");
-
-const feedbackForm = document.getElementById("feedbackForm");
-const feedbackName = document.getElementById("feedbackName");
-const feedbackEmail = document.getElementById("feedbackEmail");
-const feedbackMessage = document.getElementById("feedbackMessage");
 
 const expandModal = document.getElementById("expandModal");
 const modalClose = document.getElementById("modalClose");
@@ -119,6 +126,7 @@ let overrideKeys = { gemini: "" };
 let cachedHeadlines = [];
 let breakingIndex = 0;
 let breakingTimer = null;
+let searchIndex = 0;
 let tourStep = 0;
 
 const headlineImages = [
@@ -126,9 +134,19 @@ const headlineImages = [
   "pictures/download%20(1).jpg",
   "pictures/download%20(2).jpg",
   "pictures/download%20(3).jpg",
-  "pictures/download%20(4).jpg",
-  "pictures/download%20(5).jpg"
+  "pictures/download%20(4).jpg"
 ];
+
+const lyricsVisualMap = {
+  general: "pictures/download%20(6).jpg",
+  taylor: "pictures/taylor%20swift.jpg",
+  weeknd: "pictures/download%20(6).jpg",
+  travis: "pictures/travis%20scott.jpg",
+  rihanna: "pictures/rihanna.jpg",
+  "all-too-well": "pictures/all%20too%20well.jpg",
+  "love-story": "pictures/love%20story.jpg",
+  moth: "pictures/moth%20to%20a%20flame.jpg"
+};
 
 function showBanner(message, type = "error") {
   errorBanner.textContent = message;
@@ -170,7 +188,7 @@ function toggleLoader(show) {
 function switchView(viewKey) {
   currentView = viewKey;
   Object.entries(views).forEach(([key, el]) => {
-    el.classList.toggle("active", key === viewKey);
+    if (el) el.classList.toggle("active", key === viewKey);
   });
 
   navItems.forEach(item => {
@@ -266,7 +284,7 @@ function buildHeadlineCards(headlines) {
     "Tech leaders outline new safety standards",
     "Space agencies announce fresh lunar timelines"
   ];
-  const list = (headlines && headlines.length ? headlines : fallback).slice(0, 6);
+  const list = (headlines && headlines.length ? headlines : fallback).slice(0, 5);
   headlineGrid.innerHTML = "";
 
   list.forEach((headline, index) => {
@@ -292,9 +310,10 @@ function buildBreakingSlides(headlines) {
     "Global markets steady as investors await inflation data",
     "AI regulation talks accelerate across major economies",
     "Energy prices fluctuate amid supply concerns",
-    "Tech leaders outline new safety standards"
+    "Tech leaders outline new safety standards",
+    "Space agencies announce fresh lunar timelines"
   ];
-  const list = (headlines && headlines.length ? headlines : fallback).slice(0, 3);
+  const list = (headlines && headlines.length ? headlines : fallback).slice(0, 5);
   breakingTrack.innerHTML = "";
   if (breakingDots) {
     breakingDots.innerHTML = "";
@@ -313,6 +332,7 @@ function buildBreakingSlides(headlines) {
     `;
     slide.querySelector("button").addEventListener("click", () => runSearch(headline));
     breakingTrack.appendChild(slide);
+
     if (breakingDots) {
       const dot = document.createElement("span");
       dot.className = "slider-dot";
@@ -330,6 +350,20 @@ function buildBreakingSlides(headlines) {
       breakingDots.appendChild(dot);
     }
   });
+}
+
+function buildBreakingTicker(headlines) {
+  if (!breakingTicker) return;
+  const fallback = [
+    "Global markets steady as investors await inflation data",
+    "AI regulation talks accelerate across major economies",
+    "Energy prices fluctuate amid supply concerns",
+    "Tech leaders outline new safety standards",
+    "Space agencies announce fresh lunar timelines"
+  ];
+  const list = (headlines && headlines.length ? headlines : fallback).slice(0, 5);
+  const items = list.map(text => `<span class="ticker-item">${text}</span>`).join("");
+  breakingTicker.innerHTML = items + items;
 }
 
 function updateBreakingDots() {
@@ -353,7 +387,7 @@ function rotateBreaking(next = true) {
 
 function startBreakingAuto() {
   if (breakingTimer) clearInterval(breakingTimer);
-  breakingTimer = setInterval(() => rotateBreaking(true), 4500);
+  breakingTimer = setInterval(() => rotateBreaking(true), 5000);
 }
 
 function renderHeadlineList(headlines) {
@@ -378,10 +412,12 @@ async function loadHeadlines() {
     cachedHeadlines = data.headlines || [];
     buildHeadlineCards(cachedHeadlines);
     buildBreakingSlides(cachedHeadlines);
+    buildBreakingTicker(cachedHeadlines);
     startBreakingAuto();
   } catch (error) {
     buildHeadlineCards([]);
     buildBreakingSlides([]);
+    buildBreakingTicker([]);
     startBreakingAuto();
     setServerStatus(false);
   }
@@ -422,6 +458,31 @@ function handleResultAction(action, targetId) {
       setTimeout(clearBanner, 2000);
     }
   }
+}
+
+function animateResult(element) {
+  if (!element) return;
+  element.classList.remove("result-show");
+  void element.offsetWidth;
+  element.classList.add("result-show");
+}
+
+function startSearchCarousel() {
+  if (!searchSlides.length) return;
+  searchSlides.forEach((slide, index) => {
+    slide.classList.toggle("active", index === 0);
+  });
+  setInterval(() => {
+    searchSlides[searchIndex].classList.remove("active");
+    searchIndex = (searchIndex + 1) % searchSlides.length;
+    searchSlides[searchIndex].classList.add("active");
+  }, 4500);
+}
+
+function updateLyricsVisual() {
+  if (!lyricsHeroImage || !lyricsVisual) return;
+  const key = lyricsVisual.value;
+  lyricsHeroImage.src = lyricsVisualMap[key] || lyricsVisualMap.general;
 }
 
 // Navigation and menu handling.
@@ -521,11 +582,238 @@ modalClose.addEventListener("click", () => {
   expandModal.setAttribute("aria-hidden", "true");
 });
 
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    expandModal.classList.remove("show");
-    keyModal.classList.remove("show");
-    tourOverlay.classList.remove("show");
+if (breakingPrev && breakingNext) {
+  breakingPrev.addEventListener("click", () => rotateBreaking(false));
+  breakingNext.addEventListener("click", () => rotateBreaking(true));
+}
+
+if (briefingHomeBtn) {
+  briefingHomeBtn.addEventListener("click", async () => {
+    switchView("welcome");
+    await runBriefing(homeBriefingResult, homeBriefingMeta, homeBriefingOutput);
+  });
+}
+
+if (topHeadlinesBtn) {
+  topHeadlinesBtn.addEventListener("click", async () => {
+    if (!cachedHeadlines.length) {
+      try {
+        const data = await postJson("/api/briefing", { mode: "morning", skipSummary: true });
+        cachedHeadlines = data.headlines || [];
+      } catch (error) {
+        cachedHeadlines = [];
+      }
+    }
+    renderHeadlineList(cachedHeadlines);
+  });
+}
+
+if (helpBtn) {
+  helpBtn.addEventListener("click", () => {
+    startTour();
+  });
+}
+
+lyricsVisual?.addEventListener("change", updateLyricsVisual);
+
+// Feature actions.
+async function runSearch(question) {
+  const trimmed = question.trim();
+  if (!trimmed) {
+    showBanner("Please enter a question.");
+    return;
+  }
+  searchQuestion.value = trimmed;
+  switchView("search");
+
+  toggleLoader(true);
+  searchResult.textContent = "";
+  searchMeta.textContent = "";
+
+  try {
+    const data = await postJson("/api/search", { question: trimmed });
+    searchResult.textContent = data.summary;
+    searchMeta.textContent = `Articles found and combined: ${data.articleCount} • ${data.fromDate} → ${data.toDate}`;
+    animateResult(searchResult);
+    clearBanner();
+  } catch (error) {
+    handleApiError(error);
+  } finally {
+    toggleLoader(false);
+  }
+}
+
+searchBtn.addEventListener("click", async () => {
+  await runSearch(searchQuestion.value);
+});
+
+summarizeBtn.addEventListener("click", async () => {
+  const text = summaryInput.value.trim();
+  if (!text) {
+    showBanner("Please paste text to summarize.");
+    return;
+  }
+
+  toggleLoader(true);
+  summaryResult.textContent = "";
+
+  try {
+    const data = await postJson("/api/summarize", {
+      text,
+      length: summaryLength.value
+    });
+    summaryResult.textContent = data.summary;
+    animateResult(summaryResult);
+    clearBanner();
+  } catch (error) {
+    handleApiError(error);
+  } finally {
+    toggleLoader(false);
+  }
+});
+
+dictionaryBtn.addEventListener("click", async () => {
+  const word = dictionaryWord.value.trim();
+  if (!word) {
+    showBanner("Enter a word to define.");
+    return;
+  }
+
+  toggleLoader(true);
+  dictionaryResult.innerHTML = "";
+
+  try {
+    const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+    if (!response.ok) {
+      throw new Error("No definition found.");
+    }
+    const data = await response.json();
+    const entry = data[0] || {};
+    const phonetic = entry.phonetic || (entry.phonetics && entry.phonetics[0] && entry.phonetics[0].text) || "N/A";
+    const meaning = entry.meanings && entry.meanings[0];
+    const definition = meaning && meaning.definitions && meaning.definitions[0];
+    const partOfSpeech = meaning && meaning.partOfSpeech ? meaning.partOfSpeech : "n/a";
+    const defText = definition && definition.definition ? definition.definition : "No definition found.";
+    const example = definition && definition.example ? definition.example : "No example provided.";
+
+    dictionaryResult.innerHTML = `
+      <div class="dict-word">${entry.word || word}</div>
+      <div class="dict-phonetic">${phonetic} • ${partOfSpeech}</div>
+      <div class="dict-definition">${defText}</div>
+      <div class="dict-example">${example}</div>
+    `;
+    animateResult(dictionaryResult);
+    clearBanner();
+  } catch (error) {
+    showBanner(error.message);
+  } finally {
+    toggleLoader(false);
+  }
+});
+
+analyzeBtn.addEventListener("click", async () => {
+  const text = analyzeInput.value.trim();
+  if (!text) {
+    showBanner("Please paste content to analyze.");
+    return;
+  }
+
+  toggleLoader(true);
+  analyzeResult.textContent = "";
+
+  try {
+    const data = await postJson("/api/analyze", {
+      content: text,
+      contentType: analyzeType.value,
+      analysisType: analyzeStyle.value
+    });
+    analyzeResult.textContent = data.result;
+    animateResult(analyzeResult);
+    clearBanner();
+  } catch (error) {
+    handleApiError(error);
+  } finally {
+    toggleLoader(false);
+  }
+});
+
+if (lyricsBtn) {
+  lyricsBtn.addEventListener("click", async () => {
+    const text = lyricsInput.value.trim();
+    if (!text) {
+      showBanner("Please paste lyrics to analyze.");
+      return;
+    }
+
+    toggleLoader(true);
+    lyricsResult.textContent = "";
+
+    try {
+      const data = await postJson("/api/analyze", {
+        content: text,
+        contentType: "lyrics",
+        analysisType: lyricsStyle.value
+      });
+      lyricsResult.textContent = data.result;
+      animateResult(lyricsResult);
+      clearBanner();
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      toggleLoader(false);
+    }
+  });
+}
+
+async function runBriefing(resultEl, metaEl, outputEl) {
+  toggleLoader(true);
+  if (resultEl) resultEl.textContent = "";
+  if (metaEl) metaEl.textContent = "";
+
+  try {
+    const data = await postJson("/api/briefing", { mode: "morning" });
+    if (resultEl) resultEl.textContent = data.briefing;
+    if (metaEl) {
+      metaEl.textContent = `Articles found and combined: ${data.articleCount} • ${data.fromDate} → ${data.toDate}`;
+    }
+    if (outputEl) outputEl.classList.add("show");
+    if (resultEl) animateResult(resultEl);
+    clearBanner();
+  } catch (error) {
+    handleApiError(error);
+  } finally {
+    toggleLoader(false);
+  }
+}
+
+briefingBtn.addEventListener("click", async () => {
+  await runBriefing(briefingResult, briefingMeta);
+});
+
+deepDiveBtn.addEventListener("click", async () => {
+  const topic = deepDiveTopic.value.trim();
+  if (!topic) {
+    showBanner("Enter a topic for deep dive.");
+    return;
+  }
+
+  toggleLoader(true);
+  briefingResult.textContent = "";
+  briefingMeta.textContent = "";
+
+  try {
+    const data = await postJson("/api/briefing", {
+      mode: "deep-dive",
+      deepDiveTopic: topic
+    });
+    briefingResult.textContent = data.briefing;
+    briefingMeta.textContent = `Articles found and combined: ${data.articleCount} • ${data.fromDate} → ${data.toDate}`;
+    animateResult(briefingResult);
+    clearBanner();
+  } catch (error) {
+    handleApiError(error);
+  } finally {
+    toggleLoader(false);
   }
 });
 
@@ -560,241 +848,6 @@ footerLinks.forEach(link => {
   });
 });
 
-if (helpBtn) {
-  helpBtn.addEventListener("click", () => {
-    startTour();
-  });
-}
-
-if (breakingPrev && breakingNext) {
-  breakingPrev.addEventListener("click", () => rotateBreaking(false));
-  breakingNext.addEventListener("click", () => rotateBreaking(true));
-}
-
-if (briefingHomeBtn) {
-  briefingHomeBtn.addEventListener("click", () => {
-    switchView("briefing");
-    briefingBtn.click();
-  });
-}
-
-// Feature actions.
-async function runSearch(question) {
-  const trimmed = question.trim();
-  if (!trimmed) {
-    showBanner("Please enter a question.");
-    return;
-  }
-  searchQuestion.value = trimmed;
-  switchView("search");
-
-  toggleLoader(true);
-  searchResult.textContent = "";
-  searchMeta.textContent = "";
-
-  try {
-    const data = await postJson("/api/search", { question: trimmed });
-    searchResult.textContent = data.summary;
-    searchMeta.textContent = `Articles found and combined: ${data.articleCount} • ${data.fromDate} → ${data.toDate}`;
-    clearBanner();
-  } catch (error) {
-    handleApiError(error);
-  } finally {
-    toggleLoader(false);
-  }
-}
-
-searchBtn.addEventListener("click", async () => {
-  await runSearch(searchQuestion.value);
-});
-
-summarizeBtn.addEventListener("click", async () => {
-  const text = summaryInput.value.trim();
-  if (!text) {
-    showBanner("Please paste text to summarize.");
-    return;
-  }
-
-  toggleLoader(true);
-  summaryResult.textContent = "";
-
-  try {
-    const data = await postJson("/api/summarize", {
-      text,
-      length: summaryLength.value
-    });
-    summaryResult.textContent = data.summary;
-    clearBanner();
-  } catch (error) {
-    handleApiError(error);
-  } finally {
-    toggleLoader(false);
-  }
-});
-
-dictionaryBtn.addEventListener("click", async () => {
-  const word = dictionaryWord.value.trim();
-  if (!word) {
-    showBanner("Enter a word to define.");
-    return;
-  }
-
-  toggleLoader(true);
-  dictionaryResult.textContent = "";
-
-  try {
-    const data = await postJson("/api/dictionary", { word });
-    const lines = (data.definitions || []).map((item, index) => {
-      const example = item.example ? `Example: ${item.example}` : "Example: N/A";
-      return `${index + 1}. (${item.partOfSpeech || "n/a"}) ${item.definition}\n${example}`;
-    });
-    const phonetic = data.phonetic ? `Phonetic: ${data.phonetic}` : "Phonetic: N/A";
-    const body = lines.length ? lines.join("\n\n") : "No definitions found.";
-    dictionaryResult.textContent = `${data.word}\n${phonetic}\n\n${body}`;
-    clearBanner();
-  } catch (error) {
-    showBanner(error.message);
-  } finally {
-    toggleLoader(false);
-  }
-});
-
-analyzeBtn.addEventListener("click", async () => {
-  const text = analyzeInput.value.trim();
-  if (!text) {
-    showBanner("Please paste content to analyze.");
-    return;
-  }
-
-  toggleLoader(true);
-  analyzeResult.textContent = "";
-
-  try {
-    const data = await postJson("/api/analyze", {
-      content: text,
-      contentType: analyzeType.value,
-      analysisType: analyzeStyle.value
-    });
-    analyzeResult.textContent = data.result;
-    clearBanner();
-  } catch (error) {
-    handleApiError(error);
-  } finally {
-    toggleLoader(false);
-  }
-});
-
-if (lyricsBtn) {
-  lyricsBtn.addEventListener("click", async () => {
-    const text = lyricsInput.value.trim();
-    if (!text) {
-      showBanner("Please paste lyrics to analyze.");
-      return;
-    }
-
-    toggleLoader(true);
-    lyricsResult.textContent = "";
-
-    try {
-      const data = await postJson("/api/analyze", {
-        content: text,
-        contentType: "lyrics",
-        analysisType: lyricsStyle.value
-      });
-      lyricsResult.textContent = data.result;
-      clearBanner();
-    } catch (error) {
-      handleApiError(error);
-    } finally {
-      toggleLoader(false);
-    }
-  });
-}
-
-briefingBtn.addEventListener("click", async () => {
-  toggleLoader(true);
-  briefingResult.textContent = "";
-  briefingMeta.textContent = "";
-
-  try {
-    const data = await postJson("/api/briefing", { mode: "morning" });
-    briefingResult.textContent = data.briefing;
-    briefingMeta.textContent = `Articles found and combined: ${data.articleCount} • ${data.fromDate} → ${data.toDate}`;
-    clearBanner();
-  } catch (error) {
-    handleApiError(error);
-  } finally {
-    toggleLoader(false);
-  }
-});
-
-if (topHeadlinesBtn) {
-  topHeadlinesBtn.addEventListener("click", async () => {
-    if (!cachedHeadlines.length) {
-      try {
-        const data = await postJson("/api/briefing", { mode: "morning", skipSummary: true });
-        cachedHeadlines = data.headlines || [];
-      } catch (error) {
-        cachedHeadlines = [];
-      }
-    }
-    renderHeadlineList(cachedHeadlines);
-  });
-}
-
-deepDiveBtn.addEventListener("click", async () => {
-  const topic = deepDiveTopic.value.trim();
-  if (!topic) {
-    showBanner("Enter a topic for deep dive.");
-    return;
-  }
-
-  toggleLoader(true);
-  briefingResult.textContent = "";
-  briefingMeta.textContent = "";
-
-  try {
-    const data = await postJson("/api/briefing", {
-      mode: "deep-dive",
-      deepDiveTopic: topic
-    });
-    briefingResult.textContent = data.briefing;
-    briefingMeta.textContent = `Articles found and combined: ${data.articleCount} • ${data.fromDate} → ${data.toDate}`;
-    clearBanner();
-  } catch (error) {
-    handleApiError(error);
-  } finally {
-    toggleLoader(false);
-  }
-});
-
-feedbackForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const message = feedbackMessage.value.trim();
-  if (!message) {
-    showBanner("Please write a feedback message.");
-    return;
-  }
-
-  toggleLoader(true);
-  try {
-    await postJson("/api/feedback", {
-      name: feedbackName.value.trim(),
-      email: feedbackEmail.value.trim(),
-      message
-    });
-    feedbackMessage.value = "";
-    showBanner("Feedback saved.", "success");
-    setTimeout(clearBanner, 2000);
-  } catch (error) {
-    showBanner(error.message);
-  } finally {
-    toggleLoader(false);
-  }
-});
-
-analyzeType.addEventListener("change", populateAnalyzeOptions);
-
 if (mainScroll) {
   mainScroll.addEventListener("scroll", () => {
     if (!topbar) return;
@@ -804,34 +857,29 @@ if (mainScroll) {
 
 const tourSteps = [
   {
-    title: "Top Navigation",
-    text: "Use these tabs to switch features instantly.",
-    selector: ".topnav",
-    view: "welcome"
+    title: "Search News",
+    text: "Search News — ask any question, get a full AI briefing",
+    selector: ".nav-item[data-view=\"search\"]"
   },
   {
-    title: "Breaking News",
-    text: "Click any breaking headline to auto-run a news briefing.",
-    selector: ".breaking-slider",
-    view: "welcome"
+    title: "Summarize Text",
+    text: "Summarize Text — paste anything, choose length, get the gist",
+    selector: ".nav-item[data-view=\"summarize\"]"
   },
   {
-    title: "Input Theater",
-    text: "Drop your question or text here, then hit Generate.",
-    selector: ".input-theater",
-    view: "search"
+    title: "Lyrics Analysis",
+    text: "Lyrics Analysis — paste song lyrics, get message, themes, artist insights",
+    selector: ".nav-item[data-view=\"lyrics\"]"
   },
   {
-    title: "Reading Pane",
-    text: "Results appear here with Copy and Share actions.",
-    selector: ".reading-pane",
-    view: "search"
+    title: "Dictionary",
+    text: "Dictionary — instant free word definitions, no API key needed",
+    selector: ".nav-item[data-view=\"dictionary\"]"
   },
   {
-    title: "Settings",
-    text: "Manage your Gemini key and check server status.",
-    selector: "#settingsToggle",
-    view: "welcome"
+    title: "Content Analyzer",
+    text: "Content Analyzer — newspaper, book, or article deep analysis",
+    selector: ".nav-item[data-view=\"analyze\"]"
   }
 ];
 
@@ -851,13 +899,8 @@ function startTour() {
 function showTourStep() {
   const step = tourSteps[tourStep];
   if (!step) {
-    tourOverlay.classList.remove("show");
-    tourOverlay.setAttribute("aria-hidden", "true");
-    clearTourHighlight();
+    stopTour();
     return;
-  }
-  if (step.view) {
-    switchView(step.view);
   }
   tourTitle.textContent = step.title;
   tourText.textContent = step.text;
@@ -865,8 +908,7 @@ function showTourStep() {
   const target = document.querySelector(step.selector);
   if (target) {
     target.classList.add("tour-highlight");
-    target.scrollIntoView({ behavior: "smooth", block: "center" });
-    setTimeout(() => positionTourTooltip(target), 80);
+    positionTourTooltip(target);
   }
 }
 
@@ -875,38 +917,78 @@ function positionTourTooltip(target) {
   const rect = target.getBoundingClientRect();
   const tooltipRect = tourTooltip.getBoundingClientRect();
   const padding = 12;
-  const top = Math.min(
-    window.innerHeight - tooltipRect.height - padding,
-    rect.top + window.scrollY - tooltipRect.height - padding
-  );
-  const left = Math.min(
-    window.innerWidth - tooltipRect.width - padding,
-    rect.left + window.scrollX + rect.width / 2 - tooltipRect.width / 2
-  );
-  tourTooltip.style.top = `${Math.max(padding, top)}px`;
-  tourTooltip.style.left = `${Math.max(padding, left)}px`;
+  let top = rect.top + window.scrollY + rect.height / 2 - tooltipRect.height / 2;
+  let left = rect.right + window.scrollX + padding;
+
+  if (left + tooltipRect.width > window.innerWidth - padding) {
+    left = rect.left + window.scrollX - tooltipRect.width - padding;
+  }
+
+  if (top < padding) top = padding;
+  if (top + tooltipRect.height > window.innerHeight - padding) {
+    top = window.innerHeight - tooltipRect.height - padding;
+  }
+
+  tourTooltip.style.top = `${top}px`;
+  tourTooltip.style.left = `${left}px`;
+}
+
+function stopTour() {
+  tourOverlay.classList.remove("show");
+  tourOverlay.setAttribute("aria-hidden", "true");
+  clearTourHighlight();
 }
 
 tourNext.addEventListener("click", () => {
   tourStep += 1;
+  if (tourStep >= tourSteps.length) {
+    stopTour();
+    return;
+  }
   showTourStep();
 });
 
-tourSkip.addEventListener("click", () => {
-  tourOverlay.classList.remove("show");
-  tourOverlay.setAttribute("aria-hidden", "true");
-  clearTourHighlight();
+tourPrev.addEventListener("click", () => {
+  tourStep = Math.max(0, tourStep - 1);
+  showTourStep();
+});
+
+tourClose.addEventListener("click", () => {
+  stopTour();
 });
 
 tourOverlay.addEventListener("click", (event) => {
   if (event.target === tourOverlay) {
-    tourOverlay.classList.remove("show");
-    tourOverlay.setAttribute("aria-hidden", "true");
-    clearTourHighlight();
+    stopTour();
   }
+});
+
+window.addEventListener("resize", () => {
+  const step = tourSteps[tourStep];
+  if (!tourOverlay.classList.contains("show") || !step) return;
+  const target = document.querySelector(step.selector);
+  if (target) positionTourTooltip(target);
+});
+
+// Ripple effect.
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("button");
+  if (!button) return;
+  const circle = document.createElement("span");
+  const diameter = Math.max(button.clientWidth, button.clientHeight);
+  const rect = button.getBoundingClientRect();
+  circle.style.width = circle.style.height = `${diameter}px`;
+  circle.style.left = `${event.clientX - rect.left - diameter / 2}px`;
+  circle.style.top = `${event.clientY - rect.top - diameter / 2}px`;
+  circle.classList.add("ripple-circle");
+  const ripple = button.querySelector(".ripple-circle");
+  if (ripple) ripple.remove();
+  button.appendChild(circle);
 });
 
 // Init
 populateAnalyzeOptions();
 loadHeadlines();
+startSearchCarousel();
+updateLyricsVisual();
 setServerStatus(false);
