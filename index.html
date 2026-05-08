@@ -3,478 +3,588 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NEWSIFY - News Intelligence</title>
+  <title>NEWSIFY - AI News Intelligence</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Lora:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
-<body data-theme="clean">
-  <div id="root-container">
-    <div class="page">
-      <header class="topbar">
-        <button class="logo-btn" id="logoHome" aria-label="Go to home">
-          <img class="brand-logo" src="logo.png" alt="NEWSIFY logo" />
-        </button>
+<body>
+  <div class="progress-bar" id="scrollProgress"></div>
+  <div class="top-gradient"></div>
 
-        <nav class="topnav" id="topnav">
-          <button class="nav-item active" data-view="welcome">Home</button>
-          <button class="nav-item" data-view="search">Search News</button>
-          <button class="nav-item" data-view="summarize">Summarize Text</button>
-          <button class="nav-item" data-view="lyrics">Lyrics Analysis</button>
-          <button class="nav-item" data-view="dictionary">Dictionary</button>
-          <button class="nav-item" data-view="analyze">Content Analyzer</button>
-        </nav>
-
-        <div class="topbar-actions">
-          <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">☰</button>
-          <button class="help-button ripple" id="helpBtn" aria-label="Start guided tour">Help</button>
-          <button class="menu-button ripple" id="menuToggle" aria-label="Open theme switcher">⋮</button>
-          <button class="settings-button ripple" id="settingsToggle" aria-label="Open settings">
-            <span class="settings-dot"></span>
-          </button>
-          <div class="menu-panel" id="menuPanel">
-            <div class="menu-section">
-              <p class="menu-title">Theme Switcher</p>
-              <div class="theme-buttons">
-                <button class="ghost ripple" data-theme="clean">Blue / Yellow / White</button>
-                <button class="ghost ripple" data-theme="light">Light</button>
-                <button class="ghost ripple" data-theme="dark">Dark</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main class="main" id="mainScroll">
-        <div class="error-banner" id="errorBanner"></div>
-        <div class="connection-card" id="connectionCard">
-          <div>
-            <h3>Connection Error</h3>
-            <p>We could not reach the local server. Open Settings to manage your Gemini key or start the server.</p>
-          </div>
-          <button class="primary ripple" id="openSettings">Open Settings</button>
-        </div>
-        <div class="loading-pulse" id="loadingPulse"></div>
-
-        <section class="view active" id="view-welcome">
-          <section class="breaking-slider">
-            <div class="breaking-header">
-              <h1 class="hero-title">Breaking News</h1>
-              <p class="hero-tagline">Blue / Yellow / White Tech Journal</p>
-            </div>
-            <div class="slider-track" id="breakingTrack"></div>
-            <div class="slider-controls">
-              <button class="ghost ripple" id="breakingPrev" aria-label="Previous headline">Prev</button>
-              <button class="ghost ripple" id="breakingNext" aria-label="Next headline">Next</button>
-            </div>
-            <div class="slider-dots" id="breakingDots"></div>
-            <div class="breaking-ticker">
-              <div class="ticker-track" id="breakingTicker"></div>
-            </div>
-          </section>
-
-          <section class="top-news">
-            <div class="top-news-header">
-              <h2>Top News</h2>
-              <p>Tap any headline to get a full AI briefing.</p>
-            </div>
-            <div class="top-news-grid" id="headlineGrid"></div>
-          </section>
-
-          <section class="feature-row">
-            <button class="feature-tile ripple" data-target="summarize">
-              <span class="tile-icon">✦</span>
-              <h3>Summarizer</h3>
-              <p>Compress long reads into newsroom clarity.</p>
-            </button>
-            <button class="feature-tile ripple" data-target="lyrics">
-              <span class="tile-icon">♪</span>
-              <h3>Lyrics Analysis</h3>
-              <p>Decode lyrics with cultural and emotional context.</p>
-            </button>
-            <button class="feature-tile ripple" data-target="dictionary">
-              <span class="tile-icon">◎</span>
-              <h3>Dictionary</h3>
-              <p>Instant definitions, phonetics, and usage.</p>
-            </button>
-            <button class="feature-tile ripple" data-target="analyze">
-              <span class="tile-icon">▣</span>
-              <h3>Content Analyzer</h3>
-              <p>Deep dives for articles and book excerpts.</p>
-            </button>
-          </section>
-
-          <section class="briefing-cta" id="homeBriefing">
-            <div class="briefing-hero">
-              <img src="pictures/download%20(7).jpg" alt="Morning briefing" />
-            </div>
-            <div>
-              <h2>Morning Briefing</h2>
-              <p>Get today’s full briefing right from the home page.</p>
-            </div>
-            <div class="briefing-actions">
-              <button class="primary ripple" id="briefingHomeBtn">Get Today&#39;s Briefing</button>
-              <button class="ghost ripple" id="topHeadlinesBtn">Top Today Headlines</button>
-            </div>
-            <div class="headline-list" id="topHeadlinesList"></div>
-            <div class="briefing-output" id="homeBriefingOutput">
-              <div class="meta" id="homeBriefingMeta"></div>
-              <div class="reading-pane" id="homeBriefingResult"></div>
-            </div>
-          </section>
-
-          <section class="reviews-section">
-            <div class="reviews-header">
-              <h2>Feedback Wall</h2>
-              <p>Honest reactions from early testers.</p>
-            </div>
-            <div class="reviews-grid">
-              <article class="review-card">
-                <img src="pictures/images%20(1).jpg" alt="Reviewer" />
-                <h3>“Ruthless. I love it.”</h3>
-                <p>“It dragged me back into the news. It is blunt, fast, and impossible to ignore.”</p>
-              </article>
-              <article class="review-card">
-                <img src="pictures/images%20(2).jpg" alt="Reviewer" />
-                <h3>“Brutally effective.”</h3>
-                <p>“The summaries cut through noise. It feels like an editor slapped me awake.”</p>
-              </article>
-              <article class="review-card">
-                <img src="pictures/images.jpg" alt="Reviewer" />
-                <h3>“No fluff, just facts.”</h3>
-                <p>“The AI briefings are sharp. I can’t go back to slow news feeds.”</p>
-              </article>
-            </div>
-          </section>
-        </section>
-
-        <section class="view" id="view-search">
-          <div class="info-collapsible">
-            <button class="info-btn" data-info="search">How does this work? ▾</button>
-            <div class="info-body" id="info-search">
-              Type any question in plain English. Gemini AI extracts the key search terms, NewsAPI fetches the latest matching articles, and Gemini synthesizes them into a structured 5-7 paragraph briefing.
-            </div>
-          </div>
-          <div class="page-hero hero-carousel" id="searchCarousel">
-            <img class="hero-slide active" src="pictures/download%20(1).jpg" alt="Newsroom" />
-            <img class="hero-slide" src="pictures/download%20(2).jpg" alt="Journalism" />
-            <img class="hero-slide" src="pictures/download%20(3).jpg" alt="Breaking news" />
-            <img class="hero-slide" src="pictures/download%20(4).jpg" alt="Editorial desk" />
-            <img class="hero-slide" src="pictures/download%20(5).jpg" alt="News wire" />
-          </div>
-          <div class="panel stack input-theater" data-tour="input">
-            <label class="field">
-              <span>Question</span>
-              <textarea id="searchQuestion" rows="4" placeholder="What is happening with AI?" spellcheck="false"></textarea>
-            </label>
-            <button class="primary ripple" id="searchBtn">Generate Briefing</button>
-          </div>
-          <div class="panel output">
-            <div class="meta" id="searchMeta"></div>
-            <div class="reading-pane" id="searchResult"></div>
-            <div class="result-actions bottom">
-              <button class="ghost ripple result-action" data-action="copy" data-target="searchResult">Copy</button>
-              <button class="ghost ripple result-action" data-action="share" data-target="searchResult">Share</button>
-              <button class="ghost ripple result-action" data-action="expand" data-target="searchResult">Expand</button>
-            </div>
-          </div>
-        </section>
-
-        <section class="view" id="view-summarize">
-          <div class="info-collapsible">
-            <button class="info-btn" data-info="summarize">How does this work? ▾</button>
-            <div class="info-body" id="info-summarize">
-              Paste any article, essay, or passage. Choose your preferred length and get a clean, structured summary.
-            </div>
-          </div>
-          <div class="page-hero">
-            <img src="pictures/images.jpg" alt="Books" />
-          </div>
-          <div class="panel stack input-theater">
-            <label class="field">
-              <span>Text to summarize</span>
-              <textarea id="summaryInput" rows="8" placeholder="Paste any article, passage, or notes..."></textarea>
-            </label>
-            <label class="field">
-              <span>Length</span>
-              <select id="summaryLength">
-                <option value="short">Short (1-2 paragraphs)</option>
-                <option value="medium" selected>Medium (3-4 paragraphs)</option>
-                <option value="long">Long (5-7 paragraphs)</option>
-              </select>
-            </label>
-            <button class="primary ripple" id="summarizeBtn">Summarize</button>
-          </div>
-          <div class="panel output">
-            <div class="reading-pane" id="summaryResult"></div>
-            <div class="result-actions bottom">
-              <button class="ghost ripple result-action" data-action="copy" data-target="summaryResult">Copy</button>
-              <button class="ghost ripple result-action" data-action="share" data-target="summaryResult">Share</button>
-              <button class="ghost ripple result-action" data-action="expand" data-target="summaryResult">Expand</button>
-            </div>
-          </div>
-        </section>
-
-        <section class="view" id="view-lyrics">
-          <div class="info-collapsible">
-            <button class="info-btn" data-info="lyrics">How does this work? ▾</button>
-            <div class="info-body" id="info-lyrics">
-              Drop in song lyrics for a focused lyrical breakdown, cultural context, and emotional tone.
-            </div>
-          </div>
-          <div class="page-hero">
-            <img id="lyricsHeroImage" src="pictures/download%20(6).jpg" alt="Lyrics analysis" />
-          </div>
-          <div class="panel stack input-theater">
-            <label class="field">
-              <span>Artist or song visual</span>
-              <select id="lyricsVisual">
-                <option value="general" selected>General (concert)</option>
-                <option value="taylor">Taylor Swift</option>
-                <option value="weeknd">The Weeknd</option>
-                <option value="travis">Travis Scott</option>
-                <option value="rihanna">Rihanna</option>
-                <option value="all-too-well">All Too Well</option>
-                <option value="love-story">Love Story</option>
-                <option value="moth">Moth To A Flame</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Analysis focus</span>
-              <select id="lyricsStyle">
-                <option value="message">Main message</option>
-                <option value="insights">Artist insights</option>
-                <option value="creative">Creative uses</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Lyrics</span>
-              <textarea id="lyricsInput" rows="8" placeholder="Paste lyrics here..."></textarea>
-            </label>
-            <button class="primary ripple" id="lyricsBtn">Analyze Lyrics</button>
-          </div>
-          <div class="panel output">
-            <div class="reading-pane" id="lyricsResult"></div>
-            <div class="result-actions bottom">
-              <button class="ghost ripple result-action" data-action="copy" data-target="lyricsResult">Copy</button>
-              <button class="ghost ripple result-action" data-action="share" data-target="lyricsResult">Share</button>
-              <button class="ghost ripple result-action" data-action="expand" data-target="lyricsResult">Expand</button>
-            </div>
-          </div>
-        </section>
-
-        <section class="view" id="view-dictionary">
-          <div class="info-collapsible">
-            <button class="info-btn" data-info="dictionary">How does this work? ▾</button>
-            <div class="info-body" id="info-dictionary">
-              Powered by the free dictionaryapi.dev — no API key needed.
-            </div>
-          </div>
-          <div class="page-hero">
-            <img src="pictures/images%20(1).jpg" alt="Dictionary" />
-          </div>
-          <div class="panel stack input-theater">
-            <label class="field">
-              <span>Word</span>
-              <input type="text" id="dictionaryWord" placeholder="serendipity" />
-            </label>
-            <button class="primary ripple" id="dictionaryBtn">Lookup Word</button>
-          </div>
-          <div class="panel output">
-            <div class="reading-pane dictionary-pane" id="dictionaryResult"></div>
-            <div class="result-actions bottom">
-              <button class="ghost ripple result-action" data-action="copy" data-target="dictionaryResult">Copy</button>
-              <button class="ghost ripple result-action" data-action="share" data-target="dictionaryResult">Share</button>
-              <button class="ghost ripple result-action" data-action="expand" data-target="dictionaryResult">Expand</button>
-            </div>
-          </div>
-        </section>
-
-        <section class="view" id="view-analyze">
-          <div class="info-collapsible">
-            <button class="info-btn" data-info="analyze">How does this work? ▾</button>
-            <div class="info-body" id="info-analyze">
-              Analyzer modes: Newspaper Article (objective summary + key facts) and Book Excerpt (summary + theme identification).
-            </div>
-          </div>
-          <div class="page-hero">
-            <img src="pictures/images%20(2).jpg" alt="Content analysis" />
-          </div>
-          <div class="panel stack input-theater">
-            <label class="field">
-              <span>Content type</span>
-              <select id="analyzeType">
-                <option value="newspaper">Newspaper Article</option>
-                <option value="book">Book Excerpt</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Analysis style</span>
-              <select id="analyzeStyle"></select>
-            </label>
-            <label class="field">
-              <span>Content</span>
-              <textarea id="analyzeInput" rows="8" placeholder="Paste the article or excerpt..."></textarea>
-            </label>
-            <button class="primary ripple" id="analyzeBtn">Analyze</button>
-          </div>
-          <div class="panel output">
-            <div class="reading-pane" id="analyzeResult"></div>
-            <div class="result-actions bottom">
-              <button class="ghost ripple result-action" data-action="copy" data-target="analyzeResult">Copy</button>
-              <button class="ghost ripple result-action" data-action="share" data-target="analyzeResult">Share</button>
-              <button class="ghost ripple result-action" data-action="expand" data-target="analyzeResult">Expand</button>
-            </div>
-          </div>
-          <div class="panel extra">
-            <h3>Trending in Culture</h3>
-            <div class="trend-grid">
-              <div>
-                <h4>Music Radar</h4>
-                <div class="artist-scroll">
-                  <div class="artist-card">
-                    <img src="pictures/taylor%20swift.jpg" alt="Taylor Swift" />
-                    <span>Taylor Swift</span>
-                  </div>
-                  <div class="artist-card">
-                    <img src="pictures/download%20(6).jpg" alt="The Weeknd" />
-                    <span>The Weeknd</span>
-                  </div>
-                  <div class="artist-card">
-                    <img src="pictures/travis%20scott.jpg" alt="Travis Scott" />
-                    <span>Travis Scott</span>
-                  </div>
-                  <div class="artist-card">
-                    <img src="pictures/rihanna.jpg" alt="Rihanna" />
-                    <span>Rihanna</span>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h4>Top Tracks</h4>
-                <div class="track-list">
-                  <div class="track-item">
-                    <img class="track-art" src="pictures/all%20too%20well.jpg" alt="All Too Well" />
-                    <div class="wave"></div>
-                    <div>
-                      <strong>All Too Well</strong>
-                      <span>Taylor Swift</span>
-                    </div>
-                  </div>
-                  <div class="track-item">
-                    <img class="track-art" src="pictures/love%20story.jpg" alt="Love Story" />
-                    <div class="wave"></div>
-                    <div>
-                      <strong>Love Story</strong>
-                      <span>Taylor Swift</span>
-                    </div>
-                  </div>
-                  <div class="track-item">
-                    <img class="track-art" src="pictures/moth%20to%20a%20flame.jpg" alt="Moth To A Flame" />
-                    <div class="wave"></div>
-                    <div>
-                      <strong>Moth To A Flame</strong>
-                      <span>The Weeknd</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="view" id="view-briefing">
-          <div class="info-collapsible">
-            <button class="info-btn" data-info="briefing">How does this work? ▾</button>
-            <div class="info-body" id="info-briefing">
-              One click delivers a full morning news briefing. The backend tries today&#39;s headlines first, falling back if needed.
-            </div>
-          </div>
-          <div class="page-hero">
-            <img src="pictures/download%20(8).jpg" alt="Morning briefing" />
-          </div>
-          <div class="panel stack input-theater">
-            <button class="primary ripple" id="briefingBtn">Fetch Morning Briefing</button>
-            <label class="field">
-              <span>Deep Dive Topic</span>
-              <input type="text" id="deepDiveTopic" placeholder="Global AI regulation" />
-            </label>
-            <button class="ghost ripple" id="deepDiveBtn">Run Deep Dive</button>
-          </div>
-          <div class="panel output">
-            <div class="meta" id="briefingMeta"></div>
-            <div class="reading-pane" id="briefingResult"></div>
-            <div class="result-actions bottom">
-              <button class="ghost ripple result-action" data-action="copy" data-target="briefingResult">Copy</button>
-              <button class="ghost ripple result-action" data-action="share" data-target="briefingResult">Share</button>
-              <button class="ghost ripple result-action" data-action="expand" data-target="briefingResult">Expand</button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer class="site-footer">
-        <div class="footer-grid">
-          <div>
-            <img class="footer-logo" src="logo.png" alt="NEWSIFY logo" />
-            <h4>NEWSIFY</h4>
-            <p>Developed by Ahmad Ali &amp; Team | NUST SEECS (Software Engineering Coursework).</p>
-          </div>
-          <div>
-            <h4>Quick Links</h4>
-            <div class="footer-links">
-              <button class="footer-link" data-view="search">Search News</button>
-              <button class="footer-link" data-view="summarize">Summarize Text</button>
-              <button class="footer-link" data-view="lyrics">Lyrics Analysis</button>
-              <button class="footer-link" data-view="dictionary">Dictionary</button>
-              <button class="footer-link" data-view="analyze">Content Analyzer</button>
-              <button class="footer-link" data-view="briefing">Morning Briefing</button>
-            </div>
-          </div>
-          <div>
-            <h4>Contact</h4>
-            <div class="footer-links">
-              <a href="https://github.com/AhmadAli1667" target="_blank" rel="noreferrer">GitHub</a>
-              <a href="https://www.linkedin.com/in/ahmad-ali-686044383?utm_source=share_via&utm_content=profile&utm_medium=member_ios" target="_blank" rel="noreferrer">LinkedIn</a>
-              <a href="mailto:ahmadali.dev@gmail.com">Email</a>
-            </div>
-          </div>
-        </div>
-        <div class="footer-bottom">
-          <span>© 2026 NEWSIFY</span>
-          <span>Built at NUST SEECS</span>
-        </div>
-      </footer>
+  <header class="navbar">
+    <div class="navbar-left">
+      <button class="logo-button" data-view="home" aria-label="Go to home">
+        <img class="logo" data-picture="newsify-logo" src="pictures/newsify-logo.jpg" alt="NEWSIFY logo" />
+        <span class="logo-text">NEWSIFY</span>
+      </button>
     </div>
-  </div>
+
+    <nav class="navbar-center" id="navLinks">
+      <button class="nav-link active" data-view="home">Home</button>
+      <button class="nav-link" data-view="search">Search News</button>
+      <button class="nav-link" data-view="summarize">Summarize Text</button>
+      <button class="nav-link" data-view="lyrics">Lyrics Analysis</button>
+      <button class="nav-link" data-view="dictionary">Dictionary</button>
+      <button class="nav-link" data-view="analyzer">Content Analyzer</button>
+    </nav>
+
+    <div class="navbar-right">
+      <button class="btn-outline" id="helpBtn">Help</button>
+      <button class="menu-button" id="menuBtn" aria-label="Open menu">⋮</button>
+      <div class="menu-dropdown" id="menuDropdown">
+        <button class="menu-item" id="aboutCreator">About Creator</button>
+        <button class="menu-item" id="exampleBtn">Example</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="page active" id="page-home">
+      <section class="hero-section reveal">
+        <div class="hero-carousel" id="heroCarousel">
+          <div class="hero-slide active" data-index="0">
+            <img data-picture="frontpage" src="pictures/frontpage.jpg" alt="Frontpage" />
+            <div class="hero-overlay">
+              <h1>Stay Informed. Stay Ahead.</h1>
+              <p>AI-powered news briefings in seconds</p>
+            </div>
+          </div>
+          <div class="hero-slide" data-index="1">
+            <img data-picture="frontpage2" src="pictures/frontpage2.jpg" alt="Frontpage" />
+            <div class="hero-overlay">
+              <h1>Summarize Any Article</h1>
+              <p>Paste it. Choose length. Get the gist.</p>
+            </div>
+          </div>
+          <div class="hero-slide" data-index="2">
+            <img data-picture="news" src="pictures/news.jpg" alt="News" />
+            <div class="hero-overlay">
+              <h1>Analyze Lyrics &amp; Literature</h1>
+              <p>Deep insights from songs, books, and articles</p>
+            </div>
+          </div>
+          <div class="hero-slide" data-index="3">
+            <img data-picture="news2" src="pictures/news2.jpg" alt="News" />
+            <div class="hero-overlay">
+              <h1>Your Morning Briefing</h1>
+              <p>One click. Today&#39;s world in 4 paragraphs.</p>
+            </div>
+          </div>
+          <div class="hero-slide" data-index="4">
+            <img data-picture="frontpage4" src="pictures/frontpage4.jpg" alt="Frontpage" />
+            <div class="hero-overlay">
+              <h1>Built at NUST SEECS</h1>
+              <p>Ahmad Ali &amp; Team · Semester 2 Project</p>
+            </div>
+          </div>
+        </div>
+        <div class="hero-dots" id="heroDots"></div>
+        <div class="hero-glow hero-glow-top"></div>
+        <div class="hero-glow hero-glow-bottom"></div>
+        <div class="hero-glow hero-glow-center"></div>
+      </section>
+
+      <section class="ticker-section">
+        <div class="ticker-badge">🔴 BREAKING</div>
+        <div class="ticker-track">
+          <div class="ticker-content">
+            <span>Global AI regulations take shape as world leaders convene in Geneva · Pakistan cricket team announces new coach · SpaceX launches 200th mission · Tech giants report record Q1 earnings · Climate summit reaches historic carbon deal · NUST ranked top university in Pakistan · AI tools reshape newsrooms worldwide · Quantum computing breakthrough announced ·</span>
+            <span>Global AI regulations take shape as world leaders convene in Geneva · Pakistan cricket team announces new coach · SpaceX launches 200th mission · Tech giants report record Q1 earnings · Climate summit reaches historic carbon deal · NUST ranked top university in Pakistan · AI tools reshape newsrooms worldwide · Quantum computing breakthrough announced ·</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section top-news reveal">
+        <div class="section-header">
+          <div class="accent-bar blue"></div>
+          <div>
+            <h2>Top News 📰</h2>
+            <p>Tap any headline to get a full AI briefing</p>
+          </div>
+        </div>
+        <div class="top-news-row" id="topNewsRow"></div>
+      </section>
+
+      <section class="section feature-section reveal">
+        <div class="section-header">
+          <div class="accent-bar blue"></div>
+          <div>
+            <h2>What Can NEWSIFY Do? ✨</h2>
+          </div>
+        </div>
+        <div class="feature-grid" id="featureGrid">
+          <article class="feature-card blue" data-view="search">
+            <div class="feature-icon">🔍</div>
+            <h3>Search News</h3>
+            <p>Ask a question, get a newsroom-style briefing with sources.</p>
+            <span class="feature-link">Try it →</span>
+          </article>
+          <article class="feature-card blue" data-view="summarize">
+            <div class="feature-icon">📝</div>
+            <h3>Summarize Text</h3>
+            <p>Turn long articles into sharp, accurate summaries.</p>
+            <span class="feature-link">Try it →</span>
+          </article>
+          <article class="feature-card purple" data-view="lyrics">
+            <div class="feature-icon">🎵</div>
+            <h3>Lyrics Analysis</h3>
+            <p>Decode meaning, emotion, and creative potential.</p>
+            <span class="feature-link">Try it →</span>
+          </article>
+          <article class="feature-card green" data-view="dictionary">
+            <div class="feature-icon">📖</div>
+            <h3>Dictionary</h3>
+            <p>Instant definitions, examples, and nuanced context.</p>
+            <span class="feature-link">Try it →</span>
+          </article>
+          <article class="feature-card orange" data-view="analyzer">
+            <div class="feature-icon">✍️</div>
+            <h3>Content Analyzer</h3>
+            <p>Deep analysis for articles, songs, and book excerpts.</p>
+            <span class="feature-link">Try it →</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="section how-section reveal">
+        <div class="section-header">
+          <div class="accent-bar blue"></div>
+          <div>
+            <h2>How NEWSIFY Works 🚀</h2>
+          </div>
+        </div>
+        <div class="how-grid">
+          <div class="how-card" data-color="blue">
+            <div class="how-number">01</div>
+            <h3>Ask or Paste</h3>
+            <p>Type a news question, paste an article, or drop in song lyrics.</p>
+          </div>
+          <div class="how-card" data-color="purple">
+            <div class="how-number">02</div>
+            <h3>AI Processes</h3>
+            <p>Gemini AI analyzes input using specialized prompts built by our team.</p>
+          </div>
+          <div class="how-card" data-color="green">
+            <div class="how-number">03</div>
+            <h3>Get Insights</h3>
+            <p>Receive a structured briefing, summary, or deep analysis in seconds.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section about-section reveal">
+        <div class="section-header">
+          <div class="accent-bar blue"></div>
+          <div>
+            <h2>Built at NUST SEECS 🎓</h2>
+            <p class="subtitle">Semester 2 Software Engineering Project</p>
+          </div>
+        </div>
+        <div class="about-grid">
+          <div class="about-copy">
+            <p>
+              NEWSIFY was developed by Ahmad Ali and his team during their second semester at the National University of Sciences and Technology (NUST), School of Electrical Engineering and Computer Science (SEECS). The project integrates Google Gemini AI, NewsAPI, and a custom-built web interface to deliver real-time news intelligence. What started as a Java desktop application evolved into a full-stack web platform — demonstrating skills in API integration, prompt engineering, UI design, and cloud deployment.
+            </p>
+            <div class="tag-row">
+              <span class="tag">Java → Web</span>
+              <span class="tag">Gemini AI</span>
+              <span class="tag">NewsAPI</span>
+              <span class="tag">Full Stack</span>
+              <span class="tag">NUST SEECS</span>
+              <span class="tag">Vercel Deployed</span>
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <h3>4</h3>
+              <p>AI Features</p>
+            </div>
+            <div class="stat-card">
+              <h3>2</h3>
+              <p>APIs Integrated</p>
+            </div>
+            <div class="stat-card">
+              <h3>1500+</h3>
+              <p>API calls/day capacity</p>
+            </div>
+            <div class="stat-card">
+              <h3>Sem 2</h3>
+              <p>NUST SEECS</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section briefing-section reveal">
+        <div class="section-header">
+          <div class="accent-bar blue"></div>
+          <div>
+            <h2>Morning Briefing ☀️</h2>
+            <p>One click delivers today&#39;s top world stories — written in the voice of a professional news anchor.</p>
+          </div>
+        </div>
+        <div class="briefing-card">
+          <div class="briefing-hero">
+            <img data-picture="frontpage4" src="pictures/frontpage4.jpg" alt="Morning briefing" />
+            <div class="briefing-overlay">Today&#39;s Briefing</div>
+          </div>
+          <div class="briefing-actions">
+            <button class="btn-primary" id="briefingBtn">Get Today&#39;s Briefing</button>
+            <button class="btn-outline" id="headlinesBtn">Top Today Headlines</button>
+          </div>
+          <div class="briefing-result" id="briefingResult">
+            <div class="result-actions">
+              <button class="result-btn" data-action="copy" data-target="briefingText">📋 Copy</button>
+              <button class="result-btn" data-action="expand" data-target="briefingText">⛶ Expand</button>
+            </div>
+            <div class="result-body" id="briefingText"></div>
+          </div>
+          <div class="headline-list" id="headlineList"></div>
+        </div>
+      </section>
+
+      <section class="section culture-section reveal">
+        <div class="section-header">
+          <div class="accent-bar purple"></div>
+          <div>
+            <h2>Trending in Culture 🎶</h2>
+          </div>
+        </div>
+        <div class="culture-grid">
+          <div class="culture-block">
+            <h3>Music Radar</h3>
+            <div class="artist-grid">
+              <button class="artist-card" data-view="lyrics">
+                <img data-picture="taylor swift" src="pictures/taylor%20swift.jpg" alt="Taylor Swift" />
+                <span>Taylor Swift</span>
+              </button>
+              <button class="artist-card" data-view="lyrics">
+                <img data-picture="the weeknd" src="pictures/the%20weeknd.jpg" alt="The Weeknd" />
+                <span>The Weeknd</span>
+              </button>
+              <button class="artist-card" data-view="lyrics">
+                <img data-picture="travis scott" src="pictures/travis%20scott.jpg" alt="Travis Scott" />
+                <span>Travis Scott</span>
+              </button>
+              <button class="artist-card" data-view="lyrics">
+                <img data-picture="r" src="pictures/r.jpg" alt="Rihanna" />
+                <span>Rihanna</span>
+              </button>
+            </div>
+          </div>
+          <div class="culture-block">
+            <h3>Top Tracks</h3>
+            <div class="track-list">
+              <div class="track-item">
+                <img data-picture="all too well" src="pictures/all%20too%20well.jpg" alt="All Too Well" />
+                <div>
+                  <strong>All Too Well</strong>
+                  <span>Taylor Swift</span>
+                </div>
+              </div>
+              <div class="track-item">
+                <img data-picture="love story" src="pictures/love%20story.jpg" alt="Love Story" />
+                <div>
+                  <strong>Love Story</strong>
+                  <span>Taylor Swift</span>
+                </div>
+              </div>
+              <div class="track-item">
+                <img data-picture="moth to a flame" src="pictures/moth%20to%20a%20flame.jpg" alt="Moth To A Flame" />
+                <div>
+                  <strong>Moth To A Flame</strong>
+                  <span>The Weeknd</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section feedback-section reveal">
+        <div class="section-header">
+          <div class="accent-bar blue"></div>
+          <div>
+            <h2>What People Are Saying 💬</h2>
+          </div>
+        </div>
+        <div class="feedback-grid">
+          <article class="feedback-card">
+            <div class="feedback-header">
+              <img src="https://i.pravatar.cc/60?img=47" alt="Eloise Martin" />
+              <div>
+                <h4>Eloise Martin</h4>
+                <span>Student at LUMS</span>
+              </div>
+            </div>
+            <p class="feedback-quote">“Ruthless. I love it. It dragged me back into the news. Blunt, fast, impossible to ignore.”</p>
+          </article>
+          <article class="feedback-card">
+            <div class="feedback-header">
+              <img src="https://i.pravatar.cc/60?img=25" alt="Brooke Chen" />
+              <div>
+                <h4>Brooke Chen</h4>
+                <span>Journalist</span>
+              </div>
+            </div>
+            <p class="feedback-quote">“Brutally effective. The summaries cut through noise. It feels like an editor slapped me awake.”</p>
+          </article>
+          <article class="feedback-card">
+            <div class="feedback-header">
+              <img src="https://i.pravatar.cc/60?img=12" alt="Luke Hassan" />
+              <div>
+                <h4>Luke Hassan</h4>
+                <span>Researcher</span>
+              </div>
+            </div>
+            <p class="feedback-quote">“No fluff, just facts. The AI briefings are razor sharp. I can&#39;t go back to slow news feeds.”</p>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <section class="page" id="page-search">
+      <div class="info-panel">
+        <button class="info-toggle">How does this work? ▾</button>
+        <p>Type any question in plain English. Gemini AI extracts search terms, NewsAPI fetches latest matching articles, Gemini synthesizes them into a structured 5-7 paragraph briefing. Built with prompt engineering to ensure editorial-quality output.</p>
+      </div>
+      <div class="page-hero" data-carousel="search" data-interval="4000">
+        <img data-picture="frontpage" src="pictures/frontpage.jpg" alt="Frontpage" class="active" />
+        <img data-picture="frontpage2" src="pictures/frontpage2.jpg" alt="Frontpage" />
+        <img data-picture="news" src="pictures/news.jpg" alt="News" />
+        <img data-picture="news2" src="pictures/news2.jpg" alt="News" />
+      </div>
+      <div class="form-card">
+        <label>Your Question 🔍</label>
+        <textarea id="searchInput" placeholder="What is happening with AI in 2026?"></textarea>
+        <button class="btn-primary full" id="searchBtn">Generate Briefing 🔍</button>
+      </div>
+      <div class="result-card" id="searchResultCard">
+        <div class="result-actions">
+          <button class="result-btn" data-action="copy" data-target="searchResult">📋 Copy</button>
+          <button class="result-btn" data-action="expand" data-target="searchResult">⛶ Expand</button>
+        </div>
+        <div class="result-body" id="searchResult"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-summarize">
+      <div class="info-panel">
+        <button class="info-toggle">How does this work? ▾</button>
+        <p>Paste any article, essay, or passage. Choose your preferred length — Short (90-130 words), Medium (230-300 words), or Long (450+ words). Gemini summarizes while preserving key facts and tone.</p>
+      </div>
+      <div class="page-hero" data-carousel="summarize" data-interval="4000">
+        <img data-picture="summary" src="pictures/summary.jpg" alt="Summary" class="active" />
+        <img data-picture="summary2" src="pictures/summary2.jpg" alt="Summary" />
+        <img data-picture="analyzing" src="pictures/analyzing.jpg" alt="Analysis" />
+        <img data-picture="analyzing2" src="pictures/analyzing2.jpg" alt="Analysis" />
+      </div>
+      <div class="form-card">
+        <label>Text to Summarize 📝</label>
+        <textarea id="summarizeInput" placeholder="Paste any article, passage, or notes..."></textarea>
+        <div class="button-group" id="lengthGroup">
+          <button data-value="short">Short</button>
+          <button data-value="medium" class="active">Medium</button>
+          <button data-value="long">Long</button>
+        </div>
+        <button class="btn-primary full" id="summarizeBtn">Summarize 📝</button>
+      </div>
+      <div class="result-card" id="summarizeResultCard">
+        <div class="result-actions">
+          <button class="result-btn" data-action="copy" data-target="summarizeResult">📋 Copy</button>
+          <button class="result-btn" data-action="expand" data-target="summarizeResult">⛶ Expand</button>
+        </div>
+        <div class="result-body" id="summarizeResult"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-lyrics">
+      <div class="info-panel purple">
+        <button class="info-toggle">How does this work? ▾</button>
+        <p>Three analyzer modes using specialized Gemini prompts: Main Message (what the artist is saying), Artist Insights (style, influences, emotional state), Creative Suggestions (music video concepts, remixes, interpretations).</p>
+      </div>
+      <div class="page-hero" data-carousel="lyrics" data-interval="6000">
+        <img data-picture="music1" src="pictures/music1.jpg" alt="Music" class="active" />
+        <img data-picture="music2" src="pictures/music2.jpg" alt="Music" />
+      </div>
+      <div class="form-card">
+        <label>Analysis Focus 🎵</label>
+        <div class="button-group purple" id="lyricsGroup">
+          <button data-value="main" class="active">Main Message</button>
+          <button data-value="insights">Artist Insights</button>
+          <button data-value="creative">Creative Suggestions</button>
+        </div>
+        <label>Lyrics</label>
+        <textarea id="lyricsInput" placeholder="Paste song lyrics here..."></textarea>
+        <button class="btn-primary purple full" id="lyricsBtn">Analyze Lyrics 🎵</button>
+      </div>
+      <div class="result-card" id="lyricsResultCard">
+        <div class="result-actions">
+          <button class="result-btn" data-action="copy" data-target="lyricsResult">📋 Copy</button>
+          <button class="result-btn" data-action="expand" data-target="lyricsResult">⛶ Expand</button>
+        </div>
+        <div class="result-body" id="lyricsResult"></div>
+      </div>
+
+      <section class="section culture-section inner reveal">
+        <div class="section-header">
+          <div class="accent-bar purple"></div>
+          <div>
+            <h2>Trending in Culture 🎶</h2>
+          </div>
+        </div>
+        <div class="culture-grid">
+          <div class="culture-block">
+            <h3>Music Radar</h3>
+            <div class="artist-grid">
+              <button class="artist-card">
+                <img data-picture="taylor swift" src="pictures/taylor%20swift.jpg" alt="Taylor Swift" />
+                <span>Taylor Swift</span>
+              </button>
+              <button class="artist-card">
+                <img data-picture="the weeknd" src="pictures/the%20weeknd.jpg" alt="The Weeknd" />
+                <span>The Weeknd</span>
+              </button>
+              <button class="artist-card">
+                <img data-picture="travis scott" src="pictures/travis%20scott.jpg" alt="Travis Scott" />
+                <span>Travis Scott</span>
+              </button>
+              <button class="artist-card">
+                <img data-picture="r" src="pictures/r.jpg" alt="Rihanna" />
+                <span>Rihanna</span>
+              </button>
+            </div>
+          </div>
+          <div class="culture-block">
+            <h3>Top Tracks</h3>
+            <div class="track-list">
+              <div class="track-item">
+                <img data-picture="all too well" src="pictures/all%20too%20well.jpg" alt="All Too Well" />
+                <div>
+                  <strong>All Too Well</strong>
+                  <span>Taylor Swift</span>
+                </div>
+              </div>
+              <div class="track-item">
+                <img data-picture="love story" src="pictures/love%20story.jpg" alt="Love Story" />
+                <div>
+                  <strong>Love Story</strong>
+                  <span>Taylor Swift</span>
+                </div>
+              </div>
+              <div class="track-item">
+                <img data-picture="moth to a flame" src="pictures/moth%20to%20a%20flame.jpg" alt="Moth To A Flame" />
+                <div>
+                  <strong>Moth To A Flame</strong>
+                  <span>The Weeknd</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="page" id="page-dictionary">
+      <div class="info-panel green">
+        <button class="info-toggle">How does this work? ▾</button>
+        <p>Powered by the free dictionaryapi.dev — no API key needed. Returns definition, part of speech, phonetic, and example sentences instantly.</p>
+      </div>
+      <div class="page-hero" data-carousel="dictionary" data-interval="5000">
+        <img data-picture="dictionary" src="pictures/dictionary.jpg" alt="Dictionary" class="active" />
+        <img data-picture="dictionary2" src="pictures/dictionary2.jpg" alt="Dictionary" />
+      </div>
+      <div class="form-card">
+        <label>Word</label>
+        <input type="text" id="dictionaryInput" placeholder="serendipity" />
+        <button class="btn-primary green full" id="dictionaryBtn">Look Up Word 📖</button>
+      </div>
+      <div class="result-card green" id="dictionaryResultCard">
+        <div class="result-actions">
+          <button class="result-btn" data-action="copy" data-target="dictionaryResult">📋 Copy</button>
+          <button class="result-btn" data-action="expand" data-target="dictionaryResult">⛶ Expand</button>
+        </div>
+        <div class="result-body" id="dictionaryResult"></div>
+      </div>
+      <div class="form-card green">
+        <h3>Ask Gemini ✨</h3>
+        <input type="text" id="dictionaryPrompt" placeholder="Use the word in 3 creative sentences..." />
+        <button class="btn-primary green full" id="dictionaryAsk">Ask Gemini ✨</button>
+        <div class="result-card green" id="dictionaryGeminiCard">
+          <div class="result-body" id="dictionaryGemini"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-analyzer">
+      <div class="info-panel orange">
+        <button class="info-toggle">How does this work? ▾</button>
+        <p>Three analyzer modes: Newspaper Article (objective summary + key facts), Song Lyrics (message, insights, creative uses), Book Excerpt (summary + theme identification). Each uses a specialized Gemini prompt tuned for that content type.</p>
+      </div>
+      <div class="page-hero" data-carousel="analyzer" data-interval="4000">
+        <img data-picture="analyzing" src="pictures/analyzing.jpg" alt="Analysis" class="active" />
+        <img data-picture="analyzing2" src="pictures/analyzing2.jpg" alt="Analysis" />
+        <img data-picture="frontpage" src="pictures/frontpage.jpg" alt="Frontpage" />
+      </div>
+      <div class="form-card">
+        <label>Content Type</label>
+        <div class="button-group orange" id="analyzerType">
+          <button data-value="newspaper" class="active">📰 Newspaper</button>
+          <button data-value="lyrics">🎵 Song Lyrics</button>
+          <button data-value="book">📚 Book Excerpt</button>
+        </div>
+        <label>Analysis Type</label>
+        <div class="button-group orange" id="analyzerFocus"></div>
+        <label id="analyzerLabel">Content</label>
+        <textarea id="analyzerInput" placeholder="Paste the article..."></textarea>
+        <button class="btn-primary orange full" id="analyzerBtn">Analyze Content ✍️</button>
+      </div>
+      <div class="result-card orange" id="analyzerResultCard">
+        <div class="result-actions">
+          <button class="result-btn" data-action="copy" data-target="analyzerResult">📋 Copy</button>
+          <button class="result-btn" data-action="expand" data-target="analyzerResult">⛶ Expand</button>
+        </div>
+        <div class="result-body" id="analyzerResult"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="footer-divider"></div>
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-column">
+        <img class="footer-logo" data-picture="newsify-logo" src="pictures/newsify-logo.jpg" alt="NEWSIFY logo" />
+        <h3>NEWSIFY</h3>
+        <p>AI-powered news intelligence for the modern reader</p>
+        <p>Built at NUST SEECS · 2026</p>
+      </div>
+      <div class="footer-column">
+        <h4>Quick Links</h4>
+        <button data-view="home">Home</button>
+        <button data-view="search">Search News</button>
+        <button data-view="summarize">Summarize Text</button>
+        <button data-view="lyrics">Lyrics Analysis</button>
+        <button data-view="dictionary">Dictionary</button>
+        <button data-view="analyzer">Content Analyzer</button>
+      </div>
+      <div class="footer-column">
+        <h4>Connect</h4>
+        <a href="https://github.com/AhmadAli1667" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://www.linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a>
+        <a href="mailto:ahmadali.dev@gmail.com">Email</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 NEWSIFY · Built by Ahmad Ali &amp; Team · NUST SEECS</div>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
   <div class="modal" id="expandModal" aria-hidden="true">
     <div class="modal-card">
       <button class="modal-close" id="modalClose" aria-label="Close">×</button>
-      <h3 id="modalTitle">Expanded View</h3>
       <div class="modal-content" id="modalContent"></div>
-    </div>
-  </div>
-
-  <div class="modal settings-modal" id="keyModal" aria-hidden="true">
-    <div class="modal-card settings-card">
-      <button class="modal-close" id="keyClose" aria-label="Close">×</button>
-      <h3>Settings</h3>
-      <p class="muted">Gemini key is stored in memory for this session only.</p>
-      <div class="status-row">
-        <span>Status</span>
-        <span class="status-pill" id="serverStatus">
-          <span class="status-dot"></span>
-          <span id="statusText">Checking...</span>
-        </span>
-      </div>
-      <label class="field">
-        <span>Gemini API Key</span>
-        <input type="password" id="userGeminiKey" placeholder="Paste your Gemini key" />
-      </label>
-      <button class="primary ripple" id="saveKeys">Save Gemini Key</button>
-      <button class="ghost ripple" id="exampleBtn">Use Example Prompt</button>
     </div>
   </div>
 
@@ -483,18 +593,11 @@
       <h3 id="tourTitle">Guided Tour</h3>
       <p id="tourText"></p>
       <div class="tour-actions">
-        <button class="ghost ripple" id="tourPrev">Prev</button>
-        <button class="ghost ripple" id="tourNext">Next</button>
-        <button class="primary ripple" id="tourClose">Close</button>
+        <button class="btn-outline" id="tourPrev">Prev</button>
+        <button class="btn-outline" id="tourNext">Next</button>
+        <button class="btn-primary" id="tourClose">Close</button>
       </div>
     </div>
-  </div>
-
-  <div class="loader" id="loader">
-    <div class="loader-dots">
-      <span></span><span></span><span></span>
-    </div>
-    <p>Working on your request...</p>
   </div>
 
   <script src="app.js"></script>

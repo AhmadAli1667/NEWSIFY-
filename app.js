@@ -1,994 +1,641 @@
-/* NEWSIFY front-end logic (vanilla JS). */
-const views = {
-  welcome: document.getElementById("view-welcome"),
-  search: document.getElementById("view-search"),
-  summarize: document.getElementById("view-summarize"),
-  lyrics: document.getElementById("view-lyrics"),
-  dictionary: document.getElementById("view-dictionary"),
-  analyze: document.getElementById("view-analyze"),
-  briefing: document.getElementById("view-briefing")
+const state = {
+  activePage: "home",
+  heroIndex: 0,
+  heroTimer: null,
+  carouselTimers: new Map(),
+  length: "medium",
+  lyricsFocus: "main",
+  analyzerType: "newspaper",
+  analyzerFocus: "summarize",
+  aboutText: "Ahmad Ali — Team Leader, NUST SEECS, Semester 2. Built NEWSIFY combining Gemini AI, NewsAPI, and modern web development."
 };
 
-const navItems = document.querySelectorAll(".nav-item");
-const navToggle = document.getElementById("navToggle");
-const topnav = document.getElementById("topnav");
-const logoHome = document.getElementById("logoHome");
-const topbar = document.querySelector(".topbar");
-const mainScroll = document.getElementById("mainScroll");
+const heroSlides = [
+  { title: "Stay Informed. Stay Ahead.", text: "AI-powered news briefings in seconds" },
+  { title: "Summarize Any Article", text: "Paste it. Choose length. Get the gist." },
+  { title: "Analyze Lyrics & Literature", text: "Deep insights from songs, books, and articles" },
+  { title: "Your Morning Briefing", text: "One click. Today\'s world in 4 paragraphs." },
+  { title: "Built at NUST SEECS", text: "Ahmad Ali & Team · Semester 2 Project" }
+];
 
-const menuToggle = document.getElementById("menuToggle");
-const menuPanel = document.getElementById("menuPanel");
-const helpBtn = document.getElementById("helpBtn");
-const settingsToggle = document.getElementById("settingsToggle");
-const openSettings = document.getElementById("openSettings");
-
-const keyModal = document.getElementById("keyModal");
-const keyClose = document.getElementById("keyClose");
-const userGeminiKey = document.getElementById("userGeminiKey");
-const saveKeys = document.getElementById("saveKeys");
+const pages = document.querySelectorAll(".page");
+const navLinks = document.querySelectorAll(".nav-link");
+const logoButton = document.querySelector(".logo-button");
+const topNewsRow = document.getElementById("topNewsRow");
+const heroDots = document.getElementById("heroDots");
+const heroCarousel = document.getElementById("heroCarousel");
+const menuBtn = document.getElementById("menuBtn");
+const menuDropdown = document.getElementById("menuDropdown");
+const aboutCreator = document.getElementById("aboutCreator");
 const exampleBtn = document.getElementById("exampleBtn");
-const serverStatus = document.getElementById("serverStatus");
-const statusText = document.getElementById("statusText");
-
-const errorBanner = document.getElementById("errorBanner");
-const connectionCard = document.getElementById("connectionCard");
-const loadingPulse = document.getElementById("loadingPulse");
-const loader = document.getElementById("loader");
-
-const analyzeType = document.getElementById("analyzeType");
-const analyzeStyle = document.getElementById("analyzeStyle");
-const lyricsStyle = document.getElementById("lyricsStyle");
-const lyricsVisual = document.getElementById("lyricsVisual");
-const lyricsHeroImage = document.getElementById("lyricsHeroImage");
-
-const searchQuestion = document.getElementById("searchQuestion");
-const searchBtn = document.getElementById("searchBtn");
-const searchResult = document.getElementById("searchResult");
-const searchMeta = document.getElementById("searchMeta");
-
-const summaryInput = document.getElementById("summaryInput");
-const summaryLength = document.getElementById("summaryLength");
-const summarizeBtn = document.getElementById("summarizeBtn");
-const summaryResult = document.getElementById("summaryResult");
-
-const analyzeInput = document.getElementById("analyzeInput");
-const analyzeBtn = document.getElementById("analyzeBtn");
-const analyzeResult = document.getElementById("analyzeResult");
-
-const lyricsInput = document.getElementById("lyricsInput");
-const lyricsBtn = document.getElementById("lyricsBtn");
-const lyricsResult = document.getElementById("lyricsResult");
-
-const dictionaryWord = document.getElementById("dictionaryWord");
-const dictionaryBtn = document.getElementById("dictionaryBtn");
-const dictionaryResult = document.getElementById("dictionaryResult");
-
-const briefingBtn = document.getElementById("briefingBtn");
-const briefingResult = document.getElementById("briefingResult");
-const briefingMeta = document.getElementById("briefingMeta");
-const deepDiveBtn = document.getElementById("deepDiveBtn");
-const deepDiveTopic = document.getElementById("deepDiveTopic");
-const headlineGrid = document.getElementById("headlineGrid");
-const topHeadlinesBtn = document.getElementById("topHeadlinesBtn");
-const topHeadlinesList = document.getElementById("topHeadlinesList");
-const breakingTrack = document.getElementById("breakingTrack");
-const breakingPrev = document.getElementById("breakingPrev");
-const breakingNext = document.getElementById("breakingNext");
-const breakingDots = document.getElementById("breakingDots");
-const breakingTicker = document.getElementById("breakingTicker");
-const briefingHomeBtn = document.getElementById("briefingHomeBtn");
-const homeBriefingOutput = document.getElementById("homeBriefingOutput");
-const homeBriefingMeta = document.getElementById("homeBriefingMeta");
-const homeBriefingResult = document.getElementById("homeBriefingResult");
-
-const searchCarousel = document.getElementById("searchCarousel");
-const searchSlides = searchCarousel
-  ? Array.from(searchCarousel.querySelectorAll(".hero-slide"))
-  : [];
-
+const helpBtn = document.getElementById("helpBtn");
 const tourOverlay = document.getElementById("tourOverlay");
 const tourTooltip = document.getElementById("tourTooltip");
 const tourTitle = document.getElementById("tourTitle");
 const tourText = document.getElementById("tourText");
-const tourNext = document.getElementById("tourNext");
 const tourPrev = document.getElementById("tourPrev");
+const tourNext = document.getElementById("tourNext");
 const tourClose = document.getElementById("tourClose");
-
-const footerLinks = document.querySelectorAll(".footer-link");
-
-const expandModal = document.getElementById("expandModal");
-const modalClose = document.getElementById("modalClose");
+const scrollProgress = document.getElementById("scrollProgress");
+const backToTop = document.getElementById("backToTop");
+const modal = document.getElementById("expandModal");
 const modalContent = document.getElementById("modalContent");
-const modalTitle = document.getElementById("modalTitle");
+const modalClose = document.getElementById("modalClose");
 
-const analyzeOptions = {
-  newspaper: [
-    { value: "summary", label: "Summarize article" },
-    { value: "facts", label: "Extract key facts" }
-  ],
-  book: [
-    { value: "summary", label: "Summarize excerpt" },
-    { value: "themes", label: "Identify themes" }
-  ]
-};
+const searchInput = document.getElementById("searchInput");
+const searchBtn = document.getElementById("searchBtn");
+const searchResult = document.getElementById("searchResult");
+const searchResultCard = document.getElementById("searchResultCard");
 
-const examplePayloads = {
-  search: { question: "What is happening with AI regulation?" },
-  summarize: { text: "Paste a long article here and get a clean summary." },
-  lyrics: { content: "Paste lyrics here.", style: "message" },
-  dictionary: { word: "serendipity" },
-  analyze: { content: "Paste an article or a book excerpt here.", type: "newspaper", style: "summary" },
-  briefing: { deepDive: "Global AI regulation" }
-};
+const summarizeInput = document.getElementById("summarizeInput");
+const summarizeBtn = document.getElementById("summarizeBtn");
+const summarizeResult = document.getElementById("summarizeResult");
+const summarizeResultCard = document.getElementById("summarizeResultCard");
 
-let currentView = "welcome";
-let overrideKeys = { gemini: "" };
-let cachedHeadlines = [];
-let breakingIndex = 0;
-let breakingTimer = null;
-let searchIndex = 0;
-let tourStep = 0;
+const lyricsInput = document.getElementById("lyricsInput");
+const lyricsBtn = document.getElementById("lyricsBtn");
+const lyricsResult = document.getElementById("lyricsResult");
+const lyricsResultCard = document.getElementById("lyricsResultCard");
 
-const headlineImages = [
-  "pictures/download.jpg",
-  "pictures/download%20(1).jpg",
-  "pictures/download%20(2).jpg",
-  "pictures/download%20(3).jpg",
-  "pictures/download%20(4).jpg"
+const dictionaryInput = document.getElementById("dictionaryInput");
+const dictionaryBtn = document.getElementById("dictionaryBtn");
+const dictionaryResult = document.getElementById("dictionaryResult");
+const dictionaryResultCard = document.getElementById("dictionaryResultCard");
+const dictionaryPrompt = document.getElementById("dictionaryPrompt");
+const dictionaryAsk = document.getElementById("dictionaryAsk");
+const dictionaryGemini = document.getElementById("dictionaryGemini");
+const dictionaryGeminiCard = document.getElementById("dictionaryGeminiCard");
+
+const analyzerInput = document.getElementById("analyzerInput");
+const analyzerBtn = document.getElementById("analyzerBtn");
+const analyzerResult = document.getElementById("analyzerResult");
+const analyzerResultCard = document.getElementById("analyzerResultCard");
+const analyzerType = document.getElementById("analyzerType");
+const analyzerFocus = document.getElementById("analyzerFocus");
+const analyzerLabel = document.getElementById("analyzerLabel");
+
+const briefingBtn = document.getElementById("briefingBtn");
+const headlinesBtn = document.getElementById("headlinesBtn");
+const briefingText = document.getElementById("briefingText");
+const briefingResult = document.getElementById("briefingResult");
+const headlineList = document.getElementById("headlineList");
+
+const tourSteps = [
+  { selector: "[data-view=\"home\"]", title: "Home", text: "Welcome to NEWSIFY — your AI-powered news companion" },
+  { selector: "[data-view=\"search\"]", title: "Search News", text: "Ask any question, get a full AI briefing from real headlines" },
+  { selector: "[data-view=\"summarize\"]", title: "Summarize Text", text: "Paste anything — article, essay, research — get the gist in seconds" },
+  { selector: "[data-view=\"lyrics\"]", title: "Lyrics Analysis", text: "Paste song lyrics for message analysis, artist insights, and creative ideas" },
+  { selector: "[data-view=\"dictionary\"]", title: "Dictionary", text: "Instant word definitions — free, no API key, powered by dictionaryapi.dev" },
+  { selector: "[data-view=\"analyzer\"]", title: "Content Analyzer", text: "Deep analysis of newspaper articles, book excerpts, or song lyrics" }
 ];
 
-const lyricsVisualMap = {
-  general: "pictures/download%20(6).jpg",
-  taylor: "pictures/taylor%20swift.jpg",
-  weeknd: "pictures/download%20(6).jpg",
-  travis: "pictures/travis%20scott.jpg",
-  rihanna: "pictures/rihanna.jpg",
-  "all-too-well": "pictures/all%20too%20well.jpg",
-  "love-story": "pictures/love%20story.jpg",
-  moth: "pictures/moth%20to%20a%20flame.jpg"
-};
+let tourIndex = 0;
 
-function showBanner(message, type = "error") {
-  errorBanner.textContent = message;
-  errorBanner.classList.add("show");
-  errorBanner.classList.toggle("success", type === "success");
+function setPage(name) {
+  if (state.activePage === name) return;
+  const current = document.getElementById(`page-${state.activePage}`);
+  if (current) current.classList.add("fade-out");
+  setTimeout(() => {
+    pages.forEach((page) => page.classList.remove("active", "fade-out"));
+    const next = document.getElementById(`page-${name}`);
+    if (next) next.classList.add("active");
+    navLinks.forEach((link) => link.classList.toggle("active", link.dataset.view === name));
+    state.activePage = name;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, 200);
 }
 
-function clearBanner() {
-  errorBanner.textContent = "";
-  errorBanner.classList.remove("show", "success");
-}
-
-function showConnectionCard(show) {
-  if (!connectionCard) return;
-  connectionCard.classList.toggle("show", show);
-}
-
-function setServerStatus(online) {
-  if (!serverStatus || !statusText) return;
-  serverStatus.classList.remove("online", "offline");
-  serverStatus.classList.add(online ? "online" : "offline");
-  statusText.textContent = online ? "Connected" : "Node Server Offline";
-}
-
-function handleApiError(error) {
-  const hint = " If limits are reached, open Settings and update your Gemini key or try again later.";
-  showBanner(`${error.message}${hint}`);
-  showConnectionCard(true);
-  setServerStatus(false);
-}
-
-function toggleLoader(show) {
-  loader.classList.toggle("show", show);
-  if (loadingPulse && mainScroll) {
-    mainScroll.classList.toggle("loading", show);
-  }
-}
-
-function switchView(viewKey) {
-  currentView = viewKey;
-  Object.entries(views).forEach(([key, el]) => {
-    if (el) el.classList.toggle("active", key === viewKey);
-  });
-
-  navItems.forEach(item => {
-    item.classList.toggle("active", item.dataset.view === viewKey);
-  });
-
-  clearBanner();
-  if (mainScroll) {
-    mainScroll.scrollTo({ top: 0, behavior: "smooth" });
-  }
-}
-
-function populateAnalyzeOptions() {
-  const options = analyzeOptions[analyzeType.value] || [];
-  analyzeStyle.innerHTML = "";
-  options.forEach(option => {
-    const el = document.createElement("option");
-    el.value = option.value;
-    el.textContent = option.label;
-    analyzeStyle.appendChild(el);
+function buildHeroDots() {
+  heroDots.innerHTML = "";
+  heroSlides.forEach((_, index) => {
+    const dot = document.createElement("button");
+    dot.className = "hero-dot" + (index === 0 ? " active" : "");
+    dot.addEventListener("click", () => setHeroIndex(index));
+    heroDots.appendChild(dot);
   });
 }
 
-async function safeJson(response) {
-  const text = await response.text();
-  if (!text) {
-    throw new Error("Empty response from server. Start the local server with: node server.js");
+function setHeroIndex(index) {
+  const slides = heroCarousel.querySelectorAll(".hero-slide");
+  const dots = heroDots.querySelectorAll(".hero-dot");
+  slides.forEach((slide) => slide.classList.remove("active"));
+  dots.forEach((dot) => dot.classList.remove("active"));
+  slides[index].classList.add("active");
+  dots[index].classList.add("active");
+  state.heroIndex = index;
+}
+
+function startHeroRotation() {
+  clearInterval(state.heroTimer);
+  state.heroTimer = setInterval(() => {
+    const next = (state.heroIndex + 1) % heroSlides.length;
+    setHeroIndex(next);
+  }, 5000);
+}
+
+function startCarousels() {
+  document.querySelectorAll("[data-carousel]").forEach((carousel) => {
+    const slides = carousel.querySelectorAll("img");
+    let index = 0;
+    const interval = Number(carousel.dataset.interval || "4000");
+    const timer = setInterval(() => {
+      slides.forEach((img) => img.classList.remove("active"));
+      index = (index + 1) % slides.length;
+      slides[index].classList.add("active");
+    }, interval);
+    state.carouselTimers.set(carousel, timer);
+  });
+}
+
+function setupTopNews() {
+  const items = [
+    { image: "frontpage", title: "Global leaders finalize AI safety pact" },
+    { image: "news", title: "Pakistan announces clean energy roadmap" },
+    { image: "news2", title: "Markets rally after tech earnings beat" },
+    { image: "frontpage2", title: "Election season intensifies across Europe" },
+    { image: "frontpage4", title: "Space agencies unveil moon base timeline" }
+  ];
+
+  topNewsRow.innerHTML = "";
+  items.forEach((item) => {
+    const card = document.createElement("button");
+    card.className = "top-news-card";
+    const wrapper = document.createElement("div");
+    wrapper.style.position = "relative";
+    const img = document.createElement("img");
+    img.dataset.picture = item.image;
+    img.src = `pictures/${item.image}.jpg`;
+    attachPictureFallback(img);
+    const badge = document.createElement("span");
+    badge.className = "breaking-badge";
+    badge.textContent = "BREAKING";
+    wrapper.append(img, badge);
+    const content = document.createElement("div");
+    content.className = "top-news-content";
+    content.textContent = item.title;
+    card.append(wrapper, content);
+    card.addEventListener("click", () => {
+      searchInput.value = item.title;
+      setPage("search");
+    });
+    topNewsRow.appendChild(card);
+  });
+}
+
+function setButtonGroup(group, value) {
+  const buttons = group.querySelectorAll("button");
+  buttons.forEach((btn) => btn.classList.toggle("active", btn.dataset.value === value));
+}
+
+function updateAnalyzerOptions() {
+  analyzerFocus.innerHTML = "";
+  let options = [];
+  if (state.analyzerType === "newspaper") {
+    options = [
+      { value: "summarize", label: "Summarize Article" },
+      { value: "facts", label: "Extract Key Facts" }
+    ];
+    analyzerLabel.textContent = "Content";
+    analyzerInput.placeholder = "Paste the article...";
   }
-  try {
-    return JSON.parse(text);
-  } catch (error) {
-    throw new Error("Invalid JSON response from server.");
+  if (state.analyzerType === "lyrics") {
+    options = [
+      { value: "main", label: "Main Message" },
+      { value: "insights", label: "Artist Insights" },
+      { value: "creative", label: "Creative Suggestions" }
+    ];
+    analyzerLabel.textContent = "Lyrics";
+    analyzerInput.placeholder = "Paste song lyrics here...";
   }
+  if (state.analyzerType === "book") {
+    options = [
+      { value: "summarize", label: "Summarize Excerpt" },
+      { value: "themes", label: "Identify Themes" }
+    ];
+    analyzerLabel.textContent = "Excerpt";
+    analyzerInput.placeholder = "Paste the excerpt...";
+  }
+  options.forEach((option, index) => {
+    const btn = document.createElement("button");
+    btn.dataset.value = option.value;
+    btn.textContent = option.label;
+    if (index === 0) {
+      btn.classList.add("active");
+      state.analyzerFocus = option.value;
+    }
+    btn.addEventListener("click", () => {
+      state.analyzerFocus = option.value;
+      setButtonGroup(analyzerFocus, option.value);
+    });
+    analyzerFocus.appendChild(btn);
+  });
+}
+
+function setLoading(button, resultCard, resultBody) {
+  button.disabled = true;
+  button.dataset.original = button.textContent;
+  button.textContent = "⏳ Analyzing...";
+  resultBody.textContent = "";
+  resultBody.classList.add("shimmer");
+  resultCard.classList.add("show");
+}
+
+function clearLoading(button, resultBody) {
+  button.disabled = false;
+  button.textContent = button.dataset.original || "Submit";
+  resultBody.classList.remove("shimmer");
+}
+
+function showResult(resultCard, resultBody, content) {
+  resultBody.textContent = content || "No response returned.";
+  resultCard.classList.add("show");
 }
 
 async function postJson(url, payload) {
-  const headers = { "Content-Type": "application/json" };
-  if (overrideKeys.gemini) {
-    headers["x-gemini-key"] = overrideKeys.gemini;
-  }
-
-  const response = await fetch(url, {
+  const res = await fetch(url, {
     method: "POST",
-    headers,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
-
-  const data = await safeJson(response);
-  if (!response.ok) {
-    throw new Error(data.error || "Something went wrong.");
-  }
-  setServerStatus(true);
-  showConnectionCard(false);
-  return data;
+  if (!res.ok) throw new Error("Request failed");
+  return res.json();
 }
 
-function toggleMenu(show) {
-  menuPanel.classList.toggle("show", show);
-}
-
-function toggleKeyModal(show) {
-  keyModal.classList.toggle("show", show);
-  keyModal.setAttribute("aria-hidden", String(!show));
-  if (show) {
-    checkServerStatus();
-  }
-}
-
-async function checkServerStatus() {
+async function handleSearch() {
+  const question = searchInput.value.trim();
+  if (!question) return;
+  setLoading(searchBtn, searchResultCard, searchResult);
   try {
-    const response = await fetch("/api/briefing", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mode: "morning", skipSummary: true })
-    });
-    if (response.ok) {
-      setServerStatus(true);
-      showConnectionCard(false);
-      return;
-    }
+    const data = await postJson("/api/search", { question });
+    showResult(searchResultCard, searchResult, data.summary || data.result || data.response || "");
   } catch (error) {
-    setServerStatus(false);
-    showConnectionCard(true);
-  }
-}
-
-function buildHeadlineCards(headlines) {
-  if (!headlineGrid) return;
-  const fallback = [
-    "Global markets steady as investors await inflation data",
-    "AI regulation talks accelerate across major economies",
-    "Energy prices fluctuate amid supply concerns",
-    "Tech leaders outline new safety standards",
-    "Space agencies announce fresh lunar timelines"
-  ];
-  const list = (headlines && headlines.length ? headlines : fallback).slice(0, 5);
-  headlineGrid.innerHTML = "";
-
-  list.forEach((headline, index) => {
-    const card = document.createElement("div");
-    card.className = "headline-card";
-    const image = headlineImages[index % headlineImages.length];
-    card.innerHTML = `
-      <img src="${image}" alt="Headline image" />
-      <span>Top Story</span>
-      <h3>${headline}</h3>
-    `;
-    card.addEventListener("click", () => {
-      runSearch(headline);
-    });
-    headlineGrid.appendChild(card);
-  });
-}
-
-function buildBreakingSlides(headlines) {
-  if (!breakingTrack) return;
-  breakingIndex = 0;
-  const fallback = [
-    "Global markets steady as investors await inflation data",
-    "AI regulation talks accelerate across major economies",
-    "Energy prices fluctuate amid supply concerns",
-    "Tech leaders outline new safety standards",
-    "Space agencies announce fresh lunar timelines"
-  ];
-  const list = (headlines && headlines.length ? headlines : fallback).slice(0, 5);
-  breakingTrack.innerHTML = "";
-  if (breakingDots) {
-    breakingDots.innerHTML = "";
-  }
-
-  list.forEach((headline, index) => {
-    const slide = document.createElement("div");
-    slide.className = "breaking-slide";
-    if (index === 0) slide.classList.add("active");
-    const image = headlineImages[index % headlineImages.length];
-    slide.innerHTML = `
-      <img src="${image}" alt="Breaking headline" />
-      <div class="breaking-overlay">
-        <button type="button">${headline}</button>
-      </div>
-    `;
-    slide.querySelector("button").addEventListener("click", () => runSearch(headline));
-    breakingTrack.appendChild(slide);
-
-    if (breakingDots) {
-      const dot = document.createElement("span");
-      dot.className = "slider-dot";
-      if (index === 0) {
-        dot.classList.add("active");
-      }
-      dot.addEventListener("click", () => {
-        const slides = Array.from(breakingTrack.children);
-        slides[breakingIndex]?.classList.remove("active");
-        breakingIndex = index;
-        slides[breakingIndex]?.classList.add("active");
-        updateBreakingDots();
-        startBreakingAuto();
-      });
-      breakingDots.appendChild(dot);
-    }
-  });
-}
-
-function buildBreakingTicker(headlines) {
-  if (!breakingTicker) return;
-  const fallback = [
-    "Global markets steady as investors await inflation data",
-    "AI regulation talks accelerate across major economies",
-    "Energy prices fluctuate amid supply concerns",
-    "Tech leaders outline new safety standards",
-    "Space agencies announce fresh lunar timelines"
-  ];
-  const list = (headlines && headlines.length ? headlines : fallback).slice(0, 5);
-  const items = list.map(text => `<span class="ticker-item">${text}</span>`).join("");
-  breakingTicker.innerHTML = items + items;
-}
-
-function updateBreakingDots() {
-  if (!breakingDots) return;
-  Array.from(breakingDots.children).forEach((dot, index) => {
-    dot.classList.toggle("active", index === breakingIndex);
-  });
-}
-
-function rotateBreaking(next = true) {
-  if (!breakingTrack) return;
-  const slides = Array.from(breakingTrack.children);
-  if (!slides.length) return;
-  slides[breakingIndex].classList.remove("active");
-  breakingIndex = next
-    ? (breakingIndex + 1) % slides.length
-    : (breakingIndex - 1 + slides.length) % slides.length;
-  slides[breakingIndex].classList.add("active");
-  updateBreakingDots();
-}
-
-function startBreakingAuto() {
-  if (breakingTimer) clearInterval(breakingTimer);
-  breakingTimer = setInterval(() => rotateBreaking(true), 5000);
-}
-
-function renderHeadlineList(headlines) {
-  if (!topHeadlinesList) return;
-  topHeadlinesList.innerHTML = "";
-  if (!headlines.length) {
-    topHeadlinesList.textContent = "No headlines available yet.";
-    return;
-  }
-  headlines.slice(0, 8).forEach((headline) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = headline;
-    button.addEventListener("click", () => runSearch(headline));
-    topHeadlinesList.appendChild(button);
-  });
-}
-
-async function loadHeadlines() {
-  try {
-    const data = await postJson("/api/briefing", { mode: "morning", skipSummary: true });
-    cachedHeadlines = data.headlines || [];
-    buildHeadlineCards(cachedHeadlines);
-    buildBreakingSlides(cachedHeadlines);
-    buildBreakingTicker(cachedHeadlines);
-    startBreakingAuto();
-  } catch (error) {
-    buildHeadlineCards([]);
-    buildBreakingSlides([]);
-    buildBreakingTicker([]);
-    startBreakingAuto();
-    setServerStatus(false);
-  }
-}
-
-function handleResultAction(action, targetId) {
-  const target = document.getElementById(targetId);
-  if (!target) return;
-
-  if (action === "expand") {
-    modalTitle.textContent = "Expanded View";
-    modalContent.textContent = target.textContent || "";
-    expandModal.classList.add("show");
-    expandModal.setAttribute("aria-hidden", "false");
-    return;
-  }
-
-  if (action === "copy") {
-    const text = target.textContent || "";
-    navigator.clipboard.writeText(text).then(() => {
-      showBanner("Copied! Use Ctrl+V to paste.", "success");
-      setTimeout(clearBanner, 2000);
-    });
-    return;
-  }
-
-  if (action === "share") {
-    const text = target.textContent || "";
-    if (navigator.share) {
-      navigator.share({ text }).catch(() => {
-        navigator.clipboard.writeText(text);
-        showBanner("Shared via clipboard.", "success");
-        setTimeout(clearBanner, 2000);
-      });
-    } else {
-      navigator.clipboard.writeText(text);
-      showBanner("Shared via clipboard.", "success");
-      setTimeout(clearBanner, 2000);
-    }
-  }
-}
-
-function animateResult(element) {
-  if (!element) return;
-  element.classList.remove("result-show");
-  void element.offsetWidth;
-  element.classList.add("result-show");
-}
-
-function startSearchCarousel() {
-  if (!searchSlides.length) return;
-  searchSlides.forEach((slide, index) => {
-    slide.classList.toggle("active", index === 0);
-  });
-  setInterval(() => {
-    searchSlides[searchIndex].classList.remove("active");
-    searchIndex = (searchIndex + 1) % searchSlides.length;
-    searchSlides[searchIndex].classList.add("active");
-  }, 4500);
-}
-
-function updateLyricsVisual() {
-  if (!lyricsHeroImage || !lyricsVisual) return;
-  const key = lyricsVisual.value;
-  lyricsHeroImage.src = lyricsVisualMap[key] || lyricsVisualMap.general;
-}
-
-// Navigation and menu handling.
-navItems.forEach(item => {
-  item.addEventListener("click", () => {
-    switchView(item.dataset.view);
-    topnav.classList.remove("show");
-  });
-});
-
-logoHome.addEventListener("click", () => switchView("welcome"));
-
-navToggle.addEventListener("click", () => {
-  topnav.classList.toggle("show");
-});
-
-menuToggle.addEventListener("click", (event) => {
-  event.stopPropagation();
-  toggleMenu(!menuPanel.classList.contains("show"));
-});
-
-document.addEventListener("click", (event) => {
-  if (!menuPanel.contains(event.target) && !menuToggle.contains(event.target)) {
-    toggleMenu(false);
-  }
-});
-
-menuPanel.addEventListener("click", (event) => {
-  event.stopPropagation();
-});
-
-document.querySelectorAll("[data-theme]").forEach(button => {
-  button.addEventListener("click", () => {
-    document.body.setAttribute("data-theme", button.dataset.theme);
-    toggleMenu(false);
-  });
-});
-
-exampleBtn.addEventListener("click", () => {
-  const payload = examplePayloads[currentView];
-  if (!payload) return;
-
-  if (currentView === "search") {
-    searchQuestion.value = payload.question;
-  }
-  if (currentView === "summarize") {
-    summaryInput.value = payload.text;
-  }
-  if (currentView === "lyrics") {
-    lyricsInput.value = payload.content;
-    lyricsStyle.value = payload.style;
-  }
-  if (currentView === "dictionary") {
-    dictionaryWord.value = payload.word;
-  }
-  if (currentView === "analyze") {
-    analyzeType.value = payload.type;
-    populateAnalyzeOptions();
-    analyzeStyle.value = payload.style;
-    analyzeInput.value = payload.content;
-  }
-  if (currentView === "briefing") {
-    deepDiveTopic.value = payload.deepDive;
-  }
-  toggleMenu(false);
-});
-
-if (settingsToggle) {
-  settingsToggle.addEventListener("click", () => {
-    toggleMenu(false);
-    toggleKeyModal(true);
-  });
-}
-
-if (openSettings) {
-  openSettings.addEventListener("click", () => {
-    toggleKeyModal(true);
-  });
-}
-
-keyClose.addEventListener("click", () => toggleKeyModal(false));
-keyModal.addEventListener("click", (event) => {
-  if (event.target === keyModal) {
-    toggleKeyModal(false);
-  }
-});
-
-saveKeys.addEventListener("click", () => {
-  overrideKeys = {
-    gemini: userGeminiKey.value.trim()
-  };
-  toggleKeyModal(false);
-});
-
-modalClose.addEventListener("click", () => {
-  expandModal.classList.remove("show");
-  expandModal.setAttribute("aria-hidden", "true");
-});
-
-if (breakingPrev && breakingNext) {
-  breakingPrev.addEventListener("click", () => rotateBreaking(false));
-  breakingNext.addEventListener("click", () => rotateBreaking(true));
-}
-
-if (briefingHomeBtn) {
-  briefingHomeBtn.addEventListener("click", async () => {
-    switchView("welcome");
-    await runBriefing(homeBriefingResult, homeBriefingMeta, homeBriefingOutput);
-  });
-}
-
-if (topHeadlinesBtn) {
-  topHeadlinesBtn.addEventListener("click", async () => {
-    if (!cachedHeadlines.length) {
-      try {
-        const data = await postJson("/api/briefing", { mode: "morning", skipSummary: true });
-        cachedHeadlines = data.headlines || [];
-      } catch (error) {
-        cachedHeadlines = [];
-      }
-    }
-    renderHeadlineList(cachedHeadlines);
-  });
-}
-
-if (helpBtn) {
-  helpBtn.addEventListener("click", () => {
-    startTour();
-  });
-}
-
-lyricsVisual?.addEventListener("change", updateLyricsVisual);
-
-// Feature actions.
-async function runSearch(question) {
-  const trimmed = question.trim();
-  if (!trimmed) {
-    showBanner("Please enter a question.");
-    return;
-  }
-  searchQuestion.value = trimmed;
-  switchView("search");
-
-  toggleLoader(true);
-  searchResult.textContent = "";
-  searchMeta.textContent = "";
-
-  try {
-    const data = await postJson("/api/search", { question: trimmed });
-    searchResult.textContent = data.summary;
-    searchMeta.textContent = `Articles found and combined: ${data.articleCount} • ${data.fromDate} → ${data.toDate}`;
-    animateResult(searchResult);
-    clearBanner();
-  } catch (error) {
-    handleApiError(error);
+    showResult(searchResultCard, searchResult, "Unable to fetch results right now.");
   } finally {
-    toggleLoader(false);
+    clearLoading(searchBtn, searchResult);
   }
 }
 
-searchBtn.addEventListener("click", async () => {
-  await runSearch(searchQuestion.value);
-});
-
-summarizeBtn.addEventListener("click", async () => {
-  const text = summaryInput.value.trim();
-  if (!text) {
-    showBanner("Please paste text to summarize.");
-    return;
-  }
-
-  toggleLoader(true);
-  summaryResult.textContent = "";
-
+async function handleSummarize() {
+  const text = summarizeInput.value.trim();
+  if (!text) return;
+  setLoading(summarizeBtn, summarizeResultCard, summarizeResult);
   try {
-    const data = await postJson("/api/summarize", {
-      text,
-      length: summaryLength.value
-    });
-    summaryResult.textContent = data.summary;
-    animateResult(summaryResult);
-    clearBanner();
+    const data = await postJson("/api/summarize", { text, length: state.length });
+    showResult(summarizeResultCard, summarizeResult, data.summary || data.result || data.response || "");
   } catch (error) {
-    handleApiError(error);
+    showResult(summarizeResultCard, summarizeResult, "Unable to summarize right now.");
   } finally {
-    toggleLoader(false);
+    clearLoading(summarizeBtn, summarizeResult);
   }
-});
+}
 
-dictionaryBtn.addEventListener("click", async () => {
-  const word = dictionaryWord.value.trim();
-  if (!word) {
-    showBanner("Enter a word to define.");
-    return;
-  }
-
-  toggleLoader(true);
-  dictionaryResult.innerHTML = "";
-
-  try {
-    const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
-    if (!response.ok) {
-      throw new Error("No definition found.");
-    }
-    const data = await response.json();
-    const entry = data[0] || {};
-    const phonetic = entry.phonetic || (entry.phonetics && entry.phonetics[0] && entry.phonetics[0].text) || "N/A";
-    const meaning = entry.meanings && entry.meanings[0];
-    const definition = meaning && meaning.definitions && meaning.definitions[0];
-    const partOfSpeech = meaning && meaning.partOfSpeech ? meaning.partOfSpeech : "n/a";
-    const defText = definition && definition.definition ? definition.definition : "No definition found.";
-    const example = definition && definition.example ? definition.example : "No example provided.";
-
-    dictionaryResult.innerHTML = `
-      <div class="dict-word">${entry.word || word}</div>
-      <div class="dict-phonetic">${phonetic} • ${partOfSpeech}</div>
-      <div class="dict-definition">${defText}</div>
-      <div class="dict-example">${example}</div>
-    `;
-    animateResult(dictionaryResult);
-    clearBanner();
-  } catch (error) {
-    showBanner(error.message);
-  } finally {
-    toggleLoader(false);
-  }
-});
-
-analyzeBtn.addEventListener("click", async () => {
-  const text = analyzeInput.value.trim();
-  if (!text) {
-    showBanner("Please paste content to analyze.");
-    return;
-  }
-
-  toggleLoader(true);
-  analyzeResult.textContent = "";
-
+async function handleLyrics() {
+  const content = lyricsInput.value.trim();
+  if (!content) return;
+  setLoading(lyricsBtn, lyricsResultCard, lyricsResult);
   try {
     const data = await postJson("/api/analyze", {
-      content: text,
-      contentType: analyzeType.value,
-      analysisType: analyzeStyle.value
+      type: "lyrics",
+      analysisType: state.lyricsFocus,
+      content
     });
-    analyzeResult.textContent = data.result;
-    animateResult(analyzeResult);
-    clearBanner();
+    showResult(lyricsResultCard, lyricsResult, data.analysis || data.result || data.response || "");
   } catch (error) {
-    handleApiError(error);
+    showResult(lyricsResultCard, lyricsResult, "Unable to analyze lyrics right now.");
   } finally {
-    toggleLoader(false);
+    clearLoading(lyricsBtn, lyricsResult);
   }
-});
+}
 
-if (lyricsBtn) {
-  lyricsBtn.addEventListener("click", async () => {
-    const text = lyricsInput.value.trim();
-    if (!text) {
-      showBanner("Please paste lyrics to analyze.");
-      return;
-    }
+async function lookupWord(word) {
+  const res = await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(word.trim()));
+  if (!res.ok) throw new Error("Word not found");
+  const data = await res.json();
+  return data[0];
+}
 
-    toggleLoader(true);
-    lyricsResult.textContent = "";
+function buildPartOfSpeechBadge(pos) {
+  const colorMap = {
+    noun: "#3b82f6",
+    verb: "#10b981",
+    adjective: "#f97316",
+    adverb: "#7c3aed"
+  };
+  const color = colorMap[pos] || "#3b82f6";
+  return `<span style="display:inline-block;padding:6px 12px;border-radius:999px;background:${color};color:#fff;font-weight:600;font-size:0.8rem;">${pos || "Definition"}</span>`;
+}
 
-    try {
-      const data = await postJson("/api/analyze", {
-        content: text,
-        contentType: "lyrics",
-        analysisType: lyricsStyle.value
+async function handleDictionary() {
+  const word = dictionaryInput.value.trim();
+  if (!word) return;
+  setLoading(dictionaryBtn, dictionaryResultCard, dictionaryResult);
+  try {
+    const entry = await lookupWord(word);
+    const meaning = entry.meanings?.[0];
+    const definition = meaning?.definitions?.[0];
+    const phonetic = entry.phonetic || entry.phonetics?.[0]?.text || "";
+    const synonyms = definition?.synonyms || meaning?.synonyms || [];
+    dictionaryResult.innerHTML = `
+      <div style="font-size:2.5rem;font-weight:800;color:#10b981;">${entry.word}</div>
+      <div style="margin:6px 0;color:#64748b;font-style:italic;">🔊 ${phonetic}</div>
+      ${buildPartOfSpeechBadge(meaning?.partOfSpeech)}
+      <div style="margin-top:14px;font-size:1.1rem;line-height:1.8;color:#0f172a;">${definition?.definition || ""}</div>
+      ${definition?.example ? `<div style="margin-top:10px;color:#64748b;font-style:italic;border-left:3px solid #10b981;padding-left:12px;">${definition.example}</div>` : ""}
+      ${synonyms.length ? `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">${synonyms.slice(0, 6).map((syn) => `<span style="background:#f1f5f9;padding:4px 10px;border-radius:999px;font-size:0.8rem;">${syn}</span>`).join("")}</div>` : ""}
+    `;
+    dictionaryResultCard.classList.add("show");
+    dictionaryPrompt.value = `Use the word '${entry.word}' in 3 creative sentences showing different contexts and explain its nuance`;
+  } catch (error) {
+    showResult(dictionaryResultCard, dictionaryResult, "Word not found. Try another.");
+  } finally {
+    clearLoading(dictionaryBtn, dictionaryResult);
+  }
+}
+
+async function handleDictionaryGemini() {
+  const prompt = dictionaryPrompt.value.trim();
+  if (!prompt) return;
+  setLoading(dictionaryAsk, dictionaryGeminiCard, dictionaryGemini);
+  try {
+    const data = await postJson("/api/analyze", { text: prompt });
+    dictionaryGemini.textContent = data.analysis || data.result || data.response || "";
+    dictionaryGeminiCard.classList.add("show");
+  } catch (error) {
+    dictionaryGemini.textContent = "Unable to fetch response right now.";
+  } finally {
+    clearLoading(dictionaryAsk, dictionaryGemini);
+  }
+}
+
+async function handleAnalyzer() {
+  const content = analyzerInput.value.trim();
+  if (!content) return;
+  setLoading(analyzerBtn, analyzerResultCard, analyzerResult);
+  try {
+    const data = await postJson("/api/analyze", {
+      type: state.analyzerType,
+      analysisType: state.analyzerFocus,
+      content
+    });
+    showResult(analyzerResultCard, analyzerResult, data.analysis || data.result || data.response || "");
+  } catch (error) {
+    showResult(analyzerResultCard, analyzerResult, "Unable to analyze right now.");
+  } finally {
+    clearLoading(analyzerBtn, analyzerResult);
+  }
+}
+
+async function handleBriefing() {
+  setLoading(briefingBtn, briefingResult, briefingText);
+  try {
+    const data = await postJson("/api/briefing", {});
+    showResult(briefingResult, briefingText, data.summary || data.result || data.response || "");
+  } catch (error) {
+    showResult(briefingResult, briefingText, "Unable to load briefing.");
+  } finally {
+    clearLoading(briefingBtn, briefingText);
+  }
+}
+
+async function handleHeadlines() {
+  setLoading(headlinesBtn, briefingResult, briefingText);
+  try {
+    const data = await postJson("/api/briefing", {});
+    const list = data.headlines || [];
+    headlineList.innerHTML = "";
+    list.forEach((item) => {
+      const button = document.createElement("button");
+      button.textContent = item;
+      headlineList.appendChild(button);
+    });
+    showResult(briefingResult, briefingText, "Headlines loaded below.");
+  } catch (error) {
+    showResult(briefingResult, briefingText, "Unable to load headlines.");
+  } finally {
+    clearLoading(headlinesBtn, briefingText);
+  }
+}
+
+function attachPictureFallback(img) {
+  const name = img.dataset.picture;
+  if (!name) return;
+  const base = "pictures/" + encodeURIComponent(name);
+  const extensions = ["jpg", "png", "jpeg", "webp"];
+  let index = 0;
+  const tryNext = () => {
+    if (index >= extensions.length) return;
+    img.src = `${base}.${extensions[index]}`;
+    index += 1;
+  };
+  img.onerror = tryNext;
+  tryNext();
+}
+
+function applyImages() {
+  document.querySelectorAll("img[data-picture]").forEach(attachPictureFallback);
+}
+
+function initInfoPanels() {
+  document.querySelectorAll(".info-panel").forEach((panel) => {
+    const toggle = panel.querySelector(".info-toggle");
+    toggle.addEventListener("click", () => panel.classList.toggle("open"));
+  });
+}
+
+function initButtonGroups() {
+  const lengthGroup = document.getElementById("lengthGroup");
+  lengthGroup.addEventListener("click", (event) => {
+    const button = event.target.closest("button");
+    if (!button) return;
+    state.length = button.dataset.value;
+    setButtonGroup(lengthGroup, state.length);
+  });
+
+  const lyricsGroup = document.getElementById("lyricsGroup");
+  lyricsGroup.addEventListener("click", (event) => {
+    const button = event.target.closest("button");
+    if (!button) return;
+    state.lyricsFocus = button.dataset.value;
+    setButtonGroup(lyricsGroup, state.lyricsFocus);
+  });
+
+  analyzerType.addEventListener("click", (event) => {
+    const button = event.target.closest("button");
+    if (!button) return;
+    state.analyzerType = button.dataset.value;
+    setButtonGroup(analyzerType, state.analyzerType);
+    updateAnalyzerOptions();
+  });
+}
+
+function initResultsActions() {
+  document.querySelectorAll(".result-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetId = button.dataset.target;
+      const target = document.getElementById(targetId);
+      if (!target) return;
+      if (button.dataset.action === "copy") {
+        navigator.clipboard.writeText(target.textContent || "");
+        const original = button.textContent;
+        button.textContent = "✓ Copied!";
+        setTimeout(() => { button.textContent = original; }, 2000);
+      }
+      if (button.dataset.action === "expand") {
+        modalContent.textContent = target.textContent || "";
+        modal.classList.add("show");
+        modal.setAttribute("aria-hidden", "false");
+      }
+    });
+  });
+}
+
+function initSectionReveal() {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const children = entry.target.querySelectorAll(":scope > *");
+          children.forEach((child, index) => {
+            child.classList.add("stagger");
+            child.style.transitionDelay = `${index * 0.1}s`;
+          });
+          entry.target.querySelectorAll(".feature-card").forEach((card, index) => {
+            card.style.transitionDelay = `${index * 0.1}s`;
+            card.classList.add("show");
+          });
+          entry.target.classList.add("show");
+          observer.unobserve(entry.target);
+        }
       });
-      lyricsResult.textContent = data.result;
-      animateResult(lyricsResult);
-      clearBanner();
-    } catch (error) {
-      handleApiError(error);
-    } finally {
-      toggleLoader(false);
-    }
+    },
+    { threshold: 0.15 }
+  );
+  document.querySelectorAll(".reveal").forEach((section, index) => {
+    section.style.transitionDelay = `${index * 0.1}s`;
+    observer.observe(section);
+  });
+  document.querySelectorAll(".feature-card").forEach((card, index) => {
+    card.style.transitionDelay = `${index * 0.1}s`;
   });
 }
 
-async function runBriefing(resultEl, metaEl, outputEl) {
-  toggleLoader(true);
-  if (resultEl) resultEl.textContent = "";
-  if (metaEl) metaEl.textContent = "";
-
-  try {
-    const data = await postJson("/api/briefing", { mode: "morning" });
-    if (resultEl) resultEl.textContent = data.briefing;
-    if (metaEl) {
-      metaEl.textContent = `Articles found and combined: ${data.articleCount} • ${data.fromDate} → ${data.toDate}`;
-    }
-    if (outputEl) outputEl.classList.add("show");
-    if (resultEl) animateResult(resultEl);
-    clearBanner();
-  } catch (error) {
-    handleApiError(error);
-  } finally {
-    toggleLoader(false);
+function updateScrollProgress() {
+  const scrollTop = window.scrollY;
+  const height = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = height > 0 ? (scrollTop / height) * 100 : 0;
+  scrollProgress.style.width = `${progress}%`;
+  if (scrollTop > 300) {
+    backToTop.classList.add("show");
+  } else {
+    backToTop.classList.remove("show");
   }
 }
 
-briefingBtn.addEventListener("click", async () => {
-  await runBriefing(briefingResult, briefingMeta);
-});
-
-deepDiveBtn.addEventListener("click", async () => {
-  const topic = deepDiveTopic.value.trim();
-  if (!topic) {
-    showBanner("Enter a topic for deep dive.");
-    return;
-  }
-
-  toggleLoader(true);
-  briefingResult.textContent = "";
-  briefingMeta.textContent = "";
-
-  try {
-    const data = await postJson("/api/briefing", {
-      mode: "deep-dive",
-      deepDiveTopic: topic
-    });
-    briefingResult.textContent = data.briefing;
-    briefingMeta.textContent = `Articles found and combined: ${data.articleCount} • ${data.fromDate} → ${data.toDate}`;
-    animateResult(briefingResult);
-    clearBanner();
-  } catch (error) {
-    handleApiError(error);
-  } finally {
-    toggleLoader(false);
-  }
-});
-
-document.querySelectorAll(".info-btn").forEach(button => {
-  button.addEventListener("click", () => {
-    const parent = button.closest(".info-collapsible");
-    parent.classList.toggle("open");
-  });
-});
-
-document.querySelectorAll(".result-action").forEach(button => {
-  button.addEventListener("click", () => {
-    handleResultAction(button.dataset.action, button.dataset.target);
-  });
-});
-
-document.querySelectorAll(".feature-tile").forEach(tile => {
-  tile.addEventListener("click", () => {
-    const target = tile.dataset.target;
-    if (target) {
-      switchView(target);
-    }
-  });
-});
-
-footerLinks.forEach(link => {
-  link.addEventListener("click", () => {
-    const target = link.dataset.view;
-    if (target) {
-      switchView(target);
-    }
-  });
-});
-
-if (mainScroll) {
-  mainScroll.addEventListener("scroll", () => {
-    if (!topbar) return;
-    topbar.classList.toggle("scrolled", mainScroll.scrollTop > 10);
-  });
-}
-
-const tourSteps = [
-  {
-    title: "Search News",
-    text: "Search News — ask any question, get a full AI briefing",
-    selector: ".nav-item[data-view=\"search\"]"
-  },
-  {
-    title: "Summarize Text",
-    text: "Summarize Text — paste anything, choose length, get the gist",
-    selector: ".nav-item[data-view=\"summarize\"]"
-  },
-  {
-    title: "Lyrics Analysis",
-    text: "Lyrics Analysis — paste song lyrics, get message, themes, artist insights",
-    selector: ".nav-item[data-view=\"lyrics\"]"
-  },
-  {
-    title: "Dictionary",
-    text: "Dictionary — instant free word definitions, no API key needed",
-    selector: ".nav-item[data-view=\"dictionary\"]"
-  },
-  {
-    title: "Content Analyzer",
-    text: "Content Analyzer — newspaper, book, or article deep analysis",
-    selector: ".nav-item[data-view=\"analyze\"]"
-  }
-];
-
-function clearTourHighlight() {
-  document.querySelectorAll(".tour-highlight").forEach(el => {
-    el.classList.remove("tour-highlight");
-  });
-}
-
-function startTour() {
-  tourStep = 0;
+function openTour() {
   tourOverlay.classList.add("show");
   tourOverlay.setAttribute("aria-hidden", "false");
-  showTourStep();
+  showTourStep(0);
 }
 
-function showTourStep() {
-  const step = tourSteps[tourStep];
-  if (!step) {
-    stopTour();
-    return;
-  }
-  tourTitle.textContent = step.title;
-  tourText.textContent = step.text;
-  clearTourHighlight();
-  const target = document.querySelector(step.selector);
-  if (target) {
-    target.classList.add("tour-highlight");
-    positionTourTooltip(target);
-  }
-}
-
-function positionTourTooltip(target) {
-  if (!tourTooltip || !target) return;
-  const rect = target.getBoundingClientRect();
-  const tooltipRect = tourTooltip.getBoundingClientRect();
-  const padding = 12;
-  let top = rect.top + window.scrollY + rect.height / 2 - tooltipRect.height / 2;
-  let left = rect.right + window.scrollX + padding;
-
-  if (left + tooltipRect.width > window.innerWidth - padding) {
-    left = rect.left + window.scrollX - tooltipRect.width - padding;
-  }
-
-  if (top < padding) top = padding;
-  if (top + tooltipRect.height > window.innerHeight - padding) {
-    top = window.innerHeight - tooltipRect.height - padding;
-  }
-
-  tourTooltip.style.top = `${top}px`;
-  tourTooltip.style.left = `${left}px`;
-}
-
-function stopTour() {
+function closeTour() {
   tourOverlay.classList.remove("show");
   tourOverlay.setAttribute("aria-hidden", "true");
-  clearTourHighlight();
+  document.querySelectorAll(".tour-highlight").forEach((el) => el.classList.remove("tour-highlight"));
 }
 
-tourNext.addEventListener("click", () => {
-  tourStep += 1;
-  if (tourStep >= tourSteps.length) {
-    stopTour();
-    return;
-  }
-  showTourStep();
-});
-
-tourPrev.addEventListener("click", () => {
-  tourStep = Math.max(0, tourStep - 1);
-  showTourStep();
-});
-
-tourClose.addEventListener("click", () => {
-  stopTour();
-});
-
-tourOverlay.addEventListener("click", (event) => {
-  if (event.target === tourOverlay) {
-    stopTour();
-  }
-});
-
-window.addEventListener("resize", () => {
-  const step = tourSteps[tourStep];
-  if (!tourOverlay.classList.contains("show") || !step) return;
+function showTourStep(index) {
+  const step = tourSteps[index];
+  if (!step) return;
+  document.querySelectorAll(".tour-highlight").forEach((el) => el.classList.remove("tour-highlight"));
   const target = document.querySelector(step.selector);
-  if (target) positionTourTooltip(target);
-});
+  if (!target) return;
+  target.classList.add("tour-highlight");
+  const rect = target.getBoundingClientRect();
+  tourTitle.textContent = step.title;
+  tourText.textContent = step.text;
+  const tooltipWidth = tourTooltip.offsetWidth || 240;
+  const left = Math.min(rect.right + 12, window.innerWidth - tooltipWidth - 20);
+  tourTooltip.style.top = `${rect.top + window.scrollY}px`;
+  tourTooltip.style.left = `${Math.max(left, 20)}px`;
+  tourIndex = index;
+}
 
-// Ripple effect.
-document.addEventListener("click", (event) => {
-  const button = event.target.closest("button");
-  if (!button) return;
-  const circle = document.createElement("span");
-  const diameter = Math.max(button.clientWidth, button.clientHeight);
-  const rect = button.getBoundingClientRect();
-  circle.style.width = circle.style.height = `${diameter}px`;
-  circle.style.left = `${event.clientX - rect.left - diameter / 2}px`;
-  circle.style.top = `${event.clientY - rect.top - diameter / 2}px`;
-  circle.classList.add("ripple-circle");
-  const ripple = button.querySelector(".ripple-circle");
-  if (ripple) ripple.remove();
-  button.appendChild(circle);
-});
+function initTourControls() {
+  tourPrev.addEventListener("click", () => {
+    if (tourIndex > 0) showTourStep(tourIndex - 1);
+  });
+  tourNext.addEventListener("click", () => {
+    if (tourIndex < tourSteps.length - 1) showTourStep(tourIndex + 1);
+  });
+  tourClose.addEventListener("click", closeTour);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeTour();
+  });
+}
 
-// Init
-populateAnalyzeOptions();
-loadHeadlines();
-startSearchCarousel();
-updateLyricsVisual();
-setServerStatus(false);
+function initEvents() {
+  navLinks.forEach((link) => {
+    link.addEventListener("click", () => setPage(link.dataset.view));
+  });
+  document.querySelectorAll("[data-view]").forEach((link) => {
+    link.addEventListener("click", () => {
+      const view = link.dataset.view;
+      if (view) setPage(view);
+    });
+  });
+  logoButton.addEventListener("click", () => setPage("home"));
+
+  menuBtn.addEventListener("click", () => menuDropdown.classList.toggle("show"));
+  aboutCreator.addEventListener("click", () => {
+    menuDropdown.classList.remove("show");
+    modalContent.textContent = state.aboutText;
+    modal.classList.add("show");
+  });
+  exampleBtn.addEventListener("click", () => {
+    menuDropdown.classList.remove("show");
+    searchInput.value = "What are the biggest global stories right now?";
+    setPage("search");
+  });
+  helpBtn.addEventListener("click", openTour);
+
+  modalClose.addEventListener("click", () => modal.classList.remove("show"));
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) modal.classList.remove("show");
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") modal.classList.remove("show");
+  });
+
+  searchBtn.addEventListener("click", handleSearch);
+  summarizeBtn.addEventListener("click", handleSummarize);
+  lyricsBtn.addEventListener("click", handleLyrics);
+  dictionaryBtn.addEventListener("click", handleDictionary);
+  dictionaryAsk.addEventListener("click", handleDictionaryGemini);
+  analyzerBtn.addEventListener("click", handleAnalyzer);
+  briefingBtn.addEventListener("click", handleBriefing);
+  headlinesBtn.addEventListener("click", handleHeadlines);
+
+  backToTop.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  window.addEventListener("scroll", updateScrollProgress);
+}
+
+function init() {
+  applyImages();
+  buildHeroDots();
+  startHeroRotation();
+  startCarousels();
+  setupTopNews();
+  initInfoPanels();
+  initButtonGroups();
+  updateAnalyzerOptions();
+  initResultsActions();
+  initSectionReveal();
+  initTourControls();
+  initEvents();
+  updateScrollProgress();
+}
+
+init();
