@@ -1,4 +1,4 @@
-// Shared helpers for Vercel serverless functions.
+// Shared helpers for local serverless-style functions.
 const GEMINI_ENDPOINT_BASE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=";
 const NEWS_API_ENDPOINT = "https://newsapi.org/v2/everything";
 
@@ -10,6 +10,18 @@ function requireEnv(name) {
     throw error;
   }
   return value;
+}
+
+// Read a per-request override key from headers if present.
+function getHeaderKey(req, headerName) {
+  if (!req || !req.headers) {
+    return null;
+  }
+  const value = req.headers[headerName];
+  if (Array.isArray(value)) {
+    return value[0] || null;
+  }
+  return value || null;
 }
 
 async function parseJson(req) {
@@ -38,8 +50,8 @@ function toIsoDate(date) {
   return date.toISOString().slice(0, 10);
 }
 
-async function geminiGenerate(prompt) {
-  const geminiKey = requireEnv("GEMINI_API_KEY");
+async function geminiGenerate(prompt, overrideKey) {
+  const geminiKey = overrideKey || requireEnv("GEMINI_API_KEY");
   const response = await fetch(`${GEMINI_ENDPOINT_BASE}${geminiKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -55,7 +67,7 @@ async function geminiGenerate(prompt) {
   if (!response.ok) {
     const text = await response.text();
     const error = new Error(`Gemini error: ${text}`);
-    error.status = 502;
+    error.status = response.status || 502;
     throw error;
   }
 
@@ -69,8 +81,8 @@ async function geminiGenerate(prompt) {
   return candidate.trim();
 }
 
-async function fetchNews({ query, fromDate, toDate }) {
-  const newsKey = requireEnv("NEWS_API_KEY");
+async function fetchNews({ query, fromDate, toDate, overrideKey }) {
+  const newsKey = overrideKey || requireEnv("NEWS_API_KEY");
   const url = new URL(NEWS_API_ENDPOINT);
   url.searchParams.set("q", query);
   url.searchParams.set("from", fromDate);
@@ -83,7 +95,7 @@ async function fetchNews({ query, fromDate, toDate }) {
   if (!response.ok) {
     const text = await response.text();
     const error = new Error(`NewsAPI error: ${text}`);
-    error.status = 502;
+    error.status = response.status || 502;
     throw error;
   }
 
@@ -106,6 +118,7 @@ function combineArticles(articles) {
 
 module.exports = {
   parseJson,
+  getHeaderKey,
   geminiGenerate,
   fetchNews,
   combineArticles,

@@ -1,10 +1,10 @@
 // Summarize Text API route (Vercel serverless function).
-const { parseJson, geminiGenerate } = require("./_utils");
+const { parseJson, getHeaderKey, geminiGenerate } = require("./_utils");
 
 const lengthPrompts = {
-  short: "Keep it short: write 1-2 paragraphs.",
-  medium: "Make it medium-length: write 3-4 paragraphs.",
-  long: "Make it long: write 5-7 paragraphs."
+  short: "Short (1-2 paragraphs).",
+  medium: "Medium (3-4 paragraphs).",
+  long: "Long (5-7 paragraphs)."
 };
 
 module.exports = async (req, res) => {
@@ -29,7 +29,8 @@ module.exports = async (req, res) => {
       + "Text:\n"
       + text.trim();
 
-    const summary = await geminiGenerate(prompt);
+    const geminiKey = getHeaderKey(req, "x-gemini-key");
+    const summary = await geminiGenerate(prompt, geminiKey);
     return res.json({ summary });
   } catch (error) {
     const status = error.status || 500;

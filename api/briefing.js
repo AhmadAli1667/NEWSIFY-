@@ -1,6 +1,7 @@
 // Morning Briefing API route (Vercel serverless function).
 const {
   parseJson,
+  getHeaderKey,
   geminiGenerate,
   fetchNews,
   combineArticles,
@@ -19,10 +20,10 @@ function buildDateRange(daysBack) {
   };
 }
 
-async function fetchWithFallback(query) {
+async function fetchWithFallback(query, newsKey) {
   for (const daysBack of fallbackRanges) {
     const range = buildDateRange(daysBack);
-    const articles = await fetchNews({ query, ...range });
+    const articles = await fetchNews({ query, ...range, overrideKey: newsKey });
     if (articles.length) {
       return { articles, range };
     }
@@ -36,19 +37,22 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { mode, deepDiveTopic } = await parseJson(req);
+    const { mode, deepDiveTopic, skipSummary } = await parseJson(req);
     const isDeepDive = mode === "deep-dive";
     const query = isDeepDive ? (deepDiveTopic || "").trim() : "world news today";
+    const geminiKey = getHeaderKey(req, "x-gemini-key");
+    const newsKey = getHeaderKey(req, "x-news-key");
 
     if (!query) {
       return res.status(400).json({ error: "Deep dive topic is required." });
     }
 
-    const { articles, range } = await fetchWithFallback(query);
+    const { articles, range } = await fetchWithFallback(query, newsKey);
     if (!articles.length) {
       return res.json({
         briefing: "No articles found for the selected date range.",
         articleCount: 0,
+        headlines: [],
         fromDate: range.fromDate,
         toDate: range.toDate
       });
@@ -57,16 +61,32 @@ module.exports = async (req, res) => {
     const combined = combineArticles(articles);
 
     const briefingPrompt = isDeepDive
-      ? "Summarize the following news articles about the topic in 3-4 paragraphs, "
-        + "using a clear and engaging tone. No bullet points, no headings, no markdown.\n\nArticles:\n"
+      ? "Summarize the following news articles about the topic in 3-4 paragraphs. "
+        + "No bullet points, no headings, no markdown.\n\nArticles:\n"
       : "You are a friendly morning news anchor. Summarize the following world news articles in 3-4 paragraphs. "
         + "No bullet points, no headings, no markdown.\n\nArticles:\n";
 
-    const briefing = await geminiGenerate(briefingPrompt + combined);
+    const headlines = articles
+      .map(article => (article?.title || "").trim())
+      .filter(Boolean)
+      .slice(0, 6);
+
+    if (skipSummary) {
+      return res.json({
+        briefing: "",
+        articleCount: articles.length,
+        headlines,
+        fromDate: range.fromDate,
+        toDate: range.toDate
+      });
+    }
+
+    const briefing = await geminiGenerate(briefingPrompt + combined, geminiKey);
 
     return res.json({
       briefing,
       articleCount: articles.length,
+      headlines,
       fromDate: range.fromDate,
       toDate: range.toDate
     });

@@ -3,95 +3,140 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NEWSIFY - Modern News Intelligence</title>
-  <!-- Typography: serif + sans mix for editorial feel. -->
+  <title>NEWSIFY - News Intelligence</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@300;400;600;700&family=Manrope:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Lora:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">N</div>
-        <div>
-          <h1>NEWSIFY</h1>
-          <p>Modern news intelligence</p>
-        </div>
-      </div>
-      <nav class="nav">
-        <button class="nav-item active" data-view="welcome">Welcome</button>
+<body data-theme="clean">
+  <div id="root-container">
+    <div class="page">
+    <header class="topbar">
+      <button class="logo-btn" id="logoHome" aria-label="Go to home">
+        <img class="brand-logo" src="logo.png" alt="NEWSIFY logo" />
+      </button>
+
+      <nav class="topnav" id="topnav">
+        <button class="nav-item active" data-view="welcome">⌂ Home</button>
         <button class="nav-item" data-view="search">Search News</button>
         <button class="nav-item" data-view="summarize">Summarize Text</button>
+        <button class="nav-item" data-view="dictionary">Dictionary</button>
         <button class="nav-item" data-view="analyze">Analyze Content</button>
         <button class="nav-item" data-view="briefing">Morning Briefing</button>
       </nav>
-      <div class="sidebar-footer">
-        <p class="muted">Powered by Gemini + NewsAPI</p>
-      </div>
-    </aside>
 
-    <main class="main">
-      <header class="page-header">
-        <div>
-          <p class="eyebrow" id="todayLabel"></p>
-          <h2 id="pageTitle">Welcome to NEWSIFY</h2>
-        </div>
-        <div class="header-actions">
-          <span class="status-pill" id="statusPill">Idle</span>
-        </div>
-      </header>
-
-      <section class="view active" id="view-welcome">
-        <div class="welcome">
-          <div class="welcome-card">
-            <h3>NEWSIFY</h3>
-            <p class="lead">
-              A modern, editorial-grade newsroom interface for searching, summarizing, and analyzing content.
-            </p>
-            <div class="feature-grid">
-              <div class="feature">
-                <h4>Search News</h4>
-                <p>Ask a question. Get a 5-7 paragraph briefing built from today’s headlines.</p>
-              </div>
-              <div class="feature">
-                <h4>Summarize Text</h4>
-                <p>Paste anything and choose a length for a crisp, accurate summary.</p>
-              </div>
-              <div class="feature">
-                <h4>Analyze Content</h4>
-                <p>Newspapers, lyrics, or book excerpts — get structured analysis instantly.</p>
-              </div>
-              <div class="feature">
-                <h4>Morning Briefing</h4>
-                <p>Auto-curated world news with optional deep dives by topic.</p>
-              </div>
+      <div class="topbar-actions">
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">☰</button>
+        <button class="help-button" id="helpBtn" aria-label="Start guided tour">Help</button>
+        <button class="menu-button" id="menuToggle" aria-label="Open theme switcher">⋮</button>
+        <button class="settings-button" id="settingsToggle" aria-label="Open settings">
+          <span class="settings-dot"></span>
+        </button>
+        <div class="menu-panel" id="menuPanel">
+          <div class="menu-section">
+            <p class="menu-title">Theme Switcher</p>
+            <div class="theme-buttons">
+              <button class="ghost" data-theme="clean">Blue / Yellow / White</button>
+              <button class="ghost" data-theme="light">Light</button>
+              <button class="ghost" data-theme="dark">Dark</button>
             </div>
-            <div class="hint">Pick a section from the left to begin.</div>
           </div>
         </div>
+      </div>
+    </header>
+
+    <main class="main" id="mainScroll">
+      <div class="error-banner" id="errorBanner"></div>
+      <div class="connection-card" id="connectionCard">
+        <div>
+          <h3>Connection Error</h3>
+          <p>We could not reach the local server. Open Settings to manage your Gemini key or start the server.</p>
+        </div>
+        <button class="primary" id="openSettings">Open Settings</button>
+      </div>
+      <div class="loading-pulse" id="loadingPulse"></div>
+
+      <section class="view active" id="view-welcome">
+        <section class="breaking-slider">
+          <div class="breaking-header">
+            <h1 class="hero-title">Breaking News</h1>
+            <p class="hero-tagline">Blue/Yellow/White Tech Journal</p>
+          </div>
+          <div class="slider-track" id="breakingTrack"></div>
+          <div class="slider-controls">
+            <button class="ghost" id="breakingPrev" aria-label="Previous headline">Prev</button>
+            <button class="ghost" id="breakingNext" aria-label="Next headline">Next</button>
+          </div>
+        </section>
+
+        <section class="top-news">
+          <div class="top-news-header">
+            <h2>Top News</h2>
+            <p>Tap any headline to get a full AI briefing.</p>
+          </div>
+          <div class="top-news-grid" id="headlineGrid"></div>
+        </section>
+
+        <section class="feature-row">
+          <button class="feature-tile" data-target="summarize">
+            <span class="tile-icon">✦</span>
+            <h3>Summarizer</h3>
+            <p>Compress long reads into newsroom clarity.</p>
+          </button>
+          <button class="feature-tile" data-target="analyze">
+            <span class="tile-icon">▣</span>
+            <h3>Content Analyzer</h3>
+            <p>Deep dives for articles, lyrics, and books.</p>
+          </button>
+          <button class="feature-tile" data-target="dictionary">
+            <span class="tile-icon">◎</span>
+            <h3>Dictionary</h3>
+            <p>Instant definitions, phonetics, and usage.</p>
+          </button>
+          <button class="feature-tile" data-target="briefing">
+            <span class="tile-icon">➤</span>
+            <h3>Morning Briefing</h3>
+            <p>Daily headline sweep with deep dives.</p>
+          </button>
+        </section>
       </section>
 
       <section class="view" id="view-search">
-        <div class="panel">
-          <h3>Search News</h3>
-          <p class="muted">Ask in natural language and receive a multi-paragraph newsroom briefing.</p>
+        <div class="info-collapsible">
+          <button class="info-btn" data-info="search">How does this work? ▾</button>
+          <div class="info-body" id="info-search">
+            Type any question in plain English. Gemini AI extracts the key search terms, NewsAPI fetches the latest matching articles, and Gemini synthesizes them into a structured 5-7 paragraph briefing. Built with prompt engineering to ensure editorial-quality output.
+          </div>
+        </div>
+        <div class="panel stack input-theater" data-tour="input">
+          <img class="panel-image" src="https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1200&q=80" alt="News desk" />
           <label class="field">
             <span>Question</span>
-            <input type="text" id="searchQuestion" placeholder="What is happening with AI?" />
+            <textarea id="searchQuestion" rows="4" placeholder="What is happening with AI?" spellcheck="false"></textarea>
           </label>
           <button class="primary" id="searchBtn">Generate Briefing</button>
         </div>
         <div class="panel output">
           <div class="meta" id="searchMeta"></div>
-          <div class="result" id="searchResult"></div>
+          <div class="result reading-pane" id="searchResult"></div>
+          <div class="result-actions bottom">
+            <button class="ghost result-action" data-action="copy" data-target="searchResult">Copy</button>
+            <button class="ghost result-action" data-action="share" data-target="searchResult">Share</button>
+            <button class="ghost result-action" data-action="expand" data-target="searchResult">Expand</button>
+          </div>
         </div>
       </section>
 
       <section class="view" id="view-summarize">
-        <div class="panel">
-          <h3>Summarize Text</h3>
+        <div class="info-collapsible">
+          <button class="info-btn" data-info="summarize">How does this work? ▾</button>
+          <div class="info-body" id="info-summarize">
+            Paste any article, essay, or passage. Choose your preferred length — Short (90-130 words), Medium (230-300 words), or Long (450+ words). Gemini summarizes while preserving the key facts and tone. Useful for long reads, research papers, or news articles.
+          </div>
+        </div>
+        <div class="panel stack input-theater">
+          <img class="panel-image" src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80" alt="Notebook" />
           <label class="field">
             <span>Text to summarize</span>
             <textarea id="summaryInput" rows="8" placeholder="Paste any article, passage, or notes..."></textarea>
@@ -107,13 +152,49 @@
           <button class="primary" id="summarizeBtn">Summarize</button>
         </div>
         <div class="panel output">
-          <div class="result" id="summaryResult"></div>
+          <div class="result reading-pane" id="summaryResult"></div>
+          <div class="result-actions bottom">
+            <button class="ghost result-action" data-action="copy" data-target="summaryResult">Copy</button>
+            <button class="ghost result-action" data-action="share" data-target="summaryResult">Share</button>
+            <button class="ghost result-action" data-action="expand" data-target="summaryResult">Expand</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-dictionary">
+        <div class="info-collapsible">
+          <button class="info-btn" data-info="dictionary">How does this work? ▾</button>
+          <div class="info-body" id="info-dictionary">
+            Powered by the free dictionaryapi.dev — no API key needed. Returns the definition, part of speech, phonetic pronunciation, and example sentences instantly. No AI cost, no rate limits.
+          </div>
+        </div>
+        <div class="panel stack input-theater">
+          <img class="panel-image" src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=80" alt="Dictionary" />
+          <label class="field">
+            <span>Word</span>
+            <input type="text" id="dictionaryWord" placeholder="serendipity" />
+          </label>
+          <button class="primary" id="dictionaryBtn">Lookup Word</button>
+        </div>
+        <div class="panel output">
+          <div class="result reading-pane" id="dictionaryResult"></div>
+          <div class="result-actions bottom">
+            <button class="ghost result-action" data-action="copy" data-target="dictionaryResult">Copy</button>
+            <button class="ghost result-action" data-action="share" data-target="dictionaryResult">Share</button>
+            <button class="ghost result-action" data-action="expand" data-target="dictionaryResult">Expand</button>
+          </div>
         </div>
       </section>
 
       <section class="view" id="view-analyze">
-        <div class="panel">
-          <h3>Analyze Content</h3>
+        <div class="info-collapsible">
+          <button class="info-btn" data-info="analyze">How does this work? ▾</button>
+          <div class="info-body" id="info-analyze">
+            Three analyzer modes: Newspaper Article (objective summary + key facts), Song Lyrics (message, artist insights, creative uses), Book Excerpt (summary + theme identification). Each mode uses a specialized Gemini prompt tuned for that content type.
+          </div>
+        </div>
+        <div class="panel stack input-theater">
+          <img class="panel-image" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80" alt="Music desk" />
           <label class="field">
             <span>Content type</span>
             <select id="analyzeType">
@@ -133,34 +214,178 @@
           <button class="primary" id="analyzeBtn">Analyze</button>
         </div>
         <div class="panel output">
-          <div class="result" id="analyzeResult"></div>
+          <div class="result reading-pane" id="analyzeResult"></div>
+          <div class="result-actions bottom">
+            <button class="ghost result-action" data-action="copy" data-target="analyzeResult">Copy</button>
+            <button class="ghost result-action" data-action="share" data-target="analyzeResult">Share</button>
+            <button class="ghost result-action" data-action="expand" data-target="analyzeResult">Expand</button>
+          </div>
+        </div>
+        <div class="panel extra">
+          <h3>Trending in Culture</h3>
+          <div class="trend-grid">
+            <div>
+              <h4>Music Radar</h4>
+              <div class="artist-scroll">
+                <div class="artist-card">
+                  <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=200&q=80" alt="Taylor Swift" />
+                  <span>Taylor Swift</span>
+                </div>
+                <div class="artist-card">
+                  <img src="https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?auto=format&fit=crop&w=200&q=80" alt="The Weeknd" />
+                  <span>The Weeknd</span>
+                </div>
+                <div class="artist-card">
+                  <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80" alt="Travis Scott" />
+                  <span>Travis Scott</span>
+                </div>
+                <div class="artist-card">
+                  <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80" alt="Rihanna" />
+                  <span>Rihanna</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4>Top Tracks</h4>
+              <div class="track-list">
+                <div class="track-item">
+                  <div class="wave"></div>
+                  <div>
+                    <strong>All Too Well</strong>
+                    <span>Taylor Swift</span>
+                  </div>
+                </div>
+                <div class="track-item">
+                  <div class="wave"></div>
+                  <div>
+                    <strong>Love Story</strong>
+                    <span>Taylor Swift</span>
+                  </div>
+                </div>
+                <div class="track-item">
+                  <div class="wave"></div>
+                  <div>
+                    <strong>Moth To A Flame</strong>
+                    <span>The Weeknd</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       <section class="view" id="view-briefing">
-        <div class="panel">
-          <h3>Morning Briefing</h3>
-          <p class="muted">Fresh world news with date-range fallback and a deep-dive follow-up.</p>
-          <button class="primary" id="briefingBtn">Fetch Morning Briefing</button>
-          <div class="divider"></div>
+        <div class="info-collapsible">
+          <button class="info-btn" data-info="briefing">How does this work? ▾</button>
+          <div class="info-body" id="info-briefing">
+            One click delivers a full morning news briefing. The backend tries today's headlines first, falling back to yesterday, last 3 days, then last 7 days if needed. Gemini writes the briefing in the voice of a professional news anchor. After the briefing, you can deep-dive into any topic.
+          </div>
+        </div>
+        <div class="panel stack input-theater">
+          <img class="panel-image" src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80" alt="Morning briefing" />
+          <div class="headline-tools">
+            <button class="ghost" id="topHeadlinesBtn">Top Today Headlines</button>
+            <button class="primary" id="briefingBtn">Fetch Morning Briefing</button>
+          </div>
           <label class="field">
             <span>Deep Dive Topic</span>
             <input type="text" id="deepDiveTopic" placeholder="Global AI regulation" />
           </label>
           <button class="ghost" id="deepDiveBtn">Run Deep Dive</button>
+          <div class="headline-list" id="topHeadlinesList"></div>
         </div>
         <div class="panel output">
           <div class="meta" id="briefingMeta"></div>
-          <div class="result" id="briefingResult"></div>
+          <div class="result reading-pane" id="briefingResult"></div>
+          <div class="result-actions bottom">
+            <button class="ghost result-action" data-action="copy" data-target="briefingResult">Copy</button>
+            <button class="ghost result-action" data-action="share" data-target="briefingResult">Share</button>
+            <button class="ghost result-action" data-action="expand" data-target="briefingResult">Expand</button>
+          </div>
         </div>
       </section>
-
-      <div class="toast" id="toast"></div>
-      <div class="loader" id="loader">
-        <div class="spinner"></div>
-        <p>Working on your briefing...</p>
-      </div>
     </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div>
+          <img class="footer-logo" src="logo.png" alt="NEWSIFY logo" />
+          <h4>NEWSIFY</h4>
+          <p>Developed by Ahmad Ali &amp; Team | NUST SEECS (Software Engineering Coursework).</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <div class="footer-links">
+            <button class="footer-link" data-view="search">Search News</button>
+            <button class="footer-link" data-view="summarize">Summarize Text</button>
+            <button class="footer-link" data-view="dictionary">Dictionary</button>
+            <button class="footer-link" data-view="analyze">Analyze Content</button>
+            <button class="footer-link" data-view="briefing">Morning Briefing</button>
+          </div>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <div class="footer-links">
+            <a href="https://github.com/AhmadAli1667" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="https://www.linkedin.com/in/ahmad-ali-686044383?utm_source=share_via&utm_content=profile&utm_medium=member_ios" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a href="mailto:ahmadali.dev@gmail.com">Email</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 NEWSIFY</span>
+        <span>Built at NUST SEECS</span>
+      </div>
+    </footer>
+    </div>
+  </div>
+
+  <div class="modal" id="expandModal" aria-hidden="true">
+    <div class="modal-card">
+      <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+      <h3 id="modalTitle">Expanded View</h3>
+      <div class="modal-content" id="modalContent"></div>
+    </div>
+  </div>
+
+  <div class="modal settings-modal" id="keyModal" aria-hidden="true">
+    <div class="modal-card settings-card">
+      <button class="modal-close" id="keyClose" aria-label="Close">×</button>
+      <h3>Settings</h3>
+      <p class="muted">Gemini key is stored in memory for this session only.</p>
+      <div class="status-row">
+        <span>Status</span>
+        <span class="status-pill" id="serverStatus">
+          <span class="status-dot"></span>
+          <span id="statusText">Checking...</span>
+        </span>
+      </div>
+      <label class="field">
+        <span>Gemini API Key</span>
+        <input type="password" id="userGeminiKey" placeholder="Paste your Gemini key" />
+      </label>
+      <button class="primary" id="saveKeys">Save Gemini Key</button>
+      <button class="ghost" id="exampleBtn">Use Example Prompt</button>
+    </div>
+  </div>
+
+  <div class="tour-overlay" id="tourOverlay" aria-hidden="true">
+    <div class="tour-card">
+      <h3 id="tourTitle">Guided Tour</h3>
+      <p id="tourText"></p>
+      <div class="tour-actions">
+        <button class="ghost" id="tourSkip">Skip</button>
+        <button class="primary" id="tourNext">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="loader" id="loader">
+    <div class="loader-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <p>Working on your request...</p>
   </div>
 
   <script src="app.js"></script>
