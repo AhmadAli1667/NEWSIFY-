@@ -40,7 +40,8 @@ module.exports = async (req, res) => {
     const { mode, deepDiveTopic, skipSummary } = await parseJson(req);
     const isDeepDive = mode === "deep-dive";
     const query = isDeepDive ? (deepDiveTopic || "").trim() : "world news today";
-    const geminiKey = getHeaderKey(req, "x-gemini-key");
+    // Get API key from user header or fall back to environment variable
+    const geminiKey = req.headers['x-user-api-key'] || process.env.GEMINI_API_KEY;
     const newsKey = getHeaderKey(req, "x-news-key");
 
     if (!query) {

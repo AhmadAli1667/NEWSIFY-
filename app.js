@@ -145,41 +145,58 @@ function startCarousels() {
     }, interval);
     state.carouselTimers.set(carousel, timer);
   });
+
+  // Main carousel with prev/next buttons
+  const mainCarousel = document.querySelector('[data-carousel="main"]');
+  if (mainCarousel) {
+    const slides = mainCarousel.querySelectorAll('.carousel-slide');
+    const prevBtn = document.getElementById('carouselPrev');
+    const nextBtn = document.getElementById('carouselNext');
+    const dotsContainer = document.getElementById('carouselDots');
+    
+    let currentIndex = 0;
+    
+    // Build dots
+    slides.forEach((_, index) => {
+      const dot = document.createElement('button');
+      dot.className = 'carousel-dot' + (index === 0 ? ' active' : '');
+      dot.addEventListener('click', () => goToSlide(index));
+      dotsContainer.appendChild(dot);
+    });
+    
+    function updateSlide() {
+      slides.forEach((slide) => slide.classList.remove('active'));
+      dotsContainer.querySelectorAll('.carousel-dot').forEach((dot) => dot.classList.remove('active'));
+      slides[currentIndex].classList.add('active');
+      dotsContainer.querySelectorAll('.carousel-dot')[currentIndex].classList.add('active');
+    }
+    
+    function goToSlide(index) {
+      currentIndex = index;
+      updateSlide();
+    }
+    
+    function nextSlide() {
+      currentIndex = (currentIndex + 1) % slides.length;
+      updateSlide();
+    }
+    
+    function prevSlide() {
+      currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+      updateSlide();
+    }
+    
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+    
+    // Auto-advance
+    setInterval(nextSlide, 5000);
+  }
 }
 
 function setupTopNews() {
-  const items = [
-    { image: "frontpage", title: "Global leaders finalize AI safety pact" },
-    { image: "news", title: "Pakistan announces clean energy roadmap" },
-    { image: "news2", title: "Markets rally after tech earnings beat" },
-    { image: "frontpage2", title: "Election season intensifies across Europe" },
-    { image: "frontpage4", title: "Space agencies unveil moon base timeline" }
-  ];
-
-  topNewsRow.innerHTML = "";
-  items.forEach((item) => {
-    const card = document.createElement("button");
-    card.className = "top-news-card";
-    const wrapper = document.createElement("div");
-    wrapper.style.position = "relative";
-    const img = document.createElement("img");
-    img.dataset.picture = item.image;
-    img.src = `pictures/${item.image}.jpg`;
-    attachPictureFallback(img);
-    const badge = document.createElement("span");
-    badge.className = "breaking-badge";
-    badge.textContent = "BREAKING";
-    wrapper.append(img, badge);
-    const content = document.createElement("div");
-    content.className = "top-news-content";
-    content.textContent = item.title;
-    card.append(wrapper, content);
-    card.addEventListener("click", () => {
-      searchInput.value = item.title;
-      setPage("search");
-    });
-    topNewsRow.appendChild(card);
-  });
+  // This function is no longer needed as we have the new home page layout
+  // keeping it for backward compatibility but it's empty
 }
 
 function setButtonGroup(group, value) {
@@ -252,13 +269,105 @@ function showResult(resultCard, resultBody, content) {
 }
 
 async function postJson(url, payload) {
+  const userKey = sessionStorage.getItem('user_gemini_key');
+  const headers = { "Content-Type": "application/json" };
+  if (userKey) {
+    headers['X-User-API-Key'] = userKey;
+  }
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(payload)
   });
+  
+  if (res.status === 429 || res.status === 401 || res.status === 403) {
+    showApiKeyModal({ url, payload, method: 'POST' });
+    throw new Error("API limit reached. Please provide your own API key.");
+  }
+  
   if (!res.ok) throw new Error("Request failed");
   return res.json();
+}
+
+function showApiKeyModal(failedRequest) {
+  const modal = document.getElementById('apiKeyModal');
+  const useOwnBtn = document.getElementById('apiKeyUseOwn');
+  const tutorialBtn = document.getElementById('apiKeyTutorial');
+  const inputSection = document.getElementById('apiKeyInputSection');
+  const tutorialSection = document.getElementById('apiKeyTutorialSection');
+  const apiKeyInput = document.getElementById('apiKeyInput');
+  const saveBtn = document.getElementById('apiKeySave');
+  const closeBtn = document.getElementById('apiKeyClose');
+  
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  
+  useOwnBtn.addEventListener('click', () => {
+    inputSection.style.display = 'flex';
+    tutorialSection.style.display = 'none';
+  });
+  
+  tutorialBtn.addEventListener('click', () => {
+    if (tutorialSection.style.display === 'none') {
+      tutorialSection.style.display = 'block';
+      inputSection.style.display = 'none';
+    } else {
+      tutorialSection.style.display = 'none';
+    }
+  });
+  
+  saveBtn.addEventListener('click', () => {
+    const key = apiKeyInput.value.trim();
+    if (key) {
+      sessionStorage.setItem('user_gemini_key', key);
+      showToast('✓ Your API key is active for this session', 'success');
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+      apiKeyInput.value = '';
+      inputSection.style.display = 'none';
+      tutorialSection.style.display = 'none';
+    }
+  });
+  
+  closeBtn.addEventListener('click', () => {
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    apiKeyInput.value = '';
+    inputSection.style.display = 'none';
+    tutorialSection.style.display = 'none';
+  });
+  
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+      apiKeyInput.value = '';
+      inputSection.style.display = 'none';
+      tutorialSection.style.display = 'none';
+    }
+  });
+}
+
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: ${type === 'success' ? '#10b981' : '#3b82f6'};
+    color: white;
+    padding: 16px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    z-index: 10000;
+    animation: slideIn 0.3s ease;
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'slideOut 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }
 
 async function handleSearch() {
@@ -604,6 +713,53 @@ function initEvents() {
   });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") modal.classList.remove("show");
+  });
+
+  // Feedback form handling
+  const feedbackForm = document.getElementById('feedbackForm');
+  const feedbackSuccess = document.getElementById('feedbackSuccess');
+  const starRating = document.getElementById('starRating');
+  const stars = starRating.querySelectorAll('.star');
+  let feedbackRating = 0;
+
+  function updateStars() {
+    stars.forEach((star, index) => {
+      star.classList.toggle('filled', index < feedbackRating);
+    });
+  }
+
+  stars.forEach((star, index) => {
+    star.addEventListener('click', (e) => {
+      e.preventDefault();
+      feedbackRating = index + 1;
+      updateStars();
+    });
+    star.addEventListener('mouseover', () => {
+      stars.forEach((s, i) => {
+        s.classList.toggle('filled', i < index + 1);
+      });
+    });
+  });
+
+  starRating.addEventListener('mouseleave', updateStars);
+
+  feedbackForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('feedbackName').value.trim();
+    const text = document.getElementById('feedbackText').value.trim();
+    if (!name || !text || !feedbackRating) {
+      showToast('Please fill in all fields and rate us', 'info');
+      return;
+    }
+    feedbackForm.style.display = 'none';
+    feedbackSuccess.classList.add('show');
+    setTimeout(() => {
+      feedbackForm.style.display = 'block';
+      feedbackSuccess.classList.remove('show');
+      feedbackForm.reset();
+      feedbackRating = 0;
+      updateStars();
+    }, 3000);
   });
 
   searchBtn.addEventListener("click", handleSearch);

@@ -20,6 +20,9 @@ module.exports = async (req, res) => {
 
     const preset = lengthPrompts[length] || lengthPrompts.medium;
 
+    // Get API key from user header or fall back to environment variable
+    const geminiKey = req.headers['x-user-api-key'] || process.env.GEMINI_API_KEY;
+
     // Prompt must match user specification exactly.
     const prompt = "Summarize the following content clearly and accurately. "
       + preset
@@ -29,7 +32,6 @@ module.exports = async (req, res) => {
       + "Text:\n"
       + text.trim();
 
-    const geminiKey = getHeaderKey(req, "x-gemini-key");
     const summary = await geminiGenerate(prompt, geminiKey);
     return res.json({ summary });
   } catch (error) {

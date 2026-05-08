@@ -16,7 +16,7 @@
   <header class="navbar">
     <div class="navbar-left">
       <button class="logo-button" data-view="home" aria-label="Go to home">
-        <img class="logo" data-picture="newsify-logo" src="pictures/newsify-logo.jpg" alt="NEWSIFY logo" />
+        <img class="logo" src="newsify-logo.png" onerror="this.src='newsify-logo.jpg'" onerror="this.src='logo.png'" onerror="this.src='logo.jpg'" onerror="this.style.display='none'; this.parentElement.classList.add('logo-fallback')" alt="NEWSIFY logo" />
         <span class="logo-text">NEWSIFY</span>
       </button>
     </div>
@@ -96,15 +96,193 @@
         </div>
       </section>
 
-      <section class="section top-news reveal">
-        <div class="section-header">
-          <div class="accent-bar blue"></div>
-          <div>
-            <h2>Top News 📰</h2>
-            <p>Tap any headline to get a full AI briefing</p>
+      <section class="section home-news-section reveal">
+        <div class="home-news-container">
+          <div class="home-news-left">
+            <!-- TOP STORY CARD -->
+            <div class="top-story-card">
+              <span class="top-story-badge">TOP STORY</span>
+              <h3 class="top-story-headline">Global Markets Rally As Inflation Cools</h3>
+              <p class="top-story-description">Stock indices surge across major exchanges as central banks signal potential interest rate pauses. Investors optimistic about economic growth prospects.</p>
+              <div class="story-meta">
+                <span class="story-time">2h ago</span>
+                <span class="story-category">Business</span>
+              </div>
+              <div class="top-story-image">
+                <img data-picture="frontpage" src="pictures/frontpage.jpg" alt="Global Markets" />
+              </div>
+            </div>
+
+            <!-- SIDE CARDS -->
+            <div class="side-cards">
+              <div class="side-card-item">
+                <img data-picture="frontpage2" src="pictures/frontpage2.jpg" alt="EU Climate" />
+                <div class="side-card-text">
+                  <strong>EU Leaders Agree on New Climate Plan</strong>
+                  <span>4h ago | World</span>
+                </div>
+              </div>
+              <div class="side-card-item">
+                <img data-picture="news" src="pictures/news.jpg" alt="Senate Bill" />
+                <div class="side-card-text">
+                  <strong>Senate Passes Bill to Improve Healthcare Access</strong>
+                  <span>5h ago | Politics</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- LATEST NEWS -->
+            <div class="latest-news">
+              <h4 class="latest-news-header">LATEST NEWS</h4>
+              <div class="latest-news-items">
+                <div class="latest-news-item">
+                  <img data-picture="frontpage3" src="pictures/frontpage3.jpg" alt="Smartphone" />
+                  <div class="latest-news-text">
+                    <strong>New Smartphone Launches With AI Features</strong>
+                    <span>1h ago | Technology</span>
+                  </div>
+                </div>
+                <div class="latest-news-item">
+                  <img data-picture="news2" src="pictures/news2.jpg" alt="Sports" />
+                  <div class="latest-news-text">
+                    <strong>City United Wins Thriller in Extra Time</strong>
+                    <span>3h ago | Sports</span>
+                  </div>
+                </div>
+                <div class="latest-news-item">
+                  <img data-picture="frontpage4" src="pictures/frontpage4.jpg" alt="Film" />
+                  <div class="latest-news-text">
+                    <strong>New Film Breaks Box Office Records</strong>
+                    <span>6h ago | Entertainment</span>
+                  </div>
+                </div>
+                <div class="latest-news-item">
+                  <img data-picture="frontpage5" src="pictures/frontpage5.jpg" alt="Health" />
+                  <div class="latest-news-text">
+                    <strong>Study Finds Daily Walks Boost Mental Health</strong>
+                    <span>7h ago | Health</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT PANEL - GLOBE & SUMMARIZE CARD -->
+          <div class="home-news-right">
+            <!-- GLOBE CONTAINER -->
+            <div id="globe-container">
+              <canvas id="globe-canvas"></canvas>
+              <div id="globe-hint">🌐 Drag to explore</div>
+            </div>
+
+            <!-- SUMMARIZE NEWS CARD -->
+            <div class="summarize-card">
+              <h4 class="summarize-header">SUMMARIZE NEWS</h4>
+              <p class="summarize-description">Paste a news article or text to get a quick AI summary.</p>
+              <input type="text" id="homeNewsInput" placeholder="Enter URL or paste text here..." />
+              <button class="btn-primary summarize-btn">✦ Summarize</button>
+              <span class="powered-by">Powered by AI</span>
+            </div>
           </div>
         </div>
-        <div class="top-news-row" id="topNewsRow"></div>
+      </section>
+
+      <!-- ABOUT US SECTION - BLUE GRADIENT -->
+      <section class="section about-section-blue reveal">
+        <div class="about-content">
+          <div class="about-column about-text-column">
+            <h3 class="about-blue-heading">Who We Are</h3>
+            <p class="about-blue-text">
+              NEWSIFY is an AI-powered news intelligence platform built by Ahmad Ali and his team during Semester 2 at NUST SEECS (National University of Sciences and Technology). What began as a Java desktop application evolved into a full-stack web platform integrating Google Gemini AI, NewsAPI, and modern web development — demonstrating skills in prompt engineering, API integration, and cloud deployment.
+            </p>
+          </div>
+          <div class="about-column about-stats-column">
+            <div class="about-stats-grid">
+              <div class="about-stat-card">
+                <h3 class="about-stat-number">4</h3>
+                <p class="about-stat-label">AI-Powered Features</p>
+              </div>
+              <div class="about-stat-card">
+                <h3 class="about-stat-number">2</h3>
+                <p class="about-stat-label">APIs Integrated</p>
+              </div>
+              <div class="about-stat-card">
+                <h3 class="about-stat-number">1500+</h3>
+                <p class="about-stat-label">Daily API Calls</p>
+              </div>
+              <div class="about-stat-card">
+                <h3 class="about-stat-number">Sem 2</h3>
+                <p class="about-stat-label">NUST SEECS Project</p>
+              </div>
+            </div>
+            <div class="about-tag-row">
+              <span class="about-tag">Gemini AI</span>
+              <span class="about-tag">NewsAPI</span>
+              <span class="about-tag">Full Stack</span>
+              <span class="about-tag">Java → Web</span>
+              <span class="about-tag">Vercel</span>
+              <span class="about-tag">NUST SEECS</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN HERO CAROUSEL WITH PREV/NEXT -->
+      <section class="carousel-section" data-carousel="main" data-interval="5000">
+        <div class="carousel-slides">
+          <div class="carousel-slide active">
+            <img data-picture="frontpage" src="pictures/frontpage.jpg" alt="Carousel slide 1" />
+            <div class="carousel-overlay">
+              <h2>Global News at Your Fingertips</h2>
+              <p>AI-powered briefings delivered instantly</p>
+            </div>
+          </div>
+          <div class="carousel-slide">
+            <img data-picture="frontpage2" src="pictures/frontpage2.jpg" alt="Carousel slide 2" />
+            <div class="carousel-overlay">
+              <h2>Summarize Like a Pro</h2>
+              <p>Long articles in seconds, short summaries</p>
+            </div>
+          </div>
+          <div class="carousel-slide">
+            <img data-picture="frontpage3" src="pictures/frontpage3.jpg" alt="Carousel slide 3" />
+            <div class="carousel-overlay">
+              <h2>Technology Insights</h2>
+              <p>Stay ahead of the digital revolution</p>
+            </div>
+          </div>
+          <div class="carousel-slide">
+            <img data-picture="frontpage4" src="pictures/frontpage4.jpg" alt="Carousel slide 4" />
+            <div class="carousel-overlay">
+              <h2>Your Daily Source</h2>
+              <p>Morning briefings with global coverage</p>
+            </div>
+          </div>
+          <div class="carousel-slide">
+            <img data-picture="frontpage5" src="pictures/frontpage5.jpg" alt="Carousel slide 5" />
+            <div class="carousel-overlay">
+              <h2>Deep Analysis Awaits</h2>
+              <p>Understand news, lyrics, and literature</p>
+            </div>
+          </div>
+          <div class="carousel-slide">
+            <img data-picture="news" src="pictures/news.jpg" alt="Carousel slide 6" />
+            <div class="carousel-overlay">
+              <h2>World in Focus</h2>
+              <p>Breaking news from around the globe</p>
+            </div>
+          </div>
+          <div class="carousel-slide">
+            <img data-picture="news2" src="pictures/news2.jpg" alt="Carousel slide 7" />
+            <div class="carousel-overlay">
+              <h2>Connected Stories</h2>
+              <p>Understand how events relate to you</p>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-btn carousel-btn-prev" id="carouselPrev">←</button>
+        <button class="carousel-btn carousel-btn-next" id="carouselNext">→</button>
+        <div class="carousel-dots" id="carouselDots"></div>
       </section>
 
       <section class="section feature-section reveal">
@@ -174,46 +352,35 @@
         </div>
       </section>
 
-      <section class="section about-section reveal">
+      <section class="section feedback-form-section reveal">
         <div class="section-header">
           <div class="accent-bar blue"></div>
           <div>
-            <h2>Built at NUST SEECS 🎓</h2>
-            <p class="subtitle">Semester 2 Software Engineering Project</p>
+            <h2>We'd Love Your Feedback 💬</h2>
+            <p class="subtitle">NEWSIFY is a student project — your thoughts help us improve.</p>
           </div>
         </div>
-        <div class="about-grid">
-          <div class="about-copy">
-            <p>
-              NEWSIFY was developed by Ahmad Ali and his team during their second semester at the National University of Sciences and Technology (NUST), School of Electrical Engineering and Computer Science (SEECS). The project integrates Google Gemini AI, NewsAPI, and a custom-built web interface to deliver real-time news intelligence. What started as a Java desktop application evolved into a full-stack web platform — demonstrating skills in API integration, prompt engineering, UI design, and cloud deployment.
-            </p>
-            <div class="tag-row">
-              <span class="tag">Java → Web</span>
-              <span class="tag">Gemini AI</span>
-              <span class="tag">NewsAPI</span>
-              <span class="tag">Full Stack</span>
-              <span class="tag">NUST SEECS</span>
-              <span class="tag">Vercel Deployed</span>
-            </div>
+        <form class="feedback-form" id="feedbackForm">
+          <input type="text" id="feedbackName" placeholder="Your name" required />
+          <textarea id="feedbackText" placeholder="What do you think of NEWSIFY? Bugs? Suggestions?" required></textarea>
+          <div class="star-rating" id="starRating">
+            <button type="button" class="star" data-value="1">★</button>
+            <button type="button" class="star" data-value="2">★</button>
+            <button type="button" class="star" data-value="3">★</button>
+            <button type="button" class="star" data-value="4">★</button>
+            <button type="button" class="star" data-value="5">★</button>
           </div>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <h3>4</h3>
-              <p>AI Features</p>
-            </div>
-            <div class="stat-card">
-              <h3>2</h3>
-              <p>APIs Integrated</p>
-            </div>
-            <div class="stat-card">
-              <h3>1500+</h3>
-              <p>API calls/day capacity</p>
-            </div>
-            <div class="stat-card">
-              <h3>Sem 2</h3>
-              <p>NUST SEECS</p>
-            </div>
-          </div>
+          <button type="submit" class="feedback-btn">Send Feedback ✉️</button>
+        </form>
+        <div class="feedback-success" id="feedbackSuccess">
+          Thank you! Your feedback means a lot to us 🙏
+        </div>
+        <div class="feedback-links">
+          <a href="https://github.com/AhmadAli1667" target="_blank" rel="noreferrer">GitHub</a>
+          <span class="separator">|</span>
+          <a href="https://www.linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a>
+          <span class="separator">|</span>
+          <a href="mailto:ahmadali.dev@gmail.com">Email</a>
         </div>
       </section>
 
@@ -353,6 +520,8 @@
       <div class="page-hero" data-carousel="search" data-interval="4000">
         <img data-picture="frontpage" src="pictures/frontpage.jpg" alt="Frontpage" class="active" />
         <img data-picture="frontpage2" src="pictures/frontpage2.jpg" alt="Frontpage" />
+        <img data-picture="frontpage3" src="pictures/frontpage3.jpg" alt="Frontpage" />
+        <img data-picture="frontpage5" src="pictures/frontpage5.jpg" alt="Frontpage" />
         <img data-picture="news" src="pictures/news.jpg" alt="News" />
         <img data-picture="news2" src="pictures/news2.jpg" alt="News" />
       </div>
@@ -555,7 +724,7 @@
   <footer class="footer">
     <div class="footer-grid">
       <div class="footer-column">
-        <img class="footer-logo" data-picture="newsify-logo" src="pictures/newsify-logo.jpg" alt="NEWSIFY logo" />
+        <img class="footer-logo" src="newsify-logo.png" onerror="this.src='newsify-logo.jpg'" onerror="this.src='logo.png'" onerror="this.src='logo.jpg'" alt="NEWSIFY logo" />
         <h3>NEWSIFY</h3>
         <p>AI-powered news intelligence for the modern reader</p>
         <p>Built at NUST SEECS · 2026</p>
@@ -588,6 +757,36 @@
     </div>
   </div>
 
+  <!-- API KEY MODAL -->
+  <div class="modal" id="apiKeyModal" aria-hidden="true">
+    <div class="modal-card api-key-card">
+      <button class="modal-close" id="apiKeyClose" aria-label="Close">×</button>
+      <h2 class="api-key-title">⚠️ API Limit Reached</h2>
+      <p class="api-key-body">The shared API key has reached its daily limit. You can use your own free Gemini API key to continue — it takes 2 minutes to set up and is completely free.</p>
+      <div class="api-key-buttons">
+        <button class="btn-primary" id="apiKeyUseOwn">Use My Own Key 🔑</button>
+        <button class="btn-outline" id="apiKeyTutorial">How to Get a Free Key? 📖</button>
+      </div>
+      <div class="api-key-input-section" id="apiKeyInputSection" style="display:none;">
+        <input type="password" id="apiKeyInput" placeholder="Paste your Gemini API key here..." />
+        <button class="btn-primary" id="apiKeySave">Save Key & Retry</button>
+      </div>
+      <div class="api-key-tutorial" id="apiKeyTutorialSection" style="display:none;">
+        <h3>How to Get Your Free Gemini API Key</h3>
+        <ol class="tutorial-steps">
+          <li><strong>Step 1:</strong> Go to https://aistudio.google.com</li>
+          <li><strong>Step 2:</strong> Sign in with any Google account</li>
+          <li><strong>Step 3:</strong> Click 'Get API Key' then 'Create API key in new project'</li>
+          <li><strong>Step 4:</strong> Copy the key and paste it in the field above</li>
+        </ol>
+        <p class="tutorial-note">✓ Free tier: 1500 requests per day — more than enough for personal use</p>
+      </div>
+      <div class="api-key-trust">
+        <p>🔒 <strong>Your key is stored only in your browser memory for this session.</strong> We never send it to our servers, never log it, and it is deleted when you close this tab. You can verify this in our open-source GitHub code.</p>
+      </div>
+    </div>
+  </div>
+
   <div class="tour-overlay" id="tourOverlay" aria-hidden="true">
     <div class="tour-tooltip" id="tourTooltip">
       <h3 id="tourTitle">Guided Tour</h3>
@@ -601,5 +800,212 @@
   </div>
 
   <script src="app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+(function() {
+  const canvas = document.getElementById('globe-canvas');
+  if (!canvas) return;
+
+  const container = document.getElementById('globe-container');
+  const width = container.offsetWidth;
+  const height = container.offsetHeight;
+
+  // Scene setup
+  const renderer = new THREE.WebGLRenderer({ 
+    canvas, 
+    antialias: true, 
+    alpha: true 
+  });
+  renderer.setSize(width, height);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setClearColor(0x000000, 0);
+
+  const scene = new THREE.Scene();
+
+  const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+  camera.position.z = 2.5;
+
+  // Earth sphere
+  const geometry = new THREE.SphereGeometry(1, 64, 64);
+
+  const textureLoader = new THREE.TextureLoader();
+  
+  // Load earth texture
+  const earthTexture = textureLoader.load(
+    'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
+    undefined,
+    undefined,
+    function() {
+      // Fallback if CDN fails
+      earthTexture.image = null;
+    }
+  );
+
+  // Load bump map for terrain depth
+  const bumpTexture = textureLoader.load(
+    'https://unpkg.com/three-globe/example/img/earth-topology.png'
+  );
+
+  const material = new THREE.MeshPhongMaterial({
+    map: earthTexture,
+    bumpMap: bumpTexture,
+    bumpScale: 0.05,
+    specularMap: textureLoader.load(
+      'https://unpkg.com/three-globe/example/img/earth-water.png'
+    ),
+    specular: new THREE.Color(0x333333),
+    shininess: 15,
+  });
+
+  const globe = new THREE.Mesh(geometry, material);
+  scene.add(globe);
+
+  // Atmosphere glow
+  const atmosphereGeometry = new THREE.SphereGeometry(1.02, 64, 64);
+  const atmosphereMaterial = new THREE.MeshPhongMaterial({
+    color: 0x3B82F6,
+    transparent: true,
+    opacity: 0.08,
+    side: THREE.FrontSide,
+  });
+  const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+  scene.add(atmosphere);
+
+  // Outer glow ring
+  const glowGeometry = new THREE.SphereGeometry(1.06, 64, 64);
+  const glowMaterial = new THREE.MeshPhongMaterial({
+    color: 0x60A5FA,
+    transparent: true,
+    opacity: 0.04,
+    side: THREE.FrontSide,
+  });
+  const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+  scene.add(glow);
+
+  // Stars background
+  const starsGeometry = new THREE.BufferGeometry();
+  const starCount = 2000;
+  const starPositions = new Float32Array(starCount * 3);
+  for (let i = 0; i < starCount * 3; i++) {
+    starPositions[i] = (Math.random() - 0.5) * 100;
+  }
+  starsGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+  const starsMaterial = new THREE.PointsMaterial({ 
+    color: 0xffffff, 
+    size: 0.1,
+    transparent: true,
+    opacity: 0.6
+  });
+  const stars = new THREE.Points(starsGeometry, starsMaterial);
+  scene.add(stars);
+
+  // Lighting
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+  scene.add(ambientLight);
+
+  const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
+  sunLight.position.set(5, 3, 5);
+  scene.add(sunLight);
+
+  const blueLight = new THREE.PointLight(0x3B82F6, 0.5, 10);
+  blueLight.position.set(-3, 2, 2);
+  scene.add(blueLight);
+
+  // Drag to rotate
+  let isDragging = false;
+  let previousMouseX = 0;
+  let previousMouseY = 0;
+  let rotationSpeedX = 0;
+  let rotationSpeedY = 0.002; // auto slow rotation
+
+  canvas.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    previousMouseX = e.clientX;
+    previousMouseY = e.clientY;
+    rotationSpeedY = 0;
+    // Hide hint after first drag
+    const hint = document.getElementById('globe-hint');
+    if (hint) hint.classList.add('hidden');
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    // Resume slow auto rotation
+    setTimeout(() => { rotationSpeedY = 0.002; }, 1000);
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const deltaX = e.clientX - previousMouseX;
+    const deltaY = e.clientY - previousMouseY;
+    rotationSpeedX = deltaY * 0.005;
+    rotationSpeedY = deltaX * 0.005;
+    globe.rotation.x += rotationSpeedX;
+    globe.rotation.y += rotationSpeedY;
+    atmosphere.rotation.copy(globe.rotation);
+    previousMouseX = e.clientX;
+    previousMouseY = e.clientY;
+  });
+
+  // Touch support for mobile
+  canvas.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    previousMouseX = e.touches[0].clientX;
+    previousMouseY = e.touches[0].clientY;
+    rotationSpeedY = 0;
+  });
+
+  canvas.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const deltaX = e.touches[0].clientX - previousMouseX;
+    const deltaY = e.touches[0].clientY - previousMouseY;
+    globe.rotation.x += deltaY * 0.005;
+    globe.rotation.y += deltaX * 0.005;
+    atmosphere.rotation.copy(globe.rotation);
+    previousMouseX = e.touches[0].clientX;
+    previousMouseY = e.touches[0].clientY;
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', () => {
+    isDragging = false;
+    setTimeout(() => { rotationSpeedY = 0.002; }, 1000);
+  });
+
+  // Scroll zoom (optional, subtle)
+  container.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    camera.position.z += e.deltaY * 0.001;
+    camera.position.z = Math.max(1.8, Math.min(4, camera.position.z));
+  }, { passive: false });
+
+  // Animate
+  function animate() {
+    requestAnimationFrame(animate);
+    if (!isDragging) {
+      globe.rotation.y += rotationSpeedY;
+      atmosphere.rotation.y += rotationSpeedY;
+      glow.rotation.y += rotationSpeedY * 0.5;
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Resize handler
+  window.addEventListener('resize', () => {
+    const w = container.offsetWidth;
+    const h = container.offsetHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  });
+
+  // Hide hint after 4 seconds
+  setTimeout(() => {
+    const hint = document.getElementById('globe-hint');
+    if (hint) hint.classList.add('hidden');
+  }, 4000);
+})();
+  </script>
 </body>
 </html>

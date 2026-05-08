@@ -41,7 +41,8 @@ module.exports = async (req, res) => {
     // Prompt must match user specification exactly.
     const prompt = analysisPrompt + "\n\nContent:\n" + content.trim();
 
-    const geminiKey = getHeaderKey(req, "x-gemini-key");
+    // Get API key from user header or fall back to environment variable
+    const geminiKey = req.headers['x-user-api-key'] || process.env.GEMINI_API_KEY;
     const result = await geminiGenerate(prompt, geminiKey);
     return res.json({ result });
   } catch (error) {

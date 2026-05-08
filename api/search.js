@@ -19,13 +19,14 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: "Question is required." });
     }
 
+    // Get API key from user header or fall back to environment variable
+    const geminiKey = req.headers['x-user-api-key'] || process.env.GEMINI_API_KEY;
+    const newsKey = getHeaderKey(req, "x-news-key");
+
     // Prompt must match user specification exactly.
     const keywordPrompt = "Extract the most important search keywords from this question for a news API query. "
       + "Return only the keywords, no explanation, no punctuation, just space-separated words. Question: "
       + question.trim();
-
-    const geminiKey = getHeaderKey(req, "x-gemini-key");
-    const newsKey = getHeaderKey(req, "x-news-key");
 
     const keywords = await geminiGenerate(keywordPrompt, geminiKey);
 
