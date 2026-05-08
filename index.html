@@ -21,8 +21,9 @@
         <button class="nav-item active" data-view="welcome">⌂ Home</button>
         <button class="nav-item" data-view="search">Search News</button>
         <button class="nav-item" data-view="summarize">Summarize Text</button>
+        <button class="nav-item" data-view="lyrics">Lyrics Analysis</button>
         <button class="nav-item" data-view="dictionary">Dictionary</button>
-        <button class="nav-item" data-view="analyze">Analyze Content</button>
+        <button class="nav-item" data-view="analyze">Content Analyzer</button>
         <button class="nav-item" data-view="briefing">Morning Briefing</button>
       </nav>
 
@@ -68,6 +69,7 @@
             <button class="ghost" id="breakingPrev" aria-label="Previous headline">Prev</button>
             <button class="ghost" id="breakingNext" aria-label="Next headline">Next</button>
           </div>
+          <div class="slider-dots" id="breakingDots"></div>
         </section>
 
         <section class="top-news">
@@ -78,16 +80,33 @@
           <div class="top-news-grid" id="headlineGrid"></div>
         </section>
 
+        <section class="briefing-cta">
+          <div>
+            <h2>Morning Briefing</h2>
+            <p>Scroll here each day to launch a quick briefing or pick a headline.</p>
+          </div>
+          <div class="briefing-actions">
+            <button class="primary" id="briefingHomeBtn">Start Morning Briefing</button>
+            <button class="ghost" id="topHeadlinesBtn">Top Today Headlines</button>
+          </div>
+          <div class="headline-list" id="topHeadlinesList"></div>
+        </section>
+
         <section class="feature-row">
           <button class="feature-tile" data-target="summarize">
             <span class="tile-icon">✦</span>
             <h3>Summarizer</h3>
             <p>Compress long reads into newsroom clarity.</p>
           </button>
+          <button class="feature-tile" data-target="lyrics">
+            <span class="tile-icon">♪</span>
+            <h3>Lyrics Analysis</h3>
+            <p>Decode lyrics with cultural and emotional context.</p>
+          </button>
           <button class="feature-tile" data-target="analyze">
             <span class="tile-icon">▣</span>
             <h3>Content Analyzer</h3>
-            <p>Deep dives for articles, lyrics, and books.</p>
+            <p>Deep dives for articles and book excerpts.</p>
           </button>
           <button class="feature-tile" data-target="dictionary">
             <span class="tile-icon">◎</span>
@@ -110,7 +129,7 @@
           </div>
         </div>
         <div class="panel stack input-theater" data-tour="input">
-          <img class="panel-image" src="https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1200&q=80" alt="News desk" />
+          <img class="panel-image" src="pictures/download%20(1).jpg" alt="News desk" />
           <label class="field">
             <span>Question</span>
             <textarea id="searchQuestion" rows="4" placeholder="What is happening with AI?" spellcheck="false"></textarea>
@@ -136,7 +155,7 @@
           </div>
         </div>
         <div class="panel stack input-theater">
-          <img class="panel-image" src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80" alt="Notebook" />
+          <img class="panel-image" src="pictures/download%20(2).jpg" alt="Notebook" />
           <label class="field">
             <span>Text to summarize</span>
             <textarea id="summaryInput" rows="8" placeholder="Paste any article, passage, or notes..."></textarea>
@@ -161,6 +180,39 @@
         </div>
       </section>
 
+      <section class="view" id="view-lyrics">
+        <div class="info-collapsible">
+          <button class="info-btn" data-info="lyrics">How does this work? ▾</button>
+          <div class="info-body" id="info-lyrics">
+            Drop in song lyrics for a focused lyrical breakdown, cultural context, and emotional tone.
+          </div>
+        </div>
+        <div class="panel stack input-theater">
+          <img class="panel-image" src="pictures/download%20(3).jpg" alt="Lyrics analysis" />
+          <label class="field">
+            <span>Analysis focus</span>
+            <select id="lyricsStyle">
+              <option value="message">Main message</option>
+              <option value="insights">Artist insights</option>
+              <option value="creative">Creative uses</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Lyrics</span>
+            <textarea id="lyricsInput" rows="8" placeholder="Paste lyrics here..."></textarea>
+          </label>
+          <button class="primary" id="lyricsBtn">Analyze Lyrics</button>
+        </div>
+        <div class="panel output">
+          <div class="result reading-pane" id="lyricsResult"></div>
+          <div class="result-actions bottom">
+            <button class="ghost result-action" data-action="copy" data-target="lyricsResult">Copy</button>
+            <button class="ghost result-action" data-action="share" data-target="lyricsResult">Share</button>
+            <button class="ghost result-action" data-action="expand" data-target="lyricsResult">Expand</button>
+          </div>
+        </div>
+      </section>
+
       <section class="view" id="view-dictionary">
         <div class="info-collapsible">
           <button class="info-btn" data-info="dictionary">How does this work? ▾</button>
@@ -169,7 +221,7 @@
           </div>
         </div>
         <div class="panel stack input-theater">
-          <img class="panel-image" src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=80" alt="Dictionary" />
+          <img class="panel-image" src="pictures/download%20(4).jpg" alt="Dictionary" />
           <label class="field">
             <span>Word</span>
             <input type="text" id="dictionaryWord" placeholder="serendipity" />
@@ -190,16 +242,15 @@
         <div class="info-collapsible">
           <button class="info-btn" data-info="analyze">How does this work? ▾</button>
           <div class="info-body" id="info-analyze">
-            Three analyzer modes: Newspaper Article (objective summary + key facts), Song Lyrics (message, artist insights, creative uses), Book Excerpt (summary + theme identification). Each mode uses a specialized Gemini prompt tuned for that content type.
+            Analyzer modes: Newspaper Article (objective summary + key facts) and Book Excerpt (summary + theme identification). Each mode uses a specialized Gemini prompt tuned for that content type.
           </div>
         </div>
         <div class="panel stack input-theater">
-          <img class="panel-image" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80" alt="Music desk" />
+          <img class="panel-image" src="pictures/download%20(5).jpg" alt="Analysis desk" />
           <label class="field">
             <span>Content type</span>
             <select id="analyzeType">
               <option value="newspaper">Newspaper Article</option>
-              <option value="lyrics">Song Lyrics</option>
               <option value="book">Book Excerpt</option>
             </select>
           </label>
@@ -228,19 +279,19 @@
               <h4>Music Radar</h4>
               <div class="artist-scroll">
                 <div class="artist-card">
-                  <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=200&q=80" alt="Taylor Swift" />
+                  <img src="pictures/taylor%20swift.jpg" alt="Taylor Swift" />
                   <span>Taylor Swift</span>
                 </div>
                 <div class="artist-card">
-                  <img src="https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?auto=format&fit=crop&w=200&q=80" alt="The Weeknd" />
+                  <img src="pictures/download%20(6).jpg" alt="The Weeknd" />
                   <span>The Weeknd</span>
                 </div>
                 <div class="artist-card">
-                  <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80" alt="Travis Scott" />
+                  <img src="pictures/travis%20scott.jpg" alt="Travis Scott" />
                   <span>Travis Scott</span>
                 </div>
                 <div class="artist-card">
-                  <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80" alt="Rihanna" />
+                  <img src="pictures/rihanna.jpg" alt="Rihanna" />
                   <span>Rihanna</span>
                 </div>
               </div>
@@ -249,6 +300,7 @@
               <h4>Top Tracks</h4>
               <div class="track-list">
                 <div class="track-item">
+                  <img class="track-art" src="pictures/all%20too%20well.jpg" alt="All Too Well" />
                   <div class="wave"></div>
                   <div>
                     <strong>All Too Well</strong>
@@ -256,6 +308,7 @@
                   </div>
                 </div>
                 <div class="track-item">
+                  <img class="track-art" src="pictures/love%20story.jpg" alt="Love Story" />
                   <div class="wave"></div>
                   <div>
                     <strong>Love Story</strong>
@@ -263,6 +316,7 @@
                   </div>
                 </div>
                 <div class="track-item">
+                  <img class="track-art" src="pictures/moth%20to%20a%20flame.jpg" alt="Moth To A Flame" />
                   <div class="wave"></div>
                   <div>
                     <strong>Moth To A Flame</strong>
@@ -283,9 +337,8 @@
           </div>
         </div>
         <div class="panel stack input-theater">
-          <img class="panel-image" src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80" alt="Morning briefing" />
+          <img class="panel-image" src="pictures/download%20(7).jpg" alt="Morning briefing" />
           <div class="headline-tools">
-            <button class="ghost" id="topHeadlinesBtn">Top Today Headlines</button>
             <button class="primary" id="briefingBtn">Fetch Morning Briefing</button>
           </div>
           <label class="field">
@@ -293,7 +346,6 @@
             <input type="text" id="deepDiveTopic" placeholder="Global AI regulation" />
           </label>
           <button class="ghost" id="deepDiveBtn">Run Deep Dive</button>
-          <div class="headline-list" id="topHeadlinesList"></div>
         </div>
         <div class="panel output">
           <div class="meta" id="briefingMeta"></div>
@@ -319,6 +371,7 @@
           <div class="footer-links">
             <button class="footer-link" data-view="search">Search News</button>
             <button class="footer-link" data-view="summarize">Summarize Text</button>
+            <button class="footer-link" data-view="lyrics">Lyrics Analysis</button>
             <button class="footer-link" data-view="dictionary">Dictionary</button>
             <button class="footer-link" data-view="analyze">Analyze Content</button>
             <button class="footer-link" data-view="briefing">Morning Briefing</button>
@@ -371,7 +424,7 @@
   </div>
 
   <div class="tour-overlay" id="tourOverlay" aria-hidden="true">
-    <div class="tour-card">
+    <div class="tour-tooltip" id="tourTooltip">
       <h3 id="tourTitle">Guided Tour</h3>
       <p id="tourText"></p>
       <div class="tour-actions">

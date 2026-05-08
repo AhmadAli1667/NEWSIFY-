@@ -3,6 +3,7 @@ const views = {
   welcome: document.getElementById("view-welcome"),
   search: document.getElementById("view-search"),
   summarize: document.getElementById("view-summarize"),
+  lyrics: document.getElementById("view-lyrics"),
   dictionary: document.getElementById("view-dictionary"),
   analyze: document.getElementById("view-analyze"),
   briefing: document.getElementById("view-briefing")
@@ -36,6 +37,7 @@ const loader = document.getElementById("loader");
 
 const analyzeType = document.getElementById("analyzeType");
 const analyzeStyle = document.getElementById("analyzeStyle");
+const lyricsStyle = document.getElementById("lyricsStyle");
 
 const searchQuestion = document.getElementById("searchQuestion");
 const searchBtn = document.getElementById("searchBtn");
@@ -50,6 +52,10 @@ const summaryResult = document.getElementById("summaryResult");
 const analyzeInput = document.getElementById("analyzeInput");
 const analyzeBtn = document.getElementById("analyzeBtn");
 const analyzeResult = document.getElementById("analyzeResult");
+
+const lyricsInput = document.getElementById("lyricsInput");
+const lyricsBtn = document.getElementById("lyricsBtn");
+const lyricsResult = document.getElementById("lyricsResult");
 
 const dictionaryWord = document.getElementById("dictionaryWord");
 const dictionaryBtn = document.getElementById("dictionaryBtn");
@@ -66,8 +72,11 @@ const topHeadlinesList = document.getElementById("topHeadlinesList");
 const breakingTrack = document.getElementById("breakingTrack");
 const breakingPrev = document.getElementById("breakingPrev");
 const breakingNext = document.getElementById("breakingNext");
+const breakingDots = document.getElementById("breakingDots");
+const briefingHomeBtn = document.getElementById("briefingHomeBtn");
 
 const tourOverlay = document.getElementById("tourOverlay");
+const tourTooltip = document.getElementById("tourTooltip");
 const tourTitle = document.getElementById("tourTitle");
 const tourText = document.getElementById("tourText");
 const tourNext = document.getElementById("tourNext");
@@ -90,11 +99,6 @@ const analyzeOptions = {
     { value: "summary", label: "Summarize article" },
     { value: "facts", label: "Extract key facts" }
   ],
-  lyrics: [
-    { value: "message", label: "Analyze main message" },
-    { value: "insights", label: "Artist insights" },
-    { value: "creative", label: "Suggest creative uses" }
-  ],
   book: [
     { value: "summary", label: "Summarize excerpt" },
     { value: "themes", label: "Identify themes" }
@@ -104,8 +108,9 @@ const analyzeOptions = {
 const examplePayloads = {
   search: { question: "What is happening with AI regulation?" },
   summarize: { text: "Paste a long article here and get a clean summary." },
+  lyrics: { content: "Paste lyrics here.", style: "message" },
   dictionary: { word: "serendipity" },
-  analyze: { content: "Paste lyrics or a book excerpt here.", type: "lyrics", style: "message" },
+  analyze: { content: "Paste an article or a book excerpt here.", type: "newspaper", style: "summary" },
   briefing: { deepDive: "Global AI regulation" }
 };
 
@@ -117,11 +122,12 @@ let breakingTimer = null;
 let tourStep = 0;
 
 const headlineImages = [
-  "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=900&q=80"
+  "pictures/download.jpg",
+  "pictures/download%20(1).jpg",
+  "pictures/download%20(2).jpg",
+  "pictures/download%20(3).jpg",
+  "pictures/download%20(4).jpg",
+  "pictures/download%20(5).jpg"
 ];
 
 function showBanner(message, type = "error") {
@@ -286,11 +292,13 @@ function buildBreakingSlides(headlines) {
     "Global markets steady as investors await inflation data",
     "AI regulation talks accelerate across major economies",
     "Energy prices fluctuate amid supply concerns",
-    "Tech leaders outline new safety standards",
-    "Space agencies announce fresh lunar timelines"
+    "Tech leaders outline new safety standards"
   ];
-  const list = (headlines && headlines.length ? headlines : fallback).slice(0, 5);
+  const list = (headlines && headlines.length ? headlines : fallback).slice(0, 3);
   breakingTrack.innerHTML = "";
+  if (breakingDots) {
+    breakingDots.innerHTML = "";
+  }
 
   list.forEach((headline, index) => {
     const slide = document.createElement("div");
@@ -305,6 +313,29 @@ function buildBreakingSlides(headlines) {
     `;
     slide.querySelector("button").addEventListener("click", () => runSearch(headline));
     breakingTrack.appendChild(slide);
+    if (breakingDots) {
+      const dot = document.createElement("span");
+      dot.className = "slider-dot";
+      if (index === 0) {
+        dot.classList.add("active");
+      }
+      dot.addEventListener("click", () => {
+        const slides = Array.from(breakingTrack.children);
+        slides[breakingIndex]?.classList.remove("active");
+        breakingIndex = index;
+        slides[breakingIndex]?.classList.add("active");
+        updateBreakingDots();
+        startBreakingAuto();
+      });
+      breakingDots.appendChild(dot);
+    }
+  });
+}
+
+function updateBreakingDots() {
+  if (!breakingDots) return;
+  Array.from(breakingDots.children).forEach((dot, index) => {
+    dot.classList.toggle("active", index === breakingIndex);
   });
 }
 
@@ -317,11 +348,12 @@ function rotateBreaking(next = true) {
     ? (breakingIndex + 1) % slides.length
     : (breakingIndex - 1 + slides.length) % slides.length;
   slides[breakingIndex].classList.add("active");
+  updateBreakingDots();
 }
 
 function startBreakingAuto() {
   if (breakingTimer) clearInterval(breakingTimer);
-  breakingTimer = setInterval(() => rotateBreaking(true), 5000);
+  breakingTimer = setInterval(() => rotateBreaking(true), 4500);
 }
 
 function renderHeadlineList(headlines) {
@@ -438,6 +470,10 @@ exampleBtn.addEventListener("click", () => {
   if (currentView === "summarize") {
     summaryInput.value = payload.text;
   }
+  if (currentView === "lyrics") {
+    lyricsInput.value = payload.content;
+    lyricsStyle.value = payload.style;
+  }
   if (currentView === "dictionary") {
     dictionaryWord.value = payload.word;
   }
@@ -535,6 +571,13 @@ if (breakingPrev && breakingNext) {
   breakingNext.addEventListener("click", () => rotateBreaking(true));
 }
 
+if (briefingHomeBtn) {
+  briefingHomeBtn.addEventListener("click", () => {
+    switchView("briefing");
+    briefingBtn.click();
+  });
+}
+
 // Feature actions.
 async function runSearch(question) {
   const trimmed = question.trim();
@@ -606,7 +649,8 @@ dictionaryBtn.addEventListener("click", async () => {
       return `${index + 1}. (${item.partOfSpeech || "n/a"}) ${item.definition}\n${example}`;
     });
     const phonetic = data.phonetic ? `Phonetic: ${data.phonetic}` : "Phonetic: N/A";
-    dictionaryResult.textContent = `${data.word}\n${phonetic}\n\n${lines.join("\n\n")}`;
+    const body = lines.length ? lines.join("\n\n") : "No definitions found.";
+    dictionaryResult.textContent = `${data.word}\n${phonetic}\n\n${body}`;
     clearBanner();
   } catch (error) {
     showBanner(error.message);
@@ -640,6 +684,33 @@ analyzeBtn.addEventListener("click", async () => {
   }
 });
 
+if (lyricsBtn) {
+  lyricsBtn.addEventListener("click", async () => {
+    const text = lyricsInput.value.trim();
+    if (!text) {
+      showBanner("Please paste lyrics to analyze.");
+      return;
+    }
+
+    toggleLoader(true);
+    lyricsResult.textContent = "";
+
+    try {
+      const data = await postJson("/api/analyze", {
+        content: text,
+        contentType: "lyrics",
+        analysisType: lyricsStyle.value
+      });
+      lyricsResult.textContent = data.result;
+      clearBanner();
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      toggleLoader(false);
+    }
+  });
+}
+
 briefingBtn.addEventListener("click", async () => {
   toggleLoader(true);
   briefingResult.textContent = "";
@@ -657,17 +728,19 @@ briefingBtn.addEventListener("click", async () => {
   }
 });
 
-topHeadlinesBtn.addEventListener("click", async () => {
-  if (!cachedHeadlines.length) {
-    try {
-      const data = await postJson("/api/briefing", { mode: "morning", skipSummary: true });
-      cachedHeadlines = data.headlines || [];
-    } catch (error) {
-      cachedHeadlines = [];
+if (topHeadlinesBtn) {
+  topHeadlinesBtn.addEventListener("click", async () => {
+    if (!cachedHeadlines.length) {
+      try {
+        const data = await postJson("/api/briefing", { mode: "morning", skipSummary: true });
+        cachedHeadlines = data.headlines || [];
+      } catch (error) {
+        cachedHeadlines = [];
+      }
     }
-  }
-  renderHeadlineList(cachedHeadlines);
-});
+    renderHeadlineList(cachedHeadlines);
+  });
+}
 
 deepDiveBtn.addEventListener("click", async () => {
   const topic = deepDiveTopic.value.trim();
@@ -733,27 +806,32 @@ const tourSteps = [
   {
     title: "Top Navigation",
     text: "Use these tabs to switch features instantly.",
-    selector: ".topnav"
+    selector: ".topnav",
+    view: "welcome"
   },
   {
     title: "Breaking News",
     text: "Click any breaking headline to auto-run a news briefing.",
-    selector: ".breaking-slider"
+    selector: ".breaking-slider",
+    view: "welcome"
   },
   {
     title: "Input Theater",
     text: "Drop your question or text here, then hit Generate.",
-    selector: ".input-theater"
+    selector: ".input-theater",
+    view: "search"
   },
   {
     title: "Reading Pane",
     text: "Results appear here with Copy and Share actions.",
-    selector: ".reading-pane"
+    selector: ".reading-pane",
+    view: "search"
   },
   {
     title: "Settings",
     text: "Manage your Gemini key and check server status.",
-    selector: "#settingsToggle"
+    selector: "#settingsToggle",
+    view: "welcome"
   }
 ];
 
@@ -778,6 +856,9 @@ function showTourStep() {
     clearTourHighlight();
     return;
   }
+  if (step.view) {
+    switchView(step.view);
+  }
   tourTitle.textContent = step.title;
   tourText.textContent = step.text;
   clearTourHighlight();
@@ -785,7 +866,25 @@ function showTourStep() {
   if (target) {
     target.classList.add("tour-highlight");
     target.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => positionTourTooltip(target), 80);
   }
+}
+
+function positionTourTooltip(target) {
+  if (!tourTooltip || !target) return;
+  const rect = target.getBoundingClientRect();
+  const tooltipRect = tourTooltip.getBoundingClientRect();
+  const padding = 12;
+  const top = Math.min(
+    window.innerHeight - tooltipRect.height - padding,
+    rect.top + window.scrollY - tooltipRect.height - padding
+  );
+  const left = Math.min(
+    window.innerWidth - tooltipRect.width - padding,
+    rect.left + window.scrollX + rect.width / 2 - tooltipRect.width / 2
+  );
+  tourTooltip.style.top = `${Math.max(padding, top)}px`;
+  tourTooltip.style.left = `${Math.max(padding, left)}px`;
 }
 
 tourNext.addEventListener("click", () => {
