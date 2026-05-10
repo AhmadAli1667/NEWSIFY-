@@ -5,8 +5,11 @@
    • Real relative timestamps
 ═══════════════════════════════════════════════════════ */
 
+// ─── ENVIRONMENT SETUP ─────────────────────────────────
+require('dotenv').config();
+
 // ─── CONFIG ────────────────────────────────────────────
-const PEXELS_API_KEY = "VoKtcvTC88ZLDu0d7byLhtzUd88ZfMLvlwwZPwGjOsszUGI8y2JWjljJ"; // get free key at pexels.com/api
+const PEXELS_API_KEY = process.env.PEXELS_API_KEY;
 const LOCAL_FALLBACK  = "pictures/frontpage.jpg";
 
 // ─── STATE ─────────────────────────────────────────────
