@@ -1,6 +1,5 @@
 param(
-    # Align JavaFX SDK download with the Java 25 target.
-    [string]$version = "25.0.3",
+    [string]$version = "21.0.5",
     [string]$arch = "windows-x64"
 )
 

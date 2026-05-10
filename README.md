@@ -1,18 +1,16 @@
-# NEWSIFY (Local Web App)
+# news-summarizer
+OOP Java news summarizer scaffold
 
-Run locally without Vercel:
+Setup and running
+ - Install JDK 17 and ensure `javac` and `java` are on PATH.
+ - Recommended: Install Apache Maven and run `mvn javafx:run` from the project root.
+ - If you prefer not to install Maven, run the provided PowerShell script to download JavaFX and launch the app:
 
-1) Set env vars in your shell:
-	- GEMINI_API_KEY
-	- GEMINI_API_KEY_2 (optional failover)
-	- NEWS_API_KEY
-	- NEWS_API_KEY_2 (optional failover)
+```powershell
+.\download-javafx.ps1    # downloads JavaFX SDK into lib/ (Windows x64)
+powershell -ExecutionPolicy Bypass -File .\run-app.ps1
+```
 
-2) Start the local server:
+VS Code
+ - Press Ctrl+Alt+N to run the app via the workspace task (configured to run `run-app.ps1`).
 
-	```
-	node server.js
-	```
-
-3) Open:
-	http://localhost:3000

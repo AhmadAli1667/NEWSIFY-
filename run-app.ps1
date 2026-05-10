@@ -2,30 +2,14 @@ $ErrorActionPreference = "Stop"
 # Runs the program with Ctrl+Alt+N by calling this script directly.
 Set-Location $PSScriptRoot
 
-# Keep paths for optional source compile fallback.
 $sourceDir = Join-Path $PSScriptRoot "src/main/java/com/example/newssummarizer"
 $outDir = Join-Path $PSScriptRoot "out"
 $jsonJar = Join-Path $PSScriptRoot "lib/json-20231013.jar"
 
-# Prefer JAVA_HOME if set; otherwise try the bundled JDK 25 path.
-$defaultJdk = Join-Path $env:LOCALAPPDATA "Programs\Microsoft VS Code\jdk-25.0.2"
-if (-not $env:JAVA_HOME -and (Test-Path $defaultJdk)) {
-    $env:JAVA_HOME = $defaultJdk
-}
+# JavaFX SDK location (optional). If missing, the script can attempt to download it.
+$javafxVersion = "21.0.5"
+$javafxDir = Join-Path $PSScriptRoot "lib\javafx-sdk-$javafxVersion\lib"
 
-# Ensure Maven is available for JavaFX run.
-if (-not (Get-Command mvn -ErrorAction SilentlyContinue)) {
-    $defaultMaven = Join-Path $env:USERPROFILE ".maven\maven-3.9.15\bin\mvn.cmd"
-    if (Test-Path $defaultMaven) {
-        $env:PATH = (Split-Path $defaultMaven) + ";" + $env:PATH
-    }
-}
-
-# Fail fast with a clear message if Maven is still missing.
-if (-not (Get-Command mvn -ErrorAction SilentlyContinue)) {
-    Write-Error "Maven (mvn) was not found. Install Maven or add it to PATH."
-    exit 1
-}
 
 function Import-DotEnvFile {
     param(
@@ -74,6 +58,43 @@ if (Test-Path $rootEnvPath) {
     Import-DotEnvFile -filePath $sourceEnvPath
 }
 
-# Use Maven to run JavaFX so module paths and resources are handled correctly.
-mvn -q -DskipTests javafx:run
+if (-not (Test-Path $jsonJar)) {
+    Write-Error "Missing dependency jar: $jsonJar"
+    exit 1
+}
+
+if (-not (Test-Path $outDir)) {
+    New-Item -ItemType Directory -Path $outDir | Out-Null
+}
+
+$javaSources = @(Get-ChildItem -Path $sourceDir -Filter "*.java" -File | Select-Object -ExpandProperty FullName)
+
+if ($javaSources.Count -eq 0) {
+    Write-Error "No Java source files found in $sourceDir"
+    exit 1
+}
+
+# Build classpath including optional JavaFX jars
+$cpList = @($jsonJar)
+if (Test-Path $javafxDir) {
+    $fxJars = Get-ChildItem -Path $javafxDir -Filter "*.jar" -File | ForEach-Object { $_.FullName }
+    if ($fxJars) { $cpList += $fxJars }
+} else {
+    Write-Host "JavaFX SDK not found in lib/javafx-sdk-$javafxVersion. To auto-download, run .\download-javafx.ps1 or install JavaFX manually."
+}
+
+$cpForJavac = ($cpList -join ";")
+javac -encoding UTF-8 -cp $cpForJavac -d $outDir $javaSources
+
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+# Run with JavaFX on the classpath if available
+$cpForJava = "$outDir;" + ($cpList -join ";")
+
+# Add opens option for compatibility with Java module encapsulation
+$javaOpts = "--add-opens=java.base/java.util=ALL-UNNAMED"
+
+java $javaOpts -cp $cpForJava com.example.newssummarizer.Main
 exit $LASTEXITCODE

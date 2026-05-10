@@ -599,32 +599,26 @@ function initResultsActions() {
 }
 
 function initSectionReveal() {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const children = entry.target.querySelectorAll(":scope > *");
-          children.forEach((child, index) => {
-            child.classList.add("stagger");
-            child.style.transitionDelay = `${index * 0.1}s`;
-          });
-          entry.target.querySelectorAll(".feature-card").forEach((card, index) => {
-            card.style.transitionDelay = `${index * 0.1}s`;
-            card.classList.add("show");
-          });
-          entry.target.classList.add("show");
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.15 }
-  );
-  document.querySelectorAll(".reveal").forEach((section, index) => {
-    section.style.transitionDelay = `${index * 0.1}s`;
-    observer.observe(section);
+  // Force all content visible immediately - no opacity hiding
+  document.querySelectorAll(".reveal").forEach((el) => {
+    el.style.opacity = "1";
+    el.style.transform = "none";
+    el.style.visibility = "visible";
+    el.classList.add("show");
   });
-  document.querySelectorAll(".feature-card").forEach((card, index) => {
-    card.style.transitionDelay = `${index * 0.1}s`;
+  document.querySelectorAll(".home-left, .home-right, .home-layout").forEach((el) => {
+    el.style.opacity = "1";
+    el.style.visibility = "visible";
+    el.style.transform = "none";
+    if (el.classList.contains("home-layout")) {
+      el.style.display = "flex";
+    } else {
+      el.style.display = "block";
+    }
+  });
+  document.querySelectorAll(".feature-card").forEach((card) => {
+    card.style.opacity = "1";
+    card.style.transform = "none";
   });
 }
 

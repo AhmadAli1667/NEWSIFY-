@@ -2,413 +2,512 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NEWSIFY - AI News Intelligence</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEWSIFY — AI-Powered News</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Home page overrides ── */
+    #page-home { padding: 0 !important; }
+
+    /* ── Back to top button ── */
+    .back-to-top {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--blue-accent);
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(59,130,246,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .back-to-top.show { display: flex; }
+    .back-to-top:hover { transform: translateY(-3px); }
+
+    /* ── Feature cards always visible ── */
+    .feature-card { opacity: 1 !important; transform: none !important; }
+
+    /* ── Globe canvas ── */
+    #globe-container {
+      background: radial-gradient(circle at 30% 30%, #1e3a8a 0%, #0f172a 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #globe-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* ── Briefing result card initial ── */
+    #briefingResult { opacity: 0; transform: none; }
+    #briefingResult.show { opacity: 1; }
+
+    /* ── Make page-hero images visible ── */
+    .page-hero img.active { opacity: 1; }
+
+    /* ── nav-link styled as text button ── */
+    .nav-link {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: Inter, sans-serif;
+    }
+    .nav-link.active { color: var(--blue-accent); }
+    .nav-link.active::after { width: 100%; }
+  </style>
 </head>
 <body>
+
+  <!-- Scroll progress bar -->
   <div class="progress-bar" id="scrollProgress"></div>
+
+  <!-- Top rainbow gradient stripe -->
   <div class="top-gradient"></div>
 
-  <header class="navbar">
-    <div class="navbar-left">
-      <button class="logo-button" data-view="home" aria-label="Go to home">
-        <img class="logo" src="newsify-logo.png" onerror="this.src='newsify-logo.jpg'" onerror="this.src='logo.png'" onerror="this.src='logo.jpg'" onerror="this.style.display='none'; this.parentElement.classList.add('logo-fallback')" alt="NEWSIFY logo" />
-        <span class="logo-text">NEWSIFY</span>
-      </button>
+  <!-- ═══════════════════════════════════ NAVBAR ══════════════════════════════════ -->
+  <nav class="navbar">
+
+    <!-- Logo -->
+    <button class="logo-button" style="background:none;border:none;cursor:pointer;">
+      <img
+        class="logo"
+        src="logo.png"
+        alt="NEWSIFY"
+        onerror="this.onerror=null;this.style.display='none';"
+      />
+      <span class="logo-text">NEWSIFY</span>
+    </button>
+
+    <!-- Nav links -->
+    <div class="navbar-center">
+      <button class="nav-link active" data-view="home">Home</button>
+      <button class="nav-link" data-view="search">Search</button>
+      <button class="nav-link" data-view="summarize">Summarize</button>
+      <button class="nav-link" data-view="lyrics">Lyrics</button>
+      <button class="nav-link" data-view="dictionary">Dictionary</button>
+      <button class="nav-link" data-view="analyzer">Analyzer</button>
+      <button class="nav-link" data-view="briefing">Briefing</button>
     </div>
 
-    <nav class="navbar-center" id="navLinks">
-      <button class="nav-link active" data-view="home">Home</button>
-      <button class="nav-link" data-view="search">Search News</button>
-      <button class="nav-link" data-view="summarize">Summarize Text</button>
-      <button class="nav-link" data-view="lyrics">Lyrics Analysis</button>
-      <button class="nav-link" data-view="dictionary">Dictionary</button>
-      <button class="nav-link" data-view="analyzer">Content Analyzer</button>
-    </nav>
-
+    <!-- Right actions -->
     <div class="navbar-right">
-      <button class="btn-outline" id="helpBtn">Help</button>
-      <button class="menu-button" id="menuBtn" aria-label="Open menu">⋮</button>
+      <button class="btn-outline" id="helpBtn">🗺 Tour</button>
+      <button class="menu-button" id="menuBtn">☰</button>
       <div class="menu-dropdown" id="menuDropdown">
-        <button class="menu-item" id="aboutCreator">About Creator</button>
-        <button class="menu-item" id="exampleBtn">Example</button>
+        <button class="menu-item" id="aboutCreator">👤 About Creator</button>
+        <button class="menu-item" id="exampleBtn">🔍 Try Example</button>
       </div>
     </div>
-  </header>
 
+  </nav>
+
+  <!-- ═══════════════════════════════════ PAGES ═══════════════════════════════════ -->
   <main class="main">
-    <section class="page active" id="page-home">
-      <section class="hero-section reveal">
-        <div class="hero-carousel" id="heroCarousel">
-          <div class="hero-slide active" data-index="0">
-            <img data-picture="frontpage" src="pictures/frontpage.jpg" alt="Frontpage" />
-            <div class="hero-overlay">
-              <h1>Stay Informed. Stay Ahead.</h1>
-              <p>AI-powered news briefings in seconds</p>
-            </div>
-          </div>
-          <div class="hero-slide" data-index="1">
-            <img data-picture="frontpage2" src="pictures/frontpage2.jpg" alt="Frontpage" />
-            <div class="hero-overlay">
-              <h1>Summarize Any Article</h1>
-              <p>Paste it. Choose length. Get the gist.</p>
-            </div>
-          </div>
-          <div class="hero-slide" data-index="2">
-            <img data-picture="news" src="pictures/news.jpg" alt="News" />
-            <div class="hero-overlay">
-              <h1>Analyze Lyrics &amp; Literature</h1>
-              <p>Deep insights from songs, books, and articles</p>
-            </div>
-          </div>
-          <div class="hero-slide" data-index="3">
-            <img data-picture="news2" src="pictures/news2.jpg" alt="News" />
-            <div class="hero-overlay">
-              <h1>Your Morning Briefing</h1>
-              <p>One click. Today&#39;s world in 4 paragraphs.</p>
-            </div>
-          </div>
-          <div class="hero-slide" data-index="4">
-            <img data-picture="frontpage4" src="pictures/frontpage4.jpg" alt="Frontpage" />
-            <div class="hero-overlay">
-              <h1>Built at NUST SEECS</h1>
-              <p>Ahmad Ali &amp; Team · Semester 2 Project</p>
-            </div>
-          </div>
-        </div>
-        <div class="hero-dots" id="heroDots"></div>
-        <div class="hero-glow hero-glow-top"></div>
-        <div class="hero-glow hero-glow-bottom"></div>
-        <div class="hero-glow hero-glow-center"></div>
-      </section>
 
-      <section class="ticker-section">
-        <div class="ticker-badge">🔴 BREAKING</div>
-        <div class="ticker-track">
-          <div class="ticker-content">
-            <span>Global AI regulations take shape as world leaders convene in Geneva · Pakistan cricket team announces new coach · SpaceX launches 200th mission · Tech giants report record Q1 earnings · Climate summit reaches historic carbon deal · NUST ranked top university in Pakistan · AI tools reshape newsrooms worldwide · Quantum computing breakthrough announced ·</span>
-            <span>Global AI regulations take shape as world leaders convene in Geneva · Pakistan cricket team announces new coach · SpaceX launches 200th mission · Tech giants report record Q1 earnings · Climate summit reaches historic carbon deal · NUST ranked top university in Pakistan · AI tools reshape newsrooms worldwide · Quantum computing breakthrough announced ·</span>
-          </div>
-        </div>
-      </section>
+    <!-- ══════════════════════════════════ HOME ══════════════════════════════════ -->
+    <div class="page active" id="page-home">
 
-      <section class="section home-news-section reveal">
-        <div class="home-news-container">
-          <div class="home-news-left">
-            <!-- TOP STORY CARD -->
+      <!-- 1. LEFT / RIGHT PANEL LAYOUT -->
+      <section class="section home-news-section top-news">
+        <div class="home-layout" id="home-layout">
+
+          <!-- ── LEFT PANEL (58%): News content ── -->
+          <div class="home-left" id="topNewsRow">
+
+            <!-- TOP STORY -->
             <div class="top-story-card">
-              <span class="top-story-badge">TOP STORY</span>
-              <h3 class="top-story-headline">Global Markets Rally As Inflation Cools</h3>
-              <p class="top-story-description">Stock indices surge across major exchanges as central banks signal potential interest rate pauses. Investors optimistic about economic growth prospects.</p>
+              <span class="top-story-badge">🔥 TOP STORY</span>
               <div class="story-meta">
-                <span class="story-time">2h ago</span>
-                <span class="story-category">Business</span>
+                <span class="story-time">⏱ 2 hours ago</span>
+                <span class="story-category business">Business</span>
               </div>
+              <h2 class="top-story-headline">
+                AI Revolution Drives Unprecedented Growth in Global Tech Sector
+              </h2>
+              <p class="top-story-description">
+                Artificial intelligence investments surge as major corporations race to integrate
+                machine learning into core operations, transforming industries from healthcare
+                to finance. Experts forecast a $1.8 trillion AI economy by 2030.
+              </p>
               <div class="top-story-image">
-                <img data-picture="frontpage" src="pictures/frontpage.jpg" alt="Global Markets" />
+                <img
+                  data-picture="frontpage"
+                  src="pictures/frontpage.jpg"
+                  alt="AI Technology"
+                  onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:block';"
+                />
               </div>
             </div>
 
-            <!-- SIDE CARDS -->
+            <!-- SIDE STORY CARDS (2×2 grid) -->
             <div class="side-cards">
-              <div class="side-card-item">
-                <img data-picture="frontpage2" src="pictures/frontpage2.jpg" alt="EU Climate" />
-                <div class="side-card-text">
-                  <strong>EU Leaders Agree on New Climate Plan</strong>
-                  <span>4h ago | World</span>
-                </div>
-              </div>
-              <div class="side-card-item">
-                <img data-picture="news" src="pictures/news.jpg" alt="Senate Bill" />
-                <div class="side-card-text">
-                  <strong>Senate Passes Bill to Improve Healthcare Access</strong>
-                  <span>5h ago | Politics</span>
-                </div>
-              </div>
-            </div>
 
-            <!-- LATEST NEWS -->
+              <div class="side-card-item">
+                <img
+                  data-picture="frontpage3"
+                  src="pictures/frontpage3.jpg"
+                  alt="Pakistan Tech"
+                  onerror="this.onerror=null;this.style.cssText='width:80px;height:80px;min-width:80px;background:#e53935;display:block;border-radius:8px';"
+                />
+                <div class="side-card-text">
+                  <span class="story-category politics" style="width:fit-content;margin-bottom:4px;font-size:0.72rem;">Politics</span>
+                  <strong>Pakistan Digital Policy Wins International Recognition</strong>
+                  <span>3 hours ago</span>
+                </div>
+              </div>
+
+              <div class="side-card-item">
+                <img
+                  data-picture="frontpage5"
+                  src="pictures/frontpage5.jpg"
+                  alt="Climate"
+                  onerror="this.onerror=null;this.style.cssText='width:80px;height:80px;min-width:80px;background:#7c3aed;display:block;border-radius:8px';"
+                />
+                <div class="side-card-text">
+                  <span class="category-chip world" style="margin-bottom:4px;">World</span>
+                  <strong>COP30 Reaches Historic Carbon Agreement in Dubai</strong>
+                  <span>5 hours ago</span>
+                </div>
+              </div>
+
+              <div class="side-card-item">
+                <img
+                  data-picture="news2"
+                  src="pictures/news2.jpg"
+                  alt="Sports"
+                  onerror="this.onerror=null;this.style.cssText='width:80px;height:80px;min-width:80px;background:#f97316;display:block;border-radius:8px';"
+                />
+                <div class="side-card-text">
+                  <span class="category-chip sports" style="margin-bottom:4px;">Sports</span>
+                  <strong>PSL Finals Draw Record 50M Online Viewers</strong>
+                  <span>6 hours ago</span>
+                </div>
+              </div>
+
+              <div class="side-card-item">
+                <img
+                  data-picture="summary"
+                  src="pictures/summary.jpg"
+                  alt="Health"
+                  onerror="this.onerror=null;this.style.cssText='width:80px;height:80px;min-width:80px;background:#10b981;display:block;border-radius:8px';"
+                />
+                <div class="side-card-text">
+                  <span class="category-chip health" style="margin-bottom:4px;">Health</span>
+                  <strong>New Vaccine Shows 95% Efficacy in Global Trials</strong>
+                  <span>8 hours ago</span>
+                </div>
+              </div>
+
+            </div><!-- /side-cards -->
+
+            <!-- LATEST NEWS LIST -->
             <div class="latest-news">
-              <h4 class="latest-news-header">LATEST NEWS</h4>
+              <div class="latest-news-header">📰 LATEST NEWS</div>
               <div class="latest-news-items">
-                <div class="latest-news-item">
-                  <img data-picture="frontpage3" src="pictures/frontpage3.jpg" alt="Smartphone" />
-                  <div class="latest-news-text">
-                    <strong>New Smartphone Launches With AI Features</strong>
-                    <span>1h ago | Technology</span>
-                  </div>
-                </div>
-                <div class="latest-news-item">
-                  <img data-picture="news2" src="pictures/news2.jpg" alt="Sports" />
-                  <div class="latest-news-text">
-                    <strong>City United Wins Thriller in Extra Time</strong>
-                    <span>3h ago | Sports</span>
-                  </div>
-                </div>
-                <div class="latest-news-item">
-                  <img data-picture="frontpage4" src="pictures/frontpage4.jpg" alt="Film" />
-                  <div class="latest-news-text">
-                    <strong>New Film Breaks Box Office Records</strong>
-                    <span>6h ago | Entertainment</span>
-                  </div>
-                </div>
-                <div class="latest-news-item">
-                  <img data-picture="frontpage5" src="pictures/frontpage5.jpg" alt="Health" />
-                  <div class="latest-news-text">
-                    <strong>Study Finds Daily Walks Boost Mental Health</strong>
-                    <span>7h ago | Health</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <!-- RIGHT PANEL - GLOBE & SUMMARIZE CARD -->
-          <div class="home-news-right">
-            <!-- GLOBE CONTAINER -->
+                <div class="latest-news-item technology">
+                  <img
+                    data-picture="frontpage3"
+                    src="pictures/frontpage3.jpg"
+                    alt="Tech"
+                    onerror="this.onerror=null;this.style.cssText='width:56px;height:56px;min-width:56px;background:#0f766e;display:block;border-radius:8px';"
+                  />
+                  <div class="latest-news-text">
+                    <span class="category-chip technology" style="width:fit-content;margin-bottom:4px;">Technology</span>
+                    <strong>OpenAI Releases Most Capable Model Yet for Enterprise Users</strong>
+                    <span>30 min ago</span>
+                  </div>
+                </div>
+
+                <div class="latest-news-item sports">
+                  <img
+                    data-picture="news2"
+                    src="pictures/news2.jpg"
+                    alt="Cricket"
+                    onerror="this.onerror=null;this.style.cssText='width:56px;height:56px;min-width:56px;background:#f97316;display:block;border-radius:8px';"
+                  />
+                  <div class="latest-news-text">
+                    <span class="category-chip sports" style="width:fit-content;margin-bottom:4px;">Sports</span>
+                    <strong>Pakistan Cricket Team Announces World Cup Squad of 15</strong>
+                    <span>1 hour ago</span>
+                  </div>
+                </div>
+
+                <div class="latest-news-item entertainment">
+                  <img
+                    data-picture="frontpage4"
+                    src="pictures/frontpage4.jpg"
+                    alt="Entertainment"
+                    onerror="this.onerror=null;this.style.cssText='width:56px;height:56px;min-width:56px;background:#e91e8c;display:block;border-radius:8px';"
+                  />
+                  <div class="latest-news-text">
+                    <span class="category-chip entertainment" style="width:fit-content;margin-bottom:4px;">Entertainment</span>
+                    <strong>Bollywood Blockbuster Breaks All-Time Box Office Records</strong>
+                    <span>2 hours ago</span>
+                  </div>
+                </div>
+
+                <div class="latest-news-item health">
+                  <img
+                    data-picture="summary2"
+                    src="pictures/summary2.jpg"
+                    alt="Health"
+                    onerror="this.onerror=null;this.style.cssText='width:56px;height:56px;min-width:56px;background:#10b981;display:block;border-radius:8px';"
+                  />
+                  <div class="latest-news-text">
+                    <span class="category-chip health" style="width:fit-content;margin-bottom:4px;">Health</span>
+                    <strong>WHO Announces New Global Mental Health Guidelines</strong>
+                    <span>3 hours ago</span>
+                  </div>
+                </div>
+
+                <div class="latest-news-item technology">
+                  <img
+                    data-picture="frontpage5"
+                    src="pictures/frontpage5.jpg"
+                    alt="Startup"
+                    onerror="this.onerror=null;this.style.cssText='width:56px;height:56px;min-width:56px;background:#7c3aed;display:block;border-radius:8px';"
+                  />
+                  <div class="latest-news-text">
+                    <span class="category-chip technology" style="width:fit-content;margin-bottom:4px;">Tech</span>
+                    <strong>Pakistani Startup Raises $20M Series A from Silicon Valley</strong>
+                    <span>4 hours ago</span>
+                  </div>
+                </div>
+
+              </div><!-- /latest-news-items -->
+            </div><!-- /latest-news -->
+
+          </div><!-- /home-left -->
+
+          <!-- ── RIGHT PANEL (38%): Globe + widgets ── -->
+          <div class="home-right">
+
+            <!-- Interactive Globe -->
             <div id="globe-container">
               <canvas id="globe-canvas"></canvas>
-              <div id="globe-hint">🌐 Drag to explore</div>
+              <div id="globe-hint">🌍 Live World News Globe</div>
             </div>
 
-            <!-- SUMMARIZE NEWS CARD -->
-            <div class="summarize-card">
-              <h4 class="summarize-header">SUMMARIZE NEWS</h4>
-              <p class="summarize-description">Paste a news article or text to get a quick AI summary.</p>
-              <input type="text" id="homeNewsInput" placeholder="Enter URL or paste text here..." />
-              <button class="btn-primary summarize-btn">✦ Summarize</button>
-              <span class="powered-by">Powered by AI</span>
+            <!-- Quick AI Search Widget -->
+            <div class="summarize-card" style="margin-top:20px;">
+              <div class="summarize-header" style="color:#1e40af;">⚡ QUICK AI SEARCH</div>
+              <p class="summarize-description" style="color:#334155;font-weight:600;">Ask anything about today's news</p>
+              <input
+                type="text"
+                placeholder="e.g. Latest AI developments..."
+                style="width:100%;margin-bottom:12px;"
+                onkeydown="if(event.key==='Enter'){document.querySelector('[data-view=search]').click();}"
+              />
+              <button
+                class="btn-primary full"
+                onclick="document.querySelector('[data-view=search]').click();"
+              >Search with AI →</button>
+              <span class="powered-by" style="margin-top:8px;color:#64748b;font-weight:600;">Powered by Gemini AI + NewsAPI</span>
             </div>
-          </div>
-        </div>
+
+          </div><!-- /home-right -->
+
+        </div><!-- /home-layout -->
       </section>
 
-      <!-- ABOUT US SECTION - BLUE GRADIENT -->
-      <section class="section about-section-blue reveal">
-        <div class="about-content">
-          <div class="about-column about-text-column">
-            <h3 class="about-blue-heading">Who We Are</h3>
-            <p class="about-blue-text">
-              NEWSIFY is an AI-powered news intelligence platform built by Ahmad Ali and his team during Semester 2 at NUST SEECS (National University of Sciences and Technology). What began as a Java desktop application evolved into a full-stack web platform integrating Google Gemini AI, NewsAPI, and modern web development — demonstrating skills in prompt engineering, API integration, and cloud deployment.
-            </p>
-          </div>
-          <div class="about-column about-stats-column">
-            <div class="about-stats-grid">
-              <div class="about-stat-card">
-                <h3 class="about-stat-number">4</h3>
-                <p class="about-stat-label">AI-Powered Features</p>
-              </div>
-              <div class="about-stat-card">
-                <h3 class="about-stat-number">2</h3>
-                <p class="about-stat-label">APIs Integrated</p>
-              </div>
-              <div class="about-stat-card">
-                <h3 class="about-stat-number">1500+</h3>
-                <p class="about-stat-label">Daily API Calls</p>
-              </div>
-              <div class="about-stat-card">
-                <h3 class="about-stat-number">Sem 2</h3>
-                <p class="about-stat-label">NUST SEECS Project</p>
-              </div>
-            </div>
-            <div class="about-tag-row">
-              <span class="about-tag">Gemini AI</span>
-              <span class="about-tag">NewsAPI</span>
-              <span class="about-tag">Full Stack</span>
-              <span class="about-tag">Java → Web</span>
-              <span class="about-tag">Vercel</span>
-              <span class="about-tag">NUST SEECS</span>
-            </div>
+      <!-- 2. BREAKING NEWS TICKER -->
+      <div class="ticker-section">
+        <span class="ticker-badge">🔴 BREAKING</span>
+        <div class="ticker-track">
+          <div class="ticker-content">
+            <span>AI Breakthroughs Reshape Global Economy &nbsp;·&nbsp;</span>
+            <span>Pakistan Advances in Digital Infrastructure &nbsp;·&nbsp;</span>
+            <span>NUST SEECS Students Win National Tech Award &nbsp;·&nbsp;</span>
+            <span>Climate Summit Reaches Landmark Agreement &nbsp;·&nbsp;</span>
+            <span>Global Markets React to New Trade Policies &nbsp;·&nbsp;</span>
+            <span>OpenAI Releases Most Powerful Model Yet &nbsp;·&nbsp;</span>
+            <span>Pakistan Cricket Team Announces World Cup Squad &nbsp;·&nbsp;</span>
+            <span>Gemini AI Tops Benchmarks for Third Quarter &nbsp;·&nbsp;</span>
+            <span>AI Breakthroughs Reshape Global Economy &nbsp;·&nbsp;</span>
+            <span>Pakistan Advances in Digital Infrastructure &nbsp;·&nbsp;</span>
+            <span>NUST SEECS Students Win National Tech Award &nbsp;·&nbsp;</span>
+            <span>Climate Summit Reaches Landmark Agreement &nbsp;·&nbsp;</span>
+            <span>Global Markets React to New Trade Policies &nbsp;·&nbsp;</span>
+            <span>OpenAI Releases Most Powerful Model Yet &nbsp;·&nbsp;</span>
+            <span>Pakistan Cricket Team Announces World Cup Squad &nbsp;·&nbsp;</span>
+            <span>Gemini AI Tops Benchmarks for Third Quarter &nbsp;·&nbsp;</span>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- MAIN HERO CAROUSEL WITH PREV/NEXT -->
-      <section class="carousel-section" data-carousel="main" data-interval="5000">
-        <div class="carousel-slides">
-          <div class="carousel-slide active">
-            <img data-picture="frontpage" src="pictures/frontpage.jpg" alt="Carousel slide 1" />
-            <div class="carousel-overlay">
-              <h2>Global News at Your Fingertips</h2>
-              <p>AI-powered briefings delivered instantly</p>
-            </div>
+      <!-- 3. HERO CAROUSEL -->
+      <div class="hero-section">
+        <div class="hero-carousel" id="heroCarousel">
+          <div class="hero-slide active">
+            <img data-picture="frontpage" src="pictures/frontpage.jpg" alt="Breaking News" onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;object-fit:cover;background:linear-gradient(135deg,#1e40af,#3b82f6);display:block';" />
+            <div class="hero-overlay"><h1>Stay Informed. Stay Ahead.</h1><p>AI-powered news briefings in seconds</p></div>
           </div>
-          <div class="carousel-slide">
-            <img data-picture="frontpage2" src="pictures/frontpage2.jpg" alt="Carousel slide 2" />
-            <div class="carousel-overlay">
-              <h2>Summarize Like a Pro</h2>
-              <p>Long articles in seconds, short summaries</p>
-            </div>
+          <div class="hero-slide">
+            <img data-picture="frontpage2" src="pictures/frontpage2.jpg" alt="Summarize" onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;object-fit:cover;background:linear-gradient(135deg,#7c3aed,#1e40af);display:block';" />
+            <div class="hero-overlay"><h1>Summarize Any Article</h1><p>Paste it. Choose length. Get the gist.</p></div>
           </div>
-          <div class="carousel-slide">
-            <img data-picture="frontpage3" src="pictures/frontpage3.jpg" alt="Carousel slide 3" />
-            <div class="carousel-overlay">
-              <h2>Technology Insights</h2>
-              <p>Stay ahead of the digital revolution</p>
-            </div>
+          <div class="hero-slide">
+            <img data-picture="frontpage3" src="pictures/frontpage3.jpg" alt="Analyze" onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;object-fit:cover;background:linear-gradient(135deg,#f97316,#7c3aed);display:block';" />
+            <div class="hero-overlay"><h1>Analyze Lyrics &amp; Literature</h1><p>Deep insights from songs, books, and articles</p></div>
           </div>
-          <div class="carousel-slide">
-            <img data-picture="frontpage4" src="pictures/frontpage4.jpg" alt="Carousel slide 4" />
-            <div class="carousel-overlay">
-              <h2>Your Daily Source</h2>
-              <p>Morning briefings with global coverage</p>
-            </div>
+          <div class="hero-slide">
+            <img data-picture="frontpage4" src="pictures/frontpage4.jpg" alt="Briefing" onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;object-fit:cover;background:linear-gradient(135deg,#10b981,#1e40af);display:block';" />
+            <div class="hero-overlay"><h1>Your Morning Briefing</h1><p>One click. Today's world in 4 paragraphs.</p></div>
           </div>
-          <div class="carousel-slide">
-            <img data-picture="frontpage5" src="pictures/frontpage5.jpg" alt="Carousel slide 5" />
-            <div class="carousel-overlay">
-              <h2>Deep Analysis Awaits</h2>
-              <p>Understand news, lyrics, and literature</p>
-            </div>
+          <div class="hero-slide">
+            <img data-picture="frontpage5" src="pictures/frontpage5.jpg" alt="NUST SEECS" onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;object-fit:cover;background:linear-gradient(135deg,#1e40af,#10b981);display:block';" />
+            <div class="hero-overlay"><h1>Built at NUST SEECS</h1><p>Ahmad Ali &amp; Team · Semester 2 Project</p></div>
           </div>
-          <div class="carousel-slide">
-            <img data-picture="news" src="pictures/news.jpg" alt="Carousel slide 6" />
-            <div class="carousel-overlay">
-              <h2>World in Focus</h2>
-              <p>Breaking news from around the globe</p>
-            </div>
-          </div>
-          <div class="carousel-slide">
-            <img data-picture="news2" src="pictures/news2.jpg" alt="Carousel slide 7" />
-            <div class="carousel-overlay">
-              <h2>Connected Stories</h2>
-              <p>Understand how events relate to you</p>
-            </div>
-          </div>
+          <div class="hero-glow hero-glow-top"></div>
+          <div class="hero-glow hero-glow-bottom"></div>
+          <div class="hero-glow hero-glow-center"></div>
         </div>
-        <button class="carousel-btn carousel-btn-prev" id="carouselPrev">←</button>
-        <button class="carousel-btn carousel-btn-next" id="carouselNext">→</button>
-        <div class="carousel-dots" id="carouselDots"></div>
-      </section>
+        <div class="hero-dots" id="heroDots"></div>
+      </div>
 
-      <section class="section feature-section reveal">
+      <!-- 4. FEATURE CARDS SECTION -->
+      <section class="section" style="background:#f8faff;">
         <div class="section-header">
           <div class="accent-bar blue"></div>
           <div>
-            <h2>What Can NEWSIFY Do? ✨</h2>
+            <h2 style="color:#1e40af;font-weight:800;">Explore Our AI Tools</h2>
+            <p style="color:#334155;font-weight:600;">Six powerful features to keep you informed</p>
           </div>
         </div>
-        <div class="feature-grid" id="featureGrid">
-          <article class="feature-card blue" data-view="search">
+        <div class="feature-grid">
+
+          <div class="feature-card blue show" style="cursor:pointer;" data-view="search">
             <div class="feature-icon">🔍</div>
-            <h3>Search News</h3>
-            <p>Ask a question, get a newsroom-style briefing with sources.</p>
-            <span class="feature-link">Try it →</span>
-          </article>
-          <article class="feature-card blue" data-view="summarize">
-            <div class="feature-icon">📝</div>
-            <h3>Summarize Text</h3>
-            <p>Turn long articles into sharp, accurate summaries.</p>
-            <span class="feature-link">Try it →</span>
-          </article>
-          <article class="feature-card purple" data-view="lyrics">
+            <h3 style="color:#1e40af;font-size:1.15rem;margin:0 0 8px;font-weight:800;">AI News Search</h3>
+            <p style="color:#1e3a8a;font-weight:700;">Ask any question, get answers from real live headlines.</p>
+            <span class="feature-link" style="font-weight:800;">Try Now →</span>
+          </div>
+
+          <div class="feature-card purple show" style="cursor:pointer;" data-view="summarize">
+            <div class="feature-icon">✂️</div>
+            <h3 style="color:#6d28d9;font-size:1.15rem;margin:0 0 8px;font-weight:800;">Article Summarizer</h3>
+            <p style="color:#5b21b6;font-weight:700;">Paste any article, essay, or report. Crisp summary instantly.</p>
+            <span class="feature-link" style="font-weight:800;">Try Now →</span>
+          </div>
+
+          <div class="feature-card green show" style="cursor:pointer;" data-view="lyrics">
             <div class="feature-icon">🎵</div>
-            <h3>Lyrics Analysis</h3>
-            <p>Decode meaning, emotion, and creative potential.</p>
-            <span class="feature-link">Try it →</span>
-          </article>
-          <article class="feature-card green" data-view="dictionary">
+            <h3 style="color:#065f46;font-size:1.15rem;margin:0 0 8px;font-weight:800;">Lyrics Analyzer</h3>
+            <p style="color:#064e3b;font-weight:700;">Decode the deeper meaning behind songs with AI.</p>
+            <span class="feature-link" style="font-weight:800;">Try Now →</span>
+          </div>
+
+          <div class="feature-card orange show" style="cursor:pointer;" data-view="dictionary">
             <div class="feature-icon">📖</div>
-            <h3>Dictionary</h3>
-            <p>Instant definitions, examples, and nuanced context.</p>
-            <span class="feature-link">Try it →</span>
-          </article>
-          <article class="feature-card orange" data-view="analyzer">
-            <div class="feature-icon">✍️</div>
-            <h3>Content Analyzer</h3>
-            <p>Deep analysis for articles, songs, and book excerpts.</p>
-            <span class="feature-link">Try it →</span>
-          </article>
+            <h3 style="color:#9a3412;font-size:1.15rem;margin:0 0 8px;font-weight:800;">Smart Dictionary</h3>
+            <p style="color:#7c2d12;font-weight:700;">Instant definitions, synonyms, and AI usage examples.</p>
+            <span class="feature-link" style="font-weight:800;">Try Now →</span>
+          </div>
+
+          <div class="feature-card blue show" style="cursor:pointer;" data-view="analyzer">
+            <div class="feature-icon">📊</div>
+            <h3 style="color:#1e40af;font-size:1.15rem;margin:0 0 8px;font-weight:800;">Content Analyzer</h3>
+            <p style="color:#1e3a8a;font-weight:700;">Deep analysis of articles, book excerpts, and lyrics.</p>
+            <span class="feature-link" style="font-weight:800;">Try Now →</span>
+          </div>
+
+          <div class="feature-card purple show" style="cursor:pointer;" data-view="briefing">
+            <div class="feature-icon">📋</div>
+            <h3 style="color:#6d28d9;font-size:1.15rem;margin:0 0 8px;font-weight:800;">Daily Briefing</h3>
+            <p style="color:#5b21b6;font-weight:700;">One click. Today's world in 4 paragraphs.</p>
+            <span class="feature-link" style="font-weight:800;">Try Now →</span>
+          </div>
+
         </div>
       </section>
 
-      <section class="section how-section reveal">
+      <!-- 5. HOW IT WORKS -->
+      <section class="section">
         <div class="section-header">
-          <div class="accent-bar blue"></div>
+          <div class="accent-bar purple"></div>
           <div>
-            <h2>How NEWSIFY Works 🚀</h2>
+            <h2 style="color:#1e40af;font-weight:800;">How NEWSIFY Works</h2>
+            <p style="color:#334155;font-weight:600;">Three steps to smarter news consumption</p>
           </div>
         </div>
         <div class="how-grid">
           <div class="how-card" data-color="blue">
-            <div class="how-number">01</div>
-            <h3>Ask or Paste</h3>
-            <p>Type a news question, paste an article, or drop in song lyrics.</p>
+            <div class="how-number" style="color:#1e40af;">01</div>
+            <h3 style="color:#1e40af;font-size:1.15rem;font-weight:800;">Choose a Tool</h3>
+            <p style="color:#1e293b;font-weight:600;line-height:1.7;">Pick from 6 AI-powered tools — search, summarize, analyze lyrics, look up words, deep-analyze content, or get a morning briefing.</p>
           </div>
           <div class="how-card" data-color="purple">
-            <div class="how-number">02</div>
-            <h3>AI Processes</h3>
-            <p>Gemini AI analyzes input using specialized prompts built by our team.</p>
+            <div class="how-number" style="color:#7c3aed;">02</div>
+            <h3 style="color:#7c3aed;font-size:1.15rem;font-weight:800;">Input Your Content</h3>
+            <p style="color:#1e293b;font-weight:600;line-height:1.7;">Type a question, paste an article, enter lyrics, or just click a button. NEWSIFY handles the rest with Gemini AI + NewsAPI.</p>
           </div>
           <div class="how-card" data-color="green">
-            <div class="how-number">03</div>
-            <h3>Get Insights</h3>
-            <p>Receive a structured briefing, summary, or deep analysis in seconds.</p>
+            <div class="how-number" style="color:#059669;">03</div>
+            <h3 style="color:#059669;font-size:1.15rem;font-weight:800;">Get AI Insights</h3>
+            <p style="color:#1e293b;font-weight:600;line-height:1.7;">Receive clean, readable AI-generated summaries, analysis, and insights. Copy or expand results with one click.</p>
           </div>
         </div>
       </section>
 
-      <section class="section feedback-form-section reveal">
-        <div class="section-header">
-          <div class="accent-bar blue"></div>
+      <!-- 6. ABOUT SECTION -->
+      <section class="section about-section">
+        <div class="about-grid">
           <div>
-            <h2>We'd Love Your Feedback 💬</h2>
-            <p class="subtitle">NEWSIFY is a student project — your thoughts help us improve.</p>
-          </div>
-        </div>
-        <form class="feedback-form" id="feedbackForm">
-          <input type="text" id="feedbackName" placeholder="Your name" required />
-          <textarea id="feedbackText" placeholder="What do you think of NEWSIFY? Bugs? Suggestions?" required></textarea>
-          <div class="star-rating" id="starRating">
-            <button type="button" class="star" data-value="1">★</button>
-            <button type="button" class="star" data-value="2">★</button>
-            <button type="button" class="star" data-value="3">★</button>
-            <button type="button" class="star" data-value="4">★</button>
-            <button type="button" class="star" data-value="5">★</button>
-          </div>
-          <button type="submit" class="feedback-btn">Send Feedback ✉️</button>
-        </form>
-        <div class="feedback-success" id="feedbackSuccess">
-          Thank you! Your feedback means a lot to us 🙏
-        </div>
-        <div class="feedback-links">
-          <a href="https://github.com/AhmadAli1667" target="_blank" rel="noreferrer">GitHub</a>
-          <span class="separator">|</span>
-          <a href="https://www.linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a>
-          <span class="separator">|</span>
-          <a href="mailto:ahmadali.dev@gmail.com">Email</a>
-        </div>
-      </section>
-
-      <section class="section briefing-section reveal">
-        <div class="section-header">
-          <div class="accent-bar blue"></div>
-          <div>
-            <h2>Morning Briefing ☀️</h2>
-            <p>One click delivers today&#39;s top world stories — written in the voice of a professional news anchor.</p>
-          </div>
-        </div>
-        <div class="briefing-card">
-          <div class="briefing-hero">
-            <img data-picture="frontpage4" src="pictures/frontpage4.jpg" alt="Morning briefing" />
-            <div class="briefing-overlay">Today&#39;s Briefing</div>
-          </div>
-          <div class="briefing-actions">
-            <button class="btn-primary" id="briefingBtn">Get Today&#39;s Briefing</button>
-            <button class="btn-outline" id="headlinesBtn">Top Today Headlines</button>
-          </div>
-          <div class="briefing-result" id="briefingResult">
-            <div class="result-actions">
-              <button class="result-btn" data-action="copy" data-target="briefingText">📋 Copy</button>
-              <button class="result-btn" data-action="expand" data-target="briefingText">⛶ Expand</button>
+            <div class="section-header">
+              <div class="accent-bar green"></div>
+              <div>
+                <h2 style="color:#1e40af;font-weight:800;">About NEWSIFY</h2>
+                <p style="color:#334155;font-weight:600;">Built with purpose. Powered by AI.</p>
+              </div>
             </div>
-            <div class="result-body" id="briefingText"></div>
+            <p class="about-copy" style="font-size:1.05rem;color:#1e293b;font-weight:600;line-height:1.8;">
+              NEWSIFY is an AI-powered news platform built by
+              <strong style="color:#1e40af;">Ahmad Ali</strong> and team at
+              <strong style="color:#1e40af;">NUST SEECS</strong> as a Semester 2 project.
+              It combines <strong>Google's Gemini AI</strong> with real-time news from
+              <strong>NewsAPI</strong> to deliver intelligent, summarized, and analyzed
+              news content in seconds.
+            </p>
+            <div class="tag-row">
+              <span class="tag">🤖 Gemini AI</span>
+              <span class="tag">📰 NewsAPI</span>
+              <span class="tag">🎓 NUST SEECS</span>
+              <span class="tag">⚡ Real-time</span>
+              <span class="tag">🌍 Global Coverage</span>
+              <span class="tag">💯 Free to Use</span>
+            </div>
           </div>
-          <div class="headline-list" id="headlineList"></div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <h3 style="color:#1e40af;">6</h3>
+              <p style="color:#334155;font-weight:700;">AI Tools</p>
+            </div>
+            <div class="stat-card">
+              <h3 style="color:#1e40af;">∞</h3>
+              <p style="color:#334155;font-weight:700;">News Sources</p>
+            </div>
+            <div class="stat-card">
+              <h3 style="color:#1e40af;">24/7</h3>
+              <p style="color:#334155;font-weight:700;">Live Coverage</p>
+            </div>
+            <div class="stat-card">
+              <h3 style="color:#1e40af;">100%</h3>
+              <p style="color:#334155;font-weight:700;">Free to Use</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -416,7 +515,8 @@
         <div class="section-header">
           <div class="accent-bar purple"></div>
           <div>
-            <h2>Trending in Culture 🎶</h2>
+            <h2>Trending in Culture</h2>
+            <p>Top artists and songs people are discovering right now.</p>
           </div>
         </div>
         <div class="culture-grid">
@@ -442,7 +542,7 @@
             </div>
           </div>
           <div class="culture-block">
-            <h3>Top Tracks</h3>
+            <h3>Top Songs</h3>
             <div class="track-list">
               <div class="track-item">
                 <img data-picture="all too well" src="pictures/all%20too%20well.jpg" alt="All Too Well" />
@@ -470,66 +570,70 @@
         </div>
       </section>
 
-      <section class="section feedback-section reveal">
-        <div class="section-header">
-          <div class="accent-bar blue"></div>
-          <div>
-            <h2>What People Are Saying 💬</h2>
+      <!-- 7. FEEDBACK FORM SECTION -->
+      <div class="feedback-form-section">
+        <div style="text-align:center;margin-bottom:24px;">
+          <h2 style="color:#1e40af;font-weight:800;margin:0 0 8px;">Share Your Feedback</h2>
+          <p style="color:#334155;font-weight:600;margin:0;">Help us make NEWSIFY better</p>
+        </div>
+        <form class="feedback-form" id="feedbackForm">
+          <input type="text" id="feedbackName" placeholder="Your name" required />
+          <div id="starRating" class="star-rating">
+            <button type="button" class="star">★</button>
+            <button type="button" class="star">★</button>
+            <button type="button" class="star">★</button>
+            <button type="button" class="star">★</button>
+            <button type="button" class="star">★</button>
           </div>
+          <textarea id="feedbackText" placeholder="Tell us what you think about NEWSIFY..." rows="4" required></textarea>
+          <button type="submit" class="feedback-btn">Send Feedback ✉️</button>
+        </form>
+        <div class="feedback-success" id="feedbackSuccess">
+          ✅ Thank you! Your feedback has been received.
         </div>
-        <div class="feedback-grid">
-          <article class="feedback-card">
-            <div class="feedback-header">
-              <img src="https://i.pravatar.cc/60?img=47" alt="Eloise Martin" />
-              <div>
-                <h4>Eloise Martin</h4>
-                <span>Student at LUMS</span>
-              </div>
-            </div>
-            <p class="feedback-quote">“Ruthless. I love it. It dragged me back into the news. Blunt, fast, impossible to ignore.”</p>
-          </article>
-          <article class="feedback-card">
-            <div class="feedback-header">
-              <img src="https://i.pravatar.cc/60?img=25" alt="Brooke Chen" />
-              <div>
-                <h4>Brooke Chen</h4>
-                <span>Journalist</span>
-              </div>
-            </div>
-            <p class="feedback-quote">“Brutally effective. The summaries cut through noise. It feels like an editor slapped me awake.”</p>
-          </article>
-          <article class="feedback-card">
-            <div class="feedback-header">
-              <img src="https://i.pravatar.cc/60?img=12" alt="Luke Hassan" />
-              <div>
-                <h4>Luke Hassan</h4>
-                <span>Researcher</span>
-              </div>
-            </div>
-            <p class="feedback-quote">“No fluff, just facts. The AI briefings are razor sharp. I can&#39;t go back to slow news feeds.”</p>
-          </article>
+        <div class="feedback-links">
+          <a href="#">Privacy Policy</a>
+          <span class="separator">·</span>
+          <a href="#">GitHub</a>
+          <span class="separator">·</span>
+          <a href="#">Contact</a>
         </div>
-      </section>
-    </section>
+      </div>
 
-    <section class="page" id="page-search">
-      <div class="info-panel">
-        <button class="info-toggle">How does this work? ▾</button>
-        <p>Type any question in plain English. Gemini AI extracts search terms, NewsAPI fetches latest matching articles, Gemini synthesizes them into a structured 5-7 paragraph briefing. Built with prompt engineering to ensure editorial-quality output.</p>
+    </div><!-- /page-home -->
+
+    <!-- ═════════════════════════════════ SEARCH ════════════════════════════════ -->
+    <div class="page" id="page-search">
+
+      <div class="section-header">
+        <div class="accent-bar blue"></div>
+        <div>
+          <h2 style="color:#1e40af;font-weight:800;">🔍 AI News Search</h2>
+          <p style="color:#334155;font-weight:600;">Ask any question — get AI answers from real headlines</p>
+        </div>
       </div>
-      <div class="page-hero" data-carousel="search" data-interval="4000">
-        <img data-picture="frontpage" src="pictures/frontpage.jpg" alt="Frontpage" class="active" />
-        <img data-picture="frontpage2" src="pictures/frontpage2.jpg" alt="Frontpage" />
-        <img data-picture="frontpage3" src="pictures/frontpage3.jpg" alt="Frontpage" />
-        <img data-picture="frontpage5" src="pictures/frontpage5.jpg" alt="Frontpage" />
-        <img data-picture="news" src="pictures/news.jpg" alt="News" />
-        <img data-picture="news2" src="pictures/news2.jpg" alt="News" />
+
+      <div class="page-hero" style="margin-bottom:24px;">
+        <img
+          data-picture="search-hero"
+          src="pictures/frontpage.jpg"
+          alt="Search"
+          class="active"
+          onerror="this.onerror=null;this.style.cssText='position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:block;object-fit:cover';"
+        />
+        <div class="hero-overlay" style="border-radius:16px;">
+          <h1 style="font-size:2rem;font-weight:800;">Ask the News</h1>
+          <p style="font-size:1.1rem;font-weight:600;">Real headlines. AI-powered answers.</p>
+        </div>
       </div>
+
       <div class="form-card">
-        <label>Your Question 🔍</label>
-        <textarea id="searchInput" placeholder="What is happening with AI in 2026?"></textarea>
-        <button class="btn-primary full" id="searchBtn">Generate Briefing 🔍</button>
+        <label for="searchInput" style="font-size:1.1rem;color:#1e40af;font-weight:800;">💬 Your Question</label>
+        <input type="text" id="searchInput" placeholder="e.g. What are the latest developments in AI?" />
+        <button class="btn-primary" id="searchBtn">🔍 Search News</button>
+        <span class="powered-by" style="color:#64748b;font-weight:600;">Powered by Gemini AI + NewsAPI</span>
       </div>
+
       <div class="result-card" id="searchResultCard">
         <div class="result-actions">
           <button class="result-btn" data-action="copy" data-target="searchResult">📋 Copy</button>
@@ -537,59 +641,105 @@
         </div>
         <div class="result-body" id="searchResult"></div>
       </div>
-    </section>
 
-    <section class="page" id="page-summarize">
-      <div class="info-panel">
-        <button class="info-toggle">How does this work? ▾</button>
-        <p>Paste any article, essay, or passage. Choose your preferred length — Short (90-130 words), Medium (230-300 words), or Long (450+ words). Gemini summarizes while preserving key facts and tone.</p>
+      <div class="info-panel" style="margin-top:8px;">
+        <button class="info-toggle" style="color:#1e40af;font-weight:800;">ℹ️ How does AI News Search work?</button>
+        <p style="color:#334155;font-weight:600;">Our AI fetches real headlines from NewsAPI and uses Google Gemini to generate a comprehensive answer — not just training data, but actual live articles.</p>
       </div>
-      <div class="page-hero" data-carousel="summarize" data-interval="4000">
-        <img data-picture="summary" src="pictures/summary.jpg" alt="Summary" class="active" />
-        <img data-picture="summary2" src="pictures/summary2.jpg" alt="Summary" />
-        <img data-picture="analyzing" src="pictures/analyzing.jpg" alt="Analysis" />
-        <img data-picture="analyzing2" src="pictures/analyzing2.jpg" alt="Analysis" />
-      </div>
-      <div class="form-card">
-        <label>Text to Summarize 📝</label>
-        <textarea id="summarizeInput" placeholder="Paste any article, passage, or notes..."></textarea>
-        <div class="button-group" id="lengthGroup">
-          <button data-value="short">Short</button>
-          <button data-value="medium" class="active">Medium</button>
-          <button data-value="long">Long</button>
+
+    </div><!-- /page-search -->
+
+    <!-- ══════════════════════════════ SUMMARIZE ════════════════════════════════ -->
+    <div class="page" id="page-summarize">
+
+      <div class="section-header">
+        <div class="accent-bar purple"></div>
+        <div>
+          <h2 style="color:#6d28d9;font-weight:800;">✂️ Article Summarizer</h2>
+          <p style="color:#334155;font-weight:600;">Paste anything. Get a crisp summary in seconds.</p>
         </div>
-        <button class="btn-primary full" id="summarizeBtn">Summarize 📝</button>
       </div>
-      <div class="result-card" id="summarizeResultCard">
+
+      <div class="page-hero" style="margin-bottom:24px;">
+        <img
+          data-picture="summarize-hero"
+          src="pictures/summary.jpg"
+          alt="Summarize"
+          class="active"
+          onerror="this.onerror=null;this.style.cssText='position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#1e40af);display:block;object-fit:cover';"
+        />
+        <div class="hero-overlay" style="border-radius:16px;">
+          <h1 style="font-size:2rem;font-weight:800;">Summarize Any Text</h1>
+          <p style="font-size:1.1rem;font-weight:600;">Articles · Essays · Research Papers</p>
+        </div>
+      </div>
+
+      <div class="form-card green">
+        <label for="summarizeInput" style="font-size:1.1rem;color:#065f46;font-weight:800;">📄 Paste Your Text</label>
+        <textarea id="summarizeInput" placeholder="Paste an article, essay, or any long text here..."></textarea>
+        <div>
+          <label style="font-size:0.95rem;color:#334155;font-weight:700;">Summary Length</label>
+          <div class="button-group" id="lengthGroup" style="margin-top:8px;">
+            <button data-value="short">Short</button>
+            <button data-value="medium" class="active">Medium</button>
+            <button data-value="long">Long</button>
+          </div>
+        </div>
+        <button class="btn-primary green" id="summarizeBtn">✂️ Summarize Now</button>
+        <span class="powered-by" style="color:#64748b;font-weight:600;">Powered by Google Gemini AI</span>
+      </div>
+
+      <div class="result-card green" id="summarizeResultCard">
         <div class="result-actions">
           <button class="result-btn" data-action="copy" data-target="summarizeResult">📋 Copy</button>
           <button class="result-btn" data-action="expand" data-target="summarizeResult">⛶ Expand</button>
         </div>
         <div class="result-body" id="summarizeResult"></div>
       </div>
-    </section>
 
-    <section class="page" id="page-lyrics">
-      <div class="info-panel purple">
-        <button class="info-toggle">How does this work? ▾</button>
-        <p>Three analyzer modes using specialized Gemini prompts: Main Message (what the artist is saying), Artist Insights (style, influences, emotional state), Creative Suggestions (music video concepts, remixes, interpretations).</p>
-      </div>
-      <div class="page-hero" data-carousel="lyrics" data-interval="6000">
-        <img data-picture="music1" src="pictures/music1.jpg" alt="Music" class="active" />
-        <img data-picture="music2" src="pictures/music2.jpg" alt="Music" />
-      </div>
-      <div class="form-card">
-        <label>Analysis Focus 🎵</label>
-        <div class="button-group purple" id="lyricsGroup">
-          <button data-value="main" class="active">Main Message</button>
-          <button data-value="insights">Artist Insights</button>
-          <button data-value="creative">Creative Suggestions</button>
+    </div><!-- /page-summarize -->
+
+    <!-- ════════════════════════════════ LYRICS ═════════════════════════════════ -->
+    <div class="page" id="page-lyrics">
+
+      <div class="section-header">
+        <div class="accent-bar purple"></div>
+        <div>
+          <h2 style="color:#7c3aed;font-weight:800;">🎵 Lyrics Analyzer</h2>
+          <p style="color:#334155;font-weight:600;">Decode the hidden meaning behind any song</p>
         </div>
-        <label>Lyrics</label>
-        <textarea id="lyricsInput" placeholder="Paste song lyrics here..."></textarea>
-        <button class="btn-primary purple full" id="lyricsBtn">Analyze Lyrics 🎵</button>
       </div>
-      <div class="result-card" id="lyricsResultCard">
+
+      <div class="page-hero" style="margin-bottom:24px;">
+        <img
+          data-picture="lyrics-hero"
+          src="pictures/music1.jpg"
+          alt="Lyrics"
+          class="active"
+          onerror="this.onerror=null;this.style.cssText='position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#e91e8c);display:block;object-fit:cover';"
+        />
+        <div class="hero-overlay" style="border-radius:16px;">
+          <h1 style="font-size:2rem;font-weight:800;">Lyrics Intelligence</h1>
+          <p style="font-size:1.1rem;font-weight:600;">AI-powered music analysis &amp; insights</p>
+        </div>
+      </div>
+
+      <div class="form-card" style="border-left:4px solid #7c3aed;">
+        <label for="lyricsInput" style="font-size:1.1rem;color:#6d28d9;font-weight:800;">🎶 Paste Song Lyrics</label>
+        <textarea id="lyricsInput" placeholder="Paste song lyrics here..."></textarea>
+        <div>
+          <label style="font-size:0.95rem;color:#334155;font-weight:700;">Analysis Type</label>
+          <div class="button-group purple" id="lyricsGroup" style="margin-top:8px;">
+            <button data-value="main" class="active">Main Message</button>
+            <button data-value="insights">Artist Insights</button>
+            <button data-value="creative">Creative Ideas</button>
+          </div>
+        </div>
+        <button class="btn-primary purple" id="lyricsBtn">🎵 Analyze Lyrics</button>
+        <span class="powered-by" style="color:#64748b;font-weight:600;">Powered by Google Gemini AI</span>
+      </div>
+
+      <div class="result-card" style="border-left-color:#7c3aed;" id="lyricsResultCard">
         <div class="result-actions">
           <button class="result-btn" data-action="copy" data-target="lyricsResult">📋 Copy</button>
           <button class="result-btn" data-action="expand" data-target="lyricsResult">⛶ Expand</button>
@@ -597,415 +747,392 @@
         <div class="result-body" id="lyricsResult"></div>
       </div>
 
-      <section class="section culture-section inner reveal">
-        <div class="section-header">
-          <div class="accent-bar purple"></div>
-          <div>
-            <h2>Trending in Culture 🎶</h2>
-          </div>
-        </div>
-        <div class="culture-grid">
-          <div class="culture-block">
-            <h3>Music Radar</h3>
-            <div class="artist-grid">
-              <button class="artist-card">
-                <img data-picture="taylor swift" src="pictures/taylor%20swift.jpg" alt="Taylor Swift" />
-                <span>Taylor Swift</span>
-              </button>
-              <button class="artist-card">
-                <img data-picture="the weeknd" src="pictures/the%20weeknd.jpg" alt="The Weeknd" />
-                <span>The Weeknd</span>
-              </button>
-              <button class="artist-card">
-                <img data-picture="travis scott" src="pictures/travis%20scott.jpg" alt="Travis Scott" />
-                <span>Travis Scott</span>
-              </button>
-              <button class="artist-card">
-                <img data-picture="r" src="pictures/r.jpg" alt="Rihanna" />
-                <span>Rihanna</span>
-              </button>
-            </div>
-          </div>
-          <div class="culture-block">
-            <h3>Top Tracks</h3>
-            <div class="track-list">
-              <div class="track-item">
-                <img data-picture="all too well" src="pictures/all%20too%20well.jpg" alt="All Too Well" />
-                <div>
-                  <strong>All Too Well</strong>
-                  <span>Taylor Swift</span>
-                </div>
-              </div>
-              <div class="track-item">
-                <img data-picture="love story" src="pictures/love%20story.jpg" alt="Love Story" />
-                <div>
-                  <strong>Love Story</strong>
-                  <span>Taylor Swift</span>
-                </div>
-              </div>
-              <div class="track-item">
-                <img data-picture="moth to a flame" src="pictures/moth%20to%20a%20flame.jpg" alt="Moth To A Flame" />
-                <div>
-                  <strong>Moth To A Flame</strong>
-                  <span>The Weeknd</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </section>
+    </div><!-- /page-lyrics -->
 
-    <section class="page" id="page-dictionary">
-      <div class="info-panel green">
-        <button class="info-toggle">How does this work? ▾</button>
-        <p>Powered by the free dictionaryapi.dev — no API key needed. Returns definition, part of speech, phonetic, and example sentences instantly.</p>
+    <!-- ══════════════════════════════ DICTIONARY ═══════════════════════════════ -->
+    <div class="page" id="page-dictionary">
+
+      <div class="section-header">
+        <div class="accent-bar orange"></div>
+        <div>
+          <h2 style="color:#ea580c;font-weight:800;">📖 Smart Dictionary</h2>
+          <p style="color:#334155;font-weight:600;">Instant definitions, synonyms, and AI usage examples</p>
+        </div>
       </div>
-      <div class="page-hero" data-carousel="dictionary" data-interval="5000">
-        <img data-picture="dictionary" src="pictures/dictionary.jpg" alt="Dictionary" class="active" />
-        <img data-picture="dictionary2" src="pictures/dictionary2.jpg" alt="Dictionary" />
+
+      <div class="page-hero" style="margin-bottom:24px;">
+        <img
+          data-picture="dictionary-hero"
+          src="pictures/dictionary.jpg"
+          alt="Dictionary"
+          class="active"
+          onerror="this.onerror=null;this.style.cssText='position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(135deg,#f97316,#1e40af);display:block;object-fit:cover';"
+        />
+        <div class="hero-overlay" style="border-radius:16px;">
+          <h1 style="font-size:2rem;font-weight:800;">Word Intelligence</h1>
+          <p style="font-size:1.1rem;font-weight:600;">Free definitions — no API key required</p>
+        </div>
       </div>
-      <div class="form-card">
-        <label>Word</label>
-        <input type="text" id="dictionaryInput" placeholder="serendipity" />
-        <button class="btn-primary green full" id="dictionaryBtn">Look Up Word 📖</button>
+
+      <div class="form-card" style="border-left:4px solid #f97316;">
+        <label for="dictionaryInput" style="font-size:1.1rem;color:#ea580c;font-weight:800;">🔤 Enter a Word</label>
+        <input type="text" id="dictionaryInput" placeholder="e.g. serendipity, ephemeral, ubiquitous..." />
+        <button class="btn-primary orange" id="dictionaryBtn">📖 Look Up Definition</button>
+        <span class="powered-by" style="color:#64748b;font-weight:600;">Free · Powered by DictionaryAPI.dev · No key needed</span>
       </div>
-      <div class="result-card green" id="dictionaryResultCard">
+
+      <div class="result-card orange" id="dictionaryResultCard">
         <div class="result-actions">
           <button class="result-btn" data-action="copy" data-target="dictionaryResult">📋 Copy</button>
-          <button class="result-btn" data-action="expand" data-target="dictionaryResult">⛶ Expand</button>
         </div>
         <div class="result-body" id="dictionaryResult"></div>
       </div>
-      <div class="form-card green">
-        <h3>Ask Gemini ✨</h3>
-        <input type="text" id="dictionaryPrompt" placeholder="Use the word in 3 creative sentences..." />
-        <button class="btn-primary green full" id="dictionaryAsk">Ask Gemini ✨</button>
-        <div class="result-card green" id="dictionaryGeminiCard">
-          <div class="result-body" id="dictionaryGemini"></div>
-        </div>
-      </div>
-    </section>
 
-    <section class="page" id="page-analyzer">
-      <div class="info-panel orange">
-        <button class="info-toggle">How does this work? ▾</button>
-        <p>Three analyzer modes: Newspaper Article (objective summary + key facts), Song Lyrics (message, insights, creative uses), Book Excerpt (summary + theme identification). Each uses a specialized Gemini prompt tuned for that content type.</p>
+      <div class="form-card" style="margin-top:8px;border-left:4px solid #3b82f6;">
+        <label style="font-size:1.1rem;color:#1e40af;font-weight:800;">🤖 Ask Gemini AI About This Word</label>
+        <p style="color:#334155;font-weight:600;margin:0 0 8px;font-size:0.9rem;">Look up a word above first — a prompt will appear here automatically</p>
+        <input type="text" id="dictionaryPrompt" placeholder="Gemini prompt will appear here after word lookup..." />
+        <button class="btn-primary" id="dictionaryAsk">Ask Gemini AI</button>
       </div>
-      <div class="page-hero" data-carousel="analyzer" data-interval="4000">
-        <img data-picture="analyzing" src="pictures/analyzing.jpg" alt="Analysis" class="active" />
-        <img data-picture="analyzing2" src="pictures/analyzing2.jpg" alt="Analysis" />
-        <img data-picture="frontpage" src="pictures/frontpage.jpg" alt="Frontpage" />
-      </div>
-      <div class="form-card">
-        <label>Content Type</label>
-        <div class="button-group orange" id="analyzerType">
-          <button data-value="newspaper" class="active">📰 Newspaper</button>
-          <button data-value="lyrics">🎵 Song Lyrics</button>
-          <button data-value="book">📚 Book Excerpt</button>
+
+      <div class="result-card" id="dictionaryGeminiCard">
+        <div class="result-actions">
+          <button class="result-btn" data-action="copy" data-target="dictionaryGemini">📋 Copy</button>
         </div>
-        <label>Analysis Type</label>
-        <div class="button-group orange" id="analyzerFocus"></div>
-        <label id="analyzerLabel">Content</label>
-        <textarea id="analyzerInput" placeholder="Paste the article..."></textarea>
-        <button class="btn-primary orange full" id="analyzerBtn">Analyze Content ✍️</button>
+        <div class="result-body" id="dictionaryGemini"></div>
       </div>
-      <div class="result-card orange" id="analyzerResultCard">
+
+    </div><!-- /page-dictionary -->
+
+    <!-- ═══════════════════════════════ ANALYZER ════════════════════════════════ -->
+    <div class="page" id="page-analyzer">
+
+      <div class="section-header">
+        <div class="accent-bar blue"></div>
+        <div>
+          <h2 style="color:#1e40af;font-weight:800;">📊 Content Analyzer</h2>
+          <p style="color:#334155;font-weight:600;">Deep AI analysis for articles, books, and lyrics</p>
+        </div>
+      </div>
+
+      <div class="page-hero" style="margin-bottom:24px;">
+        <img
+          data-picture="analyzer-hero"
+          src="pictures/analyzer-hero.jpg"
+          alt="Analyzer"
+          class="active"
+          onerror="this.onerror=null;this.style.cssText='position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(135deg,#1e40af,#10b981);display:block;object-fit:cover';"
+        />
+        <div class="hero-overlay" style="border-radius:16px;">
+          <h1 style="font-size:2rem;font-weight:800;">Deep Content Analysis</h1>
+          <p style="font-size:1.1rem;font-weight:600;">AI-powered insights for any content type</p>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div>
+          <label style="font-size:1.1rem;color:#1e40af;font-weight:800;">📁 Content Type</label>
+          <div class="button-group" id="analyzerType" style="margin-top:8px;">
+            <button data-value="newspaper" class="active">📰 Article</button>
+            <button data-value="lyrics">🎵 Lyrics</button>
+            <button data-value="book">📚 Book Excerpt</button>
+          </div>
+        </div>
+        <div>
+          <label id="analyzerLabel" style="font-size:1.1rem;color:#1e40af;font-weight:800;">Content</label>
+          <textarea id="analyzerInput" placeholder="Paste the article..." style="margin-top:8px;"></textarea>
+        </div>
+        <div>
+          <label style="font-size:0.95rem;color:#334155;font-weight:700;">Analysis Focus</label>
+          <div class="button-group" id="analyzerFocus" style="margin-top:8px;">
+            <!-- Populated dynamically by app.js -->
+          </div>
+        </div>
+        <button class="btn-primary" id="analyzerBtn">📊 Analyze Now</button>
+        <span class="powered-by" style="color:#64748b;font-weight:600;">Powered by Google Gemini AI</span>
+      </div>
+
+      <div class="result-card" id="analyzerResultCard">
         <div class="result-actions">
           <button class="result-btn" data-action="copy" data-target="analyzerResult">📋 Copy</button>
           <button class="result-btn" data-action="expand" data-target="analyzerResult">⛶ Expand</button>
         </div>
         <div class="result-body" id="analyzerResult"></div>
       </div>
-    </section>
-  </main>
 
+      <div class="info-panel purple" style="margin-top:8px;">
+        <button class="info-toggle" style="color:#6d28d9;font-weight:800;">ℹ️ What can the Content Analyzer do?</button>
+        <p style="color:#334155;font-weight:600;">Analyze newspaper articles for key facts and summaries, song lyrics for meaning and artist insights, or book excerpts for themes and plot analysis — all powered by Gemini AI.</p>
+      </div>
+
+    </div><!-- /page-analyzer -->
+
+    <!-- ══════════════════════════════ BRIEFING ═════════════════════════════════ -->
+    <div class="page" id="page-briefing">
+
+      <div class="section-header">
+        <div class="accent-bar green"></div>
+        <div>
+          <h2 style="color:#059669;font-weight:800;">📋 Daily Briefing</h2>
+          <p style="color:#334155;font-weight:600;">Your AI-powered morning digest — one click to know the world</p>
+        </div>
+      </div>
+
+      <div class="page-hero" style="margin-bottom:24px;">
+        <img
+          data-picture="briefing-hero"
+          src="pictures/briefing-hero.jpg"
+          alt="Briefing"
+          class="active"
+          onerror="this.onerror=null;this.style.cssText='position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(135deg,#059669,#1e40af);display:block;object-fit:cover';"
+        />
+        <div class="briefing-overlay">
+          <span style="font-size:1.2rem;font-weight:800;">☀️ Today's World at a Glance</span>
+        </div>
+      </div>
+
+      <div class="briefing-card">
+        <div class="briefing-actions">
+          <button class="btn-primary" id="briefingBtn">📋 Get AI Briefing</button>
+          <button class="btn-outline" id="headlinesBtn">📰 Show Headlines</button>
+        </div>
+        <div class="result-card" id="briefingResult">
+          <div class="result-actions">
+            <button class="result-btn" data-action="copy" data-target="briefingText">📋 Copy</button>
+            <button class="result-btn" data-action="expand" data-target="briefingText">⛶ Expand</button>
+          </div>
+          <div class="result-body" id="briefingText"></div>
+        </div>
+        <div class="headline-list" id="headlineList"></div>
+      </div>
+
+      <div class="info-panel green" style="margin-top:16px;">
+        <button class="info-toggle" style="color:#059669;font-weight:800;">ℹ️ What is the Daily Briefing?</button>
+        <p style="color:#334155;font-weight:600;">NewsAPI fetches today's top headlines and Gemini AI synthesises them into a concise, readable 4-paragraph summary covering world events, technology, business, sports, and more.</p>
+      </div>
+
+    </div><!-- /page-briefing -->
+
+  </main><!-- /main -->
+
+  <!-- ════════════════════════════════ FOOTER ══════════════════════════════════ -->
   <div class="footer-divider"></div>
   <footer class="footer">
     <div class="footer-grid">
       <div class="footer-column">
-        <img class="footer-logo" src="newsify-logo.png" onerror="this.src='newsify-logo.jpg'" onerror="this.src='logo.png'" onerror="this.src='logo.jpg'" alt="NEWSIFY logo" />
+        <img
+          class="footer-logo"
+          src="logo.png"
+          alt="NEWSIFY"
+          onerror="this.onerror=null;this.style.display='none';"
+        />
         <h3>NEWSIFY</h3>
-        <p>AI-powered news intelligence for the modern reader</p>
-        <p>Built at NUST SEECS · 2026</p>
+        <p style="color:#94a3b8;margin-top:8px;font-weight:600;">AI-powered news platform built at NUST SEECS, Islamabad.</p>
       </div>
       <div class="footer-column">
         <h4>Quick Links</h4>
-        <button data-view="home">Home</button>
-        <button data-view="search">Search News</button>
-        <button data-view="summarize">Summarize Text</button>
-        <button data-view="lyrics">Lyrics Analysis</button>
-        <button data-view="dictionary">Dictionary</button>
-        <button data-view="analyzer">Content Analyzer</button>
+        <button data-view="home">🏠 Home</button>
+        <button data-view="search">🔍 AI Search</button>
+        <button data-view="summarize">✂️ Summarize</button>
+        <button data-view="briefing">📋 Briefing</button>
       </div>
       <div class="footer-column">
-        <h4>Connect</h4>
-        <a href="https://github.com/AhmadAli1667" target="_blank" rel="noreferrer">GitHub</a>
-        <a href="https://www.linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a>
-        <a href="mailto:ahmadali.dev@gmail.com">Email</a>
+        <h4>AI Tools</h4>
+        <button data-view="lyrics">🎵 Lyrics Analyzer</button>
+        <button data-view="dictionary">📖 Dictionary</button>
+        <button data-view="analyzer">📊 Content Analyzer</button>
+      </div>
+      <div class="footer-column">
+        <h4>About</h4>
+        <p style="color:#94a3b8;font-weight:600;line-height:1.7;">
+          Built by Ahmad Ali<br />
+          Team Leader · NUST SEECS<br />
+          Semester 2 · Islamabad, Pakistan
+        </p>
       </div>
     </div>
-    <div class="footer-bottom">© 2026 NEWSIFY · Built by Ahmad Ali &amp; Team · NUST SEECS</div>
+    <div class="footer-bottom">
+      <p>© 2025 NEWSIFY &nbsp;·&nbsp; Built with ❤️ at NUST SEECS &nbsp;·&nbsp; Powered by Gemini AI &amp; NewsAPI</p>
+    </div>
   </footer>
 
+  <!-- Back to Top Button -->
   <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
+  <!-- ══════════════════════════════ EXPAND MODAL ═══════════════════════════════ -->
   <div class="modal" id="expandModal" aria-hidden="true">
     <div class="modal-card">
-      <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+      <button class="modal-close" id="modalClose">×</button>
       <div class="modal-content" id="modalContent"></div>
     </div>
   </div>
 
-  <!-- API KEY MODAL -->
+  <!-- ═══════════════════════════ API KEY MODAL ════════════════════════════════ -->
   <div class="modal" id="apiKeyModal" aria-hidden="true">
     <div class="modal-card api-key-card">
-      <button class="modal-close" id="apiKeyClose" aria-label="Close">×</button>
-      <h2 class="api-key-title">⚠️ API Limit Reached</h2>
-      <p class="api-key-body">The shared API key has reached its daily limit. You can use your own free Gemini API key to continue — it takes 2 minutes to set up and is completely free.</p>
+      <button class="modal-close" id="apiKeyClose">×</button>
+      <h2 class="api-key-title">⚡ API Limit Reached</h2>
+      <p class="api-key-body">
+        The shared API key has reached its limit. Use your own free Gemini API key to continue — it takes 30 seconds to get one.
+      </p>
       <div class="api-key-buttons">
-        <button class="btn-primary" id="apiKeyUseOwn">Use My Own Key 🔑</button>
-        <button class="btn-outline" id="apiKeyTutorial">How to Get a Free Key? 📖</button>
+        <button class="btn-primary" id="apiKeyUseOwn">🔑 Use My Own API Key</button>
+        <button class="btn-outline" id="apiKeyTutorial">📖 How to Get a Free Key</button>
       </div>
       <div class="api-key-input-section" id="apiKeyInputSection" style="display:none;">
-        <input type="password" id="apiKeyInput" placeholder="Paste your Gemini API key here..." />
-        <button class="btn-primary" id="apiKeySave">Save Key & Retry</button>
+        <label style="font-weight:700;color:#1e40af;">Enter Your Gemini API Key</label>
+        <input type="password" id="apiKeyInput" placeholder="AIzaSy..." />
+        <button class="btn-primary" id="apiKeySave">✅ Save &amp; Continue</button>
       </div>
       <div class="api-key-tutorial" id="apiKeyTutorialSection" style="display:none;">
-        <h3>How to Get Your Free Gemini API Key</h3>
+        <h3>Get Your Free Gemini API Key</h3>
         <ol class="tutorial-steps">
-          <li><strong>Step 1:</strong> Go to https://aistudio.google.com</li>
-          <li><strong>Step 2:</strong> Sign in with any Google account</li>
-          <li><strong>Step 3:</strong> Click 'Get API Key' then 'Create API key in new project'</li>
-          <li><strong>Step 4:</strong> Copy the key and paste it in the field above</li>
+          <li>Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#3b82f6;font-weight:700;">aistudio.google.com</a></li>
+          <li>Sign in with your Google account</li>
+          <li>Click <strong>"Create API Key"</strong></li>
+          <li>Copy and paste the key above</li>
         </ol>
-        <p class="tutorial-note">✓ Free tier: 1500 requests per day — more than enough for personal use</p>
+        <p class="tutorial-note">⚡ Completely free with generous limits!</p>
       </div>
       <div class="api-key-trust">
-        <p>🔒 <strong>Your key is stored only in your browser memory for this session.</strong> We never send it to our servers, never log it, and it is deleted when you close this tab. You can verify this in our open-source GitHub code.</p>
+        <p>🔒 Your API key is stored only in this browser session and never sent to our servers.</p>
       </div>
     </div>
   </div>
 
+  <!-- ══════════════════════════════ TOUR OVERLAY ═══════════════════════════════ -->
   <div class="tour-overlay" id="tourOverlay" aria-hidden="true">
     <div class="tour-tooltip" id="tourTooltip">
-      <h3 id="tourTitle">Guided Tour</h3>
-      <p id="tourText"></p>
+      <strong id="tourTitle" style="font-size:1rem;color:#1e40af;"></strong>
+      <p id="tourText" style="color:#334155;margin:8px 0 0;font-size:0.9rem;font-weight:600;line-height:1.5;"></p>
       <div class="tour-actions">
-        <button class="btn-outline" id="tourPrev">Prev</button>
-        <button class="btn-outline" id="tourNext">Next</button>
-        <button class="btn-primary" id="tourClose">Close</button>
+        <button class="btn-outline" id="tourPrev" style="font-size:0.82rem;padding:6px 12px;">← Prev</button>
+        <button class="btn-primary" id="tourNext" style="font-size:0.82rem;padding:6px 12px;">Next →</button>
+        <button class="result-btn" id="tourClose" style="font-size:0.82rem;">✕ Close</button>
       </div>
     </div>
   </div>
 
-  <script src="app.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- ══════════════════════════════════ GLOBE JS ═══════════════════════════════ -->
   <script>
-(function() {
-  const canvas = document.getElementById('globe-canvas');
-  if (!canvas) return;
+    (function() {
+      const canvas = document.getElementById('globe-canvas');
+      if (!canvas) return;
 
-  const container = document.getElementById('globe-container');
-  const width = container.offsetWidth;
-  const height = container.offsetHeight;
+      let animFrame;
+      let frame = 0;
 
-  // Scene setup
-  const renderer = new THREE.WebGLRenderer({ 
-    canvas, 
-    antialias: true, 
-    alpha: true 
-  });
-  renderer.setSize(width, height);
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setClearColor(0x000000, 0);
+      function resize() {
+        const container = canvas.parentElement;
+        canvas.width  = container.offsetWidth  || 400;
+        canvas.height = container.offsetHeight || 400;
+      }
 
-  const scene = new THREE.Scene();
+      function draw() {
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        const cx = W / 2, cy = H / 2;
+        const r  = Math.min(W, H) * 0.44;
 
-  const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-  camera.position.z = 2.5;
+        ctx.clearRect(0, 0, W, H);
 
-  // Earth sphere
-  const geometry = new THREE.SphereGeometry(1, 64, 64);
+        // Base sphere
+        const baseGrad = ctx.createRadialGradient(cx - r*0.25, cy - r*0.25, r*0.05, cx, cy, r);
+        baseGrad.addColorStop(0,   '#60a5fa');
+        baseGrad.addColorStop(0.3, '#2563eb');
+        baseGrad.addColorStop(0.65,'#1e3a8a');
+        baseGrad.addColorStop(1,   '#0f172a');
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fillStyle = baseGrad;
+        ctx.fill();
 
-  const textureLoader = new THREE.TextureLoader();
-  
-  // Load earth texture
-  const earthTexture = textureLoader.load(
-    'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
-    undefined,
-    undefined,
-    function() {
-      // Fallback if CDN fails
-      earthTexture.image = null;
-    }
-  );
+        // Latitude lines
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+        ctx.lineWidth = 1;
+        for (let lat = -80; lat <= 80; lat += 20) {
+          const ry = r * Math.sin(lat * Math.PI / 180);
+          const rx = r * Math.cos(lat * Math.PI / 180);
+          ctx.beginPath();
+          ctx.ellipse(cx, cy + ry, rx, rx * 0.25, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
 
-  // Load bump map for terrain depth
-  const bumpTexture = textureLoader.load(
-    'https://unpkg.com/three-globe/example/img/earth-topology.png'
-  );
+        // Longitude lines (rotating)
+        for (let i = 0; i < 6; i++) {
+          const angle = (i / 6) * Math.PI + (frame * 0.004);
+          ctx.beginPath();
+          ctx.ellipse(cx, cy, r * Math.abs(Math.sin(angle + Math.PI/2)), r, angle, 0, Math.PI * 2);
+          ctx.stroke();
+        }
 
-  const material = new THREE.MeshPhongMaterial({
-    map: earthTexture,
-    bumpMap: bumpTexture,
-    bumpScale: 0.05,
-    specularMap: textureLoader.load(
-      'https://unpkg.com/three-globe/example/img/earth-water.png'
-    ),
-    specular: new THREE.Color(0x333333),
-    shininess: 15,
-  });
+        // Shimmer highlight
+        const shimGrad = ctx.createRadialGradient(cx - r*0.35, cy - r*0.35, r*0.01, cx - r*0.2, cy - r*0.2, r*0.6);
+        shimGrad.addColorStop(0,   'rgba(255,255,255,0.20)');
+        shimGrad.addColorStop(0.5, 'rgba(255,255,255,0.03)');
+        shimGrad.addColorStop(1,   'rgba(255,255,255,0)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fillStyle = shimGrad;
+        ctx.fill();
 
-  const globe = new THREE.Mesh(geometry, material);
-  scene.add(globe);
+        // Outer glow ring
+        const glowGrad = ctx.createRadialGradient(cx, cy, r*0.85, cx, cy, r*1.18);
+        glowGrad.addColorStop(0, 'rgba(59,130,246,0.25)');
+        glowGrad.addColorStop(1, 'rgba(59,130,246,0)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 1.18, 0, Math.PI * 2);
+        ctx.fillStyle = glowGrad;
+        ctx.fill();
 
-  // Atmosphere glow
-  const atmosphereGeometry = new THREE.SphereGeometry(1.02, 64, 64);
-  const atmosphereMaterial = new THREE.MeshPhongMaterial({
-    color: 0x3B82F6,
-    transparent: true,
-    opacity: 0.08,
-    side: THREE.FrontSide,
-  });
-  const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
-  scene.add(atmosphere);
+        // Pulsing dots (news hotspots)
+        const hotspots = [
+          { lat: 33.7, lng: 73.1 },  // Islamabad
+          { lat: 40.7, lng:-74.0 },  // New York
+          { lat: 51.5, lng: -0.1 },  // London
+          { lat: 35.7, lng:139.7 },  // Tokyo
+          { lat:-23.5, lng:-46.6 },  // São Paulo
+        ];
+        const pulse = 0.5 + 0.5 * Math.sin(frame * 0.06);
+        hotspots.forEach(({lat, lng}) => {
+          const phi   = (90 - lat)  * Math.PI / 180;
+          const theta = (lng + frame * 0.25) * Math.PI / 180;
+          const x = cx + r * Math.sin(phi) * Math.cos(theta);
+          const y = cy - r * Math.cos(phi);
+          if (Math.sin(phi) * Math.cos(theta) > 0) {  // front face only
+            ctx.beginPath();
+            ctx.arc(x, y, 3 + pulse * 2, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(249,115,22,${0.6 + pulse * 0.4})`;
+            ctx.fill();
+          }
+        });
 
-  // Outer glow ring
-  const glowGeometry = new THREE.SphereGeometry(1.06, 64, 64);
-  const glowMaterial = new THREE.MeshPhongMaterial({
-    color: 0x60A5FA,
-    transparent: true,
-    opacity: 0.04,
-    side: THREE.FrontSide,
-  });
-  const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-  scene.add(glow);
+        frame++;
+        animFrame = requestAnimationFrame(draw);
+      }
 
-  // Stars background
-  const starsGeometry = new THREE.BufferGeometry();
-  const starCount = 2000;
-  const starPositions = new Float32Array(starCount * 3);
-  for (let i = 0; i < starCount * 3; i++) {
-    starPositions[i] = (Math.random() - 0.5) * 100;
-  }
-  starsGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-  const starsMaterial = new THREE.PointsMaterial({ 
-    color: 0xffffff, 
-    size: 0.1,
-    transparent: true,
-    opacity: 0.6
-  });
-  const stars = new THREE.Points(starsGeometry, starsMaterial);
-  scene.add(stars);
+      // Globe drag interaction
+      let dragging = false, lastX = 0;
+      canvas.addEventListener('mousedown', e => { dragging = true; lastX = e.clientX; });
+      window.addEventListener('mousemove', e => {
+        if (!dragging) return;
+        frame += (e.clientX - lastX) * 0.5;
+        lastX = e.clientX;
+      });
+      window.addEventListener('mouseup', () => { dragging = false; });
 
-  // Lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-  scene.add(ambientLight);
+      // Hide hint after 4 seconds
+      const hint = document.getElementById('globe-hint');
+      setTimeout(() => hint && hint.classList.add('hidden'), 4000);
 
-  const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
-  sunLight.position.set(5, 3, 5);
-  scene.add(sunLight);
-
-  const blueLight = new THREE.PointLight(0x3B82F6, 0.5, 10);
-  blueLight.position.set(-3, 2, 2);
-  scene.add(blueLight);
-
-  // Drag to rotate
-  let isDragging = false;
-  let previousMouseX = 0;
-  let previousMouseY = 0;
-  let rotationSpeedX = 0;
-  let rotationSpeedY = 0.002; // auto slow rotation
-
-  canvas.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    previousMouseX = e.clientX;
-    previousMouseY = e.clientY;
-    rotationSpeedY = 0;
-    // Hide hint after first drag
-    const hint = document.getElementById('globe-hint');
-    if (hint) hint.classList.add('hidden');
-  });
-
-  window.addEventListener('mouseup', () => {
-    isDragging = false;
-    // Resume slow auto rotation
-    setTimeout(() => { rotationSpeedY = 0.002; }, 1000);
-  });
-
-  window.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    const deltaX = e.clientX - previousMouseX;
-    const deltaY = e.clientY - previousMouseY;
-    rotationSpeedX = deltaY * 0.005;
-    rotationSpeedY = deltaX * 0.005;
-    globe.rotation.x += rotationSpeedX;
-    globe.rotation.y += rotationSpeedY;
-    atmosphere.rotation.copy(globe.rotation);
-    previousMouseX = e.clientX;
-    previousMouseY = e.clientY;
-  });
-
-  // Touch support for mobile
-  canvas.addEventListener('touchstart', (e) => {
-    isDragging = true;
-    previousMouseX = e.touches[0].clientX;
-    previousMouseY = e.touches[0].clientY;
-    rotationSpeedY = 0;
-  });
-
-  canvas.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    const deltaX = e.touches[0].clientX - previousMouseX;
-    const deltaY = e.touches[0].clientY - previousMouseY;
-    globe.rotation.x += deltaY * 0.005;
-    globe.rotation.y += deltaX * 0.005;
-    atmosphere.rotation.copy(globe.rotation);
-    previousMouseX = e.touches[0].clientX;
-    previousMouseY = e.touches[0].clientY;
-  }, { passive: false });
-
-  canvas.addEventListener('touchend', () => {
-    isDragging = false;
-    setTimeout(() => { rotationSpeedY = 0.002; }, 1000);
-  });
-
-  // Scroll zoom (optional, subtle)
-  container.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    camera.position.z += e.deltaY * 0.001;
-    camera.position.z = Math.max(1.8, Math.min(4, camera.position.z));
-  }, { passive: false });
-
-  // Animate
-  function animate() {
-    requestAnimationFrame(animate);
-    if (!isDragging) {
-      globe.rotation.y += rotationSpeedY;
-      atmosphere.rotation.y += rotationSpeedY;
-      glow.rotation.y += rotationSpeedY * 0.5;
-    }
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  // Resize handler
-  window.addEventListener('resize', () => {
-    const w = container.offsetWidth;
-    const h = container.offsetHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
-  });
-
-  // Hide hint after 4 seconds
-  setTimeout(() => {
-    const hint = document.getElementById('globe-hint');
-    if (hint) hint.classList.add('hidden');
-  }, 4000);
-})();
+      resize();
+      draw();
+      window.addEventListener('resize', () => { resize(); });
+    })();
   </script>
+
+  <!-- ════════════════════════════════ APP JS ═══════════════════════════════════ -->
+  <script src="app.js"></script>
+
 </body>
 </html>
