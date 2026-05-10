@@ -1,252 +1,404 @@
+/* ═══════════════════════════════════════════════════════
+   NEWSIFY — app.js  (full rewrite)
+   • Real headlines from NewsAPI via /api/search + /api/briefing
+   • Images: article.urlToImage → Pexels API → local fallback
+   • Real relative timestamps
+═══════════════════════════════════════════════════════ */
+
+// ─── CONFIG ────────────────────────────────────────────
+const PEXELS_API_KEY = "VoKtcvTC88ZLDu0d7byLhtzUd88ZfMLvlwwZPwGjOsszUGI8y2JWjljJ"; // get free key at pexels.com/api
+const LOCAL_FALLBACK  = "pictures/frontpage.jpg";
+
+// ─── STATE ─────────────────────────────────────────────
 const state = {
   activePage: "home",
   heroIndex: 0,
   heroTimer: null,
-  carouselTimers: new Map(),
   length: "medium",
   lyricsFocus: "main",
   analyzerType: "newspaper",
   analyzerFocus: "summarize",
-  aboutText: "Ahmad Ali — Team Leader, NUST SEECS, Semester 2. Built NEWSIFY combining Gemini AI, NewsAPI, and modern web development."
+  aboutText: "Ahmad Ali — Team Leader, NUST SEECS, Semester 2.\nBuilt NEWSIFY combining Gemini AI, NewsAPI, and modern web development."
 };
 
 const heroSlides = [
-  { title: "Stay Informed. Stay Ahead.", text: "AI-powered news briefings in seconds" },
-  { title: "Summarize Any Article", text: "Paste it. Choose length. Get the gist." },
-  { title: "Analyze Lyrics & Literature", text: "Deep insights from songs, books, and articles" },
-  { title: "Your Morning Briefing", text: "One click. Today\'s world in 4 paragraphs." },
-  { title: "Built at NUST SEECS", text: "Ahmad Ali & Team · Semester 2 Project" }
+  { title: "Stay Informed. Stay Ahead.",        text: "AI-powered news briefings in seconds" },
+  { title: "Summarize Any Article",              text: "Paste it. Choose length. Get the gist." },
+  { title: "Analyze Lyrics & Literature",        text: "Deep insights from songs, books, and articles" },
+  { title: "Your Morning Briefing",              text: "One click. Today's world in 4 paragraphs." },
+  { title: "Built at NUST SEECS",                text: "Ahmad Ali & Team · Semester 2 Project" }
 ];
 
-const pages = document.querySelectorAll(".page");
-const navLinks = document.querySelectorAll(".nav-link");
-const logoButton = document.querySelector(".logo-button");
-const topNewsRow = document.getElementById("topNewsRow");
-const heroDots = document.getElementById("heroDots");
-const heroCarousel = document.getElementById("heroCarousel");
-const menuBtn = document.getElementById("menuBtn");
-const menuDropdown = document.getElementById("menuDropdown");
-const aboutCreator = document.getElementById("aboutCreator");
-const exampleBtn = document.getElementById("exampleBtn");
-const helpBtn = document.getElementById("helpBtn");
+// ─── DOM REFS ──────────────────────────────────────────
+const pages       = document.querySelectorAll(".page");
+const navLinks    = document.querySelectorAll(".nav-link");
+const logoButton  = document.querySelector(".logo-button");
+const heroDots    = document.getElementById("heroDots");
+const heroCarousel= document.getElementById("heroCarousel");
+const menuBtn     = document.getElementById("menuBtn");
+const menuDropdown= document.getElementById("menuDropdown");
+const aboutCreator= document.getElementById("aboutCreator");
+const exampleBtn  = document.getElementById("exampleBtn");
+const helpBtn     = document.getElementById("helpBtn");
 const tourOverlay = document.getElementById("tourOverlay");
 const tourTooltip = document.getElementById("tourTooltip");
-const tourTitle = document.getElementById("tourTitle");
-const tourText = document.getElementById("tourText");
-const tourPrev = document.getElementById("tourPrev");
-const tourNext = document.getElementById("tourNext");
-const tourClose = document.getElementById("tourClose");
+const tourTitle   = document.getElementById("tourTitle");
+const tourText    = document.getElementById("tourText");
+const tourPrev    = document.getElementById("tourPrev");
+const tourNext    = document.getElementById("tourNext");
+const tourClose   = document.getElementById("tourClose");
 const scrollProgress = document.getElementById("scrollProgress");
-const backToTop = document.getElementById("backToTop");
-const modal = document.getElementById("expandModal");
-const modalContent = document.getElementById("modalContent");
-const modalClose = document.getElementById("modalClose");
+const backToTop   = document.getElementById("backToTop");
+const modal       = document.getElementById("expandModal");
+const modalContent= document.getElementById("modalContent");
+const modalClose  = document.getElementById("modalClose");
 
-const searchInput = document.getElementById("searchInput");
-const searchBtn = document.getElementById("searchBtn");
-const searchResult = document.getElementById("searchResult");
+const searchInput      = document.getElementById("searchInput");
+const searchBtn        = document.getElementById("searchBtn");
+const searchResult     = document.getElementById("searchResult");
 const searchResultCard = document.getElementById("searchResultCard");
 
-const summarizeInput = document.getElementById("summarizeInput");
-const summarizeBtn = document.getElementById("summarizeBtn");
-const summarizeResult = document.getElementById("summarizeResult");
+const summarizeInput      = document.getElementById("summarizeInput");
+const summarizeBtn        = document.getElementById("summarizeBtn");
+const summarizeResult     = document.getElementById("summarizeResult");
 const summarizeResultCard = document.getElementById("summarizeResultCard");
 
-const lyricsInput = document.getElementById("lyricsInput");
-const lyricsBtn = document.getElementById("lyricsBtn");
-const lyricsResult = document.getElementById("lyricsResult");
+const lyricsInput      = document.getElementById("lyricsInput");
+const lyricsBtn        = document.getElementById("lyricsBtn");
+const lyricsResult     = document.getElementById("lyricsResult");
 const lyricsResultCard = document.getElementById("lyricsResultCard");
 
-const dictionaryInput = document.getElementById("dictionaryInput");
-const dictionaryBtn = document.getElementById("dictionaryBtn");
-const dictionaryResult = document.getElementById("dictionaryResult");
+const dictionaryInput      = document.getElementById("dictionaryInput");
+const dictionaryBtn        = document.getElementById("dictionaryBtn");
+const dictionaryResult     = document.getElementById("dictionaryResult");
 const dictionaryResultCard = document.getElementById("dictionaryResultCard");
-const dictionaryPrompt = document.getElementById("dictionaryPrompt");
-const dictionaryAsk = document.getElementById("dictionaryAsk");
-const dictionaryGemini = document.getElementById("dictionaryGemini");
+const dictionaryPrompt     = document.getElementById("dictionaryPrompt");
+const dictionaryAsk        = document.getElementById("dictionaryAsk");
+const dictionaryGemini     = document.getElementById("dictionaryGemini");
 const dictionaryGeminiCard = document.getElementById("dictionaryGeminiCard");
 
-const analyzerInput = document.getElementById("analyzerInput");
-const analyzerBtn = document.getElementById("analyzerBtn");
-const analyzerResult = document.getElementById("analyzerResult");
+const analyzerInput      = document.getElementById("analyzerInput");
+const analyzerBtn        = document.getElementById("analyzerBtn");
+const analyzerResult     = document.getElementById("analyzerResult");
 const analyzerResultCard = document.getElementById("analyzerResultCard");
-const analyzerType = document.getElementById("analyzerType");
-const analyzerFocus = document.getElementById("analyzerFocus");
-const analyzerLabel = document.getElementById("analyzerLabel");
+const analyzerType       = document.getElementById("analyzerType");
+const analyzerFocus      = document.getElementById("analyzerFocus");
+const analyzerLabel      = document.getElementById("analyzerLabel");
 
-const briefingBtn = document.getElementById("briefingBtn");
-const headlinesBtn = document.getElementById("headlinesBtn");
-const briefingText = document.getElementById("briefingText");
-const briefingResult = document.getElementById("briefingResult");
-const headlineList = document.getElementById("headlineList");
+const briefingBtn   = document.getElementById("briefingBtn");
+const headlinesBtn  = document.getElementById("headlinesBtn");
+const briefingText  = document.getElementById("briefingText");
+const briefingResult= document.getElementById("briefingResult");
+const headlineList  = document.getElementById("headlineList");
 
+// ─── TOUR STEPS ────────────────────────────────────────
 const tourSteps = [
-  { selector: "[data-view=\"home\"]", title: "Home", text: "Welcome to NEWSIFY — your AI-powered news companion" },
-  { selector: "[data-view=\"search\"]", title: "Search News", text: "Ask any question, get a full AI briefing from real headlines" },
-  { selector: "[data-view=\"summarize\"]", title: "Summarize Text", text: "Paste anything — article, essay, research — get the gist in seconds" },
-  { selector: "[data-view=\"lyrics\"]", title: "Lyrics Analysis", text: "Paste song lyrics for message analysis, artist insights, and creative ideas" },
-  { selector: "[data-view=\"dictionary\"]", title: "Dictionary", text: "Instant word definitions — free, no API key, powered by dictionaryapi.dev" },
-  { selector: "[data-view=\"analyzer\"]", title: "Content Analyzer", text: "Deep analysis of newspaper articles, book excerpts, or song lyrics" }
+  { selector: '[data-view="home"]',       title: "Home",             text: "Welcome to NEWSIFY — your AI-powered news companion" },
+  { selector: '[data-view="search"]',     title: "Search News",      text: "Ask any question, get a full AI briefing from real headlines" },
+  { selector: '[data-view="summarize"]',  title: "Summarize Text",   text: "Paste anything — article, essay, research — get the gist in seconds" },
+  { selector: '[data-view="lyrics"]',     title: "Lyrics Analysis",  text: "Paste song lyrics for message analysis, artist insights, and creative ideas" },
+  { selector: '[data-view="dictionary"]', title: "Dictionary",       text: "Instant word definitions — free, no API key needed" },
+  { selector: '[data-view="analyzer"]',   title: "Content Analyzer", text: "Deep analysis of newspaper articles, book excerpts, or song lyrics" }
 ];
 
 let tourIndex = 0;
+
+// ═══════════════════════════════════════════════════════
+//  IMAGE HELPERS
+// ═══════════════════════════════════════════════════════
+
+const pexelsCache = {};
+
+// Map broad categories to Pexels search keywords
+const CATEGORY_KEYWORDS = {
+  technology: "technology innovation",
+  tech: "technology innovation",
+  business: "business finance",
+  politics: "politics government",
+  world: "world news global",
+  sports: "sports stadium",
+  health: "health medicine",
+  entertainment: "entertainment cinema",
+  science: "science research",
+  general: "newspaper news"
+};
+
+function extractKeyword(title) {
+  const stop = new Set(["the","a","an","in","on","at","to","for","of","and","is","are","was","were","with","that","this","has","have","its","as","by","from","it","be","he","she","they","we"]);
+  const words = title.toLowerCase().replace(/[^a-z\s]/g, "").split(" ");
+  const meaningful = words.filter(w => w.length > 3 && !stop.has(w));
+  return meaningful.slice(0, 2).join(" ") || "news";
+}
+
+async function fetchPexelsImage(query) {
+  const key = query.toLowerCase().trim();
+  if (pexelsCache[key]) return pexelsCache[key];
+  try {
+    const res = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(key)}&per_page=3&orientation=landscape`,
+      { headers: { Authorization: PEXELS_API_KEY } }
+    );
+    if (!res.ok) throw new Error("Pexels error");
+    const data = await res.json();
+    // Pick a random one from top 3 for variety
+    const photos = data.photos || [];
+    if (!photos.length) throw new Error("No photos");
+    const photo = photos[Math.floor(Math.random() * photos.length)];
+    const url = photo.src?.large || photo.src?.medium || LOCAL_FALLBACK;
+    pexelsCache[key] = url;
+    return url;
+  } catch {
+    return LOCAL_FALLBACK;
+  }
+}
+
+async function getArticleImage(article, category) {
+  // 1. Use urlToImage if present
+  if (article.urlToImage && article.urlToImage.startsWith("http")) {
+    return article.urlToImage;
+  }
+  // 2. Fall back to Pexels
+  const keyword = CATEGORY_KEYWORDS[category] || extractKeyword(article.title || "news");
+  return await fetchPexelsImage(keyword);
+}
+
+// ═══════════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════════
+
+function timeAgo(isoString) {
+  if (!isoString) return "";
+  const diff = (Date.now() - new Date(isoString)) / 1000;
+  if (diff < 60)    return "just now";
+  if (diff < 3600)  return `${Math.floor(diff / 60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+  return `${Math.floor(diff / 86400)} days ago`;
+}
+
+function categoryFromSource(article) {
+  const src = (article.source?.name || "").toLowerCase();
+  const title = (article.title || "").toLowerCase();
+  const all = src + " " + title;
+  if (/sport|cricket|football|soccer|nba|nfl|tennis|f1|psl/.test(all)) return "sports";
+  if (/health|medic|hospital|vaccine|disease|covid/.test(all)) return "health";
+  if (/tech|ai |software|apple|google|meta|microsoft|openai|robot/.test(all)) return "technology";
+  if (/business|economy|market|stock|finance|bank|gdp/.test(all)) return "business";
+  if (/politic|election|parliament|congress|government|minister|senate/.test(all)) return "politics";
+  if (/entertain|film|movie|music|celebrity|bollywood|hollywood/.test(all)) return "entertainment";
+  if (/science|space|nasa|climate|planet|research/.test(all)) return "science";
+  return "general";
+}
+
+function safeText(str, max = 120) {
+  if (!str) return "";
+  return str.length > max ? str.slice(0, max) + "…" : str;
+}
+
+// ═══════════════════════════════════════════════════════
+//  REAL NEWS LOADER
+// ═══════════════════════════════════════════════════════
+
+async function fetchTopHeadlines(pageSize = 10) {
+  try {
+    // We use our own backend briefing endpoint which calls NewsAPI
+    const data = await postJson("/api/briefing", {});
+    return data.headlines || [];
+  } catch {
+    return [];
+  }
+}
+
+// Build the homepage with real data
+async function loadHomeNews() {
+  const topStoryCard = document.querySelector(".top-story-card");
+  const sideCardsEl  = document.querySelector(".side-cards");
+  const latestItemsEl= document.querySelector(".latest-news-items");
+  const tickerContent= document.querySelector(".ticker-content");
+
+  // Show skeleton while loading
+  if (topStoryCard) {
+    topStoryCard.style.opacity = "0.5";
+  }
+
+  let headlines = [];
+  try {
+    headlines = await fetchTopHeadlines(10);
+  } catch (e) {
+    console.warn("Could not fetch headlines:", e);
+  }
+
+  // If API failed or returned nothing, keep the static fallback content as-is
+  if (!headlines || headlines.length === 0) {
+    if (topStoryCard) topStoryCard.style.opacity = "1";
+    return;
+  }
+
+  // headlines may be strings (titles) or objects — normalise
+  const articles = headlines.map(h => typeof h === "string" ? { title: h, urlToImage: null, publishedAt: null, url: "#", source: { name: "" } } : h);
+
+  // ── TOP STORY (article[0]) ──────────────────────────
+  const top = articles[0];
+  if (top && topStoryCard) {
+    const cat = categoryFromSource(top);
+    const img = await getArticleImage(top, cat);
+
+    topStoryCard.innerHTML = `
+      <span class="top-story-badge">🔥 TOP STORY</span>
+      <div class="story-meta">
+        <span class="story-time">⏱ ${timeAgo(top.publishedAt) || "Recent"}</span>
+        <span class="category-chip ${cat}">${cat.charAt(0).toUpperCase()+cat.slice(1)}</span>
+      </div>
+      <h2 class="top-story-headline">${safeText(top.title, 140)}</h2>
+      <p class="top-story-description">${safeText(top.description || top.title, 220)}</p>
+      <div class="top-story-image">
+        <img src="${img}" alt="Top story"
+          onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';" />
+      </div>
+    `;
+    topStoryCard.style.opacity = "1";
+    if (top.url && top.url !== "#") {
+      topStoryCard.style.cursor = "pointer";
+      topStoryCard.onclick = () => window.open(top.url, "_blank", "noopener");
+    }
+  }
+
+  // ── SIDE CARDS (articles 1-4) ───────────────────────
+  const sideArticles = articles.slice(1, 5);
+  if (sideCardsEl && sideArticles.length) {
+    const sideImgs = await Promise.all(sideArticles.map(a => getArticleImage(a, categoryFromSource(a))));
+    sideCardsEl.innerHTML = sideArticles.map((a, i) => {
+      const cat = categoryFromSource(a);
+      return `
+        <div class="side-card-item" onclick="window.open('${a.url || "#"}','_blank','noopener')" style="cursor:pointer">
+          <img src="${sideImgs[i]}" alt="${safeText(a.title,40)}"
+            onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';"
+            style="width:76px;height:76px;border-radius:10px;object-fit:cover;flex-shrink:0;" />
+          <div class="side-card-text">
+            <span class="category-chip ${cat}" style="width:fit-content;margin-bottom:4px;">${cat.charAt(0).toUpperCase()+cat.slice(1)}</span>
+            <strong>${safeText(a.title, 80)}</strong>
+            <span>${timeAgo(a.publishedAt) || "Recent"}</span>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  // ── LATEST NEWS (articles 5-9) ──────────────────────
+  const latestArticles = articles.slice(5, 10);
+  if (latestItemsEl && latestArticles.length) {
+    const latestImgs = await Promise.all(latestArticles.map(a => getArticleImage(a, categoryFromSource(a))));
+    latestItemsEl.innerHTML = latestArticles.map((a, i) => {
+      const cat = categoryFromSource(a);
+      return `
+        <div class="latest-news-item ${cat}" onclick="window.open('${a.url || "#"}','_blank','noopener')" style="cursor:pointer">
+          <img src="${latestImgs[i]}" alt="${safeText(a.title,40)}"
+            onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';"
+            style="width:54px;height:54px;border-radius:9px;object-fit:cover;flex-shrink:0;" />
+          <div class="latest-news-text">
+            <span class="category-chip ${cat}" style="width:fit-content;margin-bottom:4px;">${cat.charAt(0).toUpperCase()+cat.slice(1)}</span>
+            <strong>${safeText(a.title, 90)}</strong>
+            <span>${timeAgo(a.publishedAt) || "Recent"}</span>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  // ── BREAKING TICKER (all article titles) ────────────
+  if (tickerContent && articles.length) {
+    const titles = articles.map(a => safeText(a.title, 80)).filter(Boolean);
+    // Duplicate for seamless loop
+    const doubled = [...titles, ...titles];
+    tickerContent.innerHTML = doubled.map(t => `<span>${t} &nbsp;·&nbsp;</span>`).join("");
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
 
 function setPage(name) {
   if (state.activePage === name) return;
   const current = document.getElementById(`page-${state.activePage}`);
   if (current) current.classList.add("fade-out");
   setTimeout(() => {
-    pages.forEach((page) => page.classList.remove("active", "fade-out"));
+    pages.forEach(p => p.classList.remove("active", "fade-out"));
     const next = document.getElementById(`page-${name}`);
     if (next) next.classList.add("active");
-    navLinks.forEach((link) => link.classList.toggle("active", link.dataset.view === name));
+    navLinks.forEach(l => l.classList.toggle("active", l.dataset.view === name));
     state.activePage = name;
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, 200);
 }
 
+// ═══════════════════════════════════════════════════════
+//  HERO CAROUSEL
+// ═══════════════════════════════════════════════════════
+
 function buildHeroDots() {
   heroDots.innerHTML = "";
-  heroSlides.forEach((_, index) => {
+  heroSlides.forEach((_, i) => {
     const dot = document.createElement("button");
-    dot.className = "hero-dot" + (index === 0 ? " active" : "");
-    dot.addEventListener("click", () => setHeroIndex(index));
+    dot.className = "hero-dot" + (i === 0 ? " active" : "");
+    dot.addEventListener("click", () => setHeroIndex(i));
     heroDots.appendChild(dot);
   });
 }
 
 function setHeroIndex(index) {
   const slides = heroCarousel.querySelectorAll(".hero-slide");
-  const dots = heroDots.querySelectorAll(".hero-dot");
-  slides.forEach((slide) => slide.classList.remove("active"));
-  dots.forEach((dot) => dot.classList.remove("active"));
-  slides[index].classList.add("active");
-  dots[index].classList.add("active");
+  const dots   = heroDots.querySelectorAll(".hero-dot");
+  slides.forEach(s => s.classList.remove("active"));
+  dots.forEach(d => d.classList.remove("active"));
+  if (slides[index]) slides[index].classList.add("active");
+  if (dots[index])   dots[index].classList.add("active");
   state.heroIndex = index;
 }
 
 function startHeroRotation() {
   clearInterval(state.heroTimer);
   state.heroTimer = setInterval(() => {
-    const next = (state.heroIndex + 1) % heroSlides.length;
-    setHeroIndex(next);
+    setHeroIndex((state.heroIndex + 1) % heroSlides.length);
   }, 5000);
 }
 
-function startCarousels() {
-  document.querySelectorAll("[data-carousel]").forEach((carousel) => {
-    const slides = carousel.querySelectorAll("img");
-    let index = 0;
-    const interval = Number(carousel.dataset.interval || "4000");
-    const timer = setInterval(() => {
-      slides.forEach((img) => img.classList.remove("active"));
-      index = (index + 1) % slides.length;
-      slides[index].classList.add("active");
-    }, interval);
-    state.carouselTimers.set(carousel, timer);
-  });
-
-  // Main carousel with prev/next buttons
-  const mainCarousel = document.querySelector('[data-carousel="main"]');
-  if (mainCarousel) {
-    const slides = mainCarousel.querySelectorAll('.carousel-slide');
-    const prevBtn = document.getElementById('carouselPrev');
-    const nextBtn = document.getElementById('carouselNext');
-    const dotsContainer = document.getElementById('carouselDots');
-    
-    let currentIndex = 0;
-    
-    // Build dots
-    slides.forEach((_, index) => {
-      const dot = document.createElement('button');
-      dot.className = 'carousel-dot' + (index === 0 ? ' active' : '');
-      dot.addEventListener('click', () => goToSlide(index));
-      dotsContainer.appendChild(dot);
-    });
-    
-    function updateSlide() {
-      slides.forEach((slide) => slide.classList.remove('active'));
-      dotsContainer.querySelectorAll('.carousel-dot').forEach((dot) => dot.classList.remove('active'));
-      slides[currentIndex].classList.add('active');
-      dotsContainer.querySelectorAll('.carousel-dot')[currentIndex].classList.add('active');
-    }
-    
-    function goToSlide(index) {
-      currentIndex = index;
-      updateSlide();
-    }
-    
-    function nextSlide() {
-      currentIndex = (currentIndex + 1) % slides.length;
-      updateSlide();
-    }
-    
-    function prevSlide() {
-      currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-      updateSlide();
-    }
-    
-    prevBtn.addEventListener('click', prevSlide);
-    nextBtn.addEventListener('click', nextSlide);
-    
-    // Auto-advance
-    setInterval(nextSlide, 5000);
-  }
-}
-
-function setupTopNews() {
-  // This function is no longer needed as we have the new home page layout
-  // keeping it for backward compatibility but it's empty
-}
+// ═══════════════════════════════════════════════════════
+//  BUTTON GROUPS / ANALYZER OPTIONS
+// ═══════════════════════════════════════════════════════
 
 function setButtonGroup(group, value) {
-  const buttons = group.querySelectorAll("button");
-  buttons.forEach((btn) => btn.classList.toggle("active", btn.dataset.value === value));
+  group.querySelectorAll("button").forEach(btn => btn.classList.toggle("active", btn.dataset.value === value));
 }
 
 function updateAnalyzerOptions() {
   analyzerFocus.innerHTML = "";
   let options = [];
   if (state.analyzerType === "newspaper") {
-    options = [
-      { value: "summarize", label: "Summarize Article" },
-      { value: "facts", label: "Extract Key Facts" }
-    ];
+    options = [{ value: "summarize", label: "Summarize Article" }, { value: "facts", label: "Extract Key Facts" }];
     analyzerLabel.textContent = "Content";
     analyzerInput.placeholder = "Paste the article...";
   }
   if (state.analyzerType === "lyrics") {
-    options = [
-      { value: "main", label: "Main Message" },
-      { value: "insights", label: "Artist Insights" },
-      { value: "creative", label: "Creative Suggestions" }
-    ];
+    options = [{ value: "main", label: "Main Message" }, { value: "insights", label: "Artist Insights" }, { value: "creative", label: "Creative Suggestions" }];
     analyzerLabel.textContent = "Lyrics";
     analyzerInput.placeholder = "Paste song lyrics here...";
   }
   if (state.analyzerType === "book") {
-    options = [
-      { value: "summarize", label: "Summarize Excerpt" },
-      { value: "themes", label: "Identify Themes" }
-    ];
+    options = [{ value: "summarize", label: "Summarize Excerpt" }, { value: "themes", label: "Identify Themes" }];
     analyzerLabel.textContent = "Excerpt";
     analyzerInput.placeholder = "Paste the excerpt...";
   }
-  options.forEach((option, index) => {
+  options.forEach((opt, idx) => {
     const btn = document.createElement("button");
-    btn.dataset.value = option.value;
-    btn.textContent = option.label;
-    if (index === 0) {
-      btn.classList.add("active");
-      state.analyzerFocus = option.value;
-    }
-    btn.addEventListener("click", () => {
-      state.analyzerFocus = option.value;
-      setButtonGroup(analyzerFocus, option.value);
-    });
+    btn.dataset.value = opt.value;
+    btn.textContent   = opt.label;
+    if (idx === 0) { btn.classList.add("active"); state.analyzerFocus = opt.value; }
+    btn.addEventListener("click", () => { state.analyzerFocus = opt.value; setButtonGroup(analyzerFocus, opt.value); });
     analyzerFocus.appendChild(btn);
   });
 }
+
+// ═══════════════════════════════════════════════════════
+//  LOADING / RESULT HELPERS
+// ═══════════════════════════════════════════════════════
 
 function setLoading(button, resultCard, resultBody) {
   button.disabled = true;
@@ -268,116 +420,33 @@ function showResult(resultCard, resultBody, content) {
   resultCard.classList.add("show");
 }
 
+// ═══════════════════════════════════════════════════════
+//  API CALLS
+// ═══════════════════════════════════════════════════════
+
 async function postJson(url, payload) {
-  const userKey = sessionStorage.getItem('user_gemini_key');
+  const userKey = sessionStorage.getItem("user_gemini_key");
   const headers = { "Content-Type": "application/json" };
-  if (userKey) {
-    headers['X-User-API-Key'] = userKey;
-  }
-  const res = await fetch(url, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(payload)
-  });
-  
+  if (userKey) headers["X-User-API-Key"] = userKey;
+  const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(payload) });
   if (res.status === 429 || res.status === 401 || res.status === 403) {
-    showApiKeyModal({ url, payload, method: 'POST' });
-    throw new Error("API limit reached. Please provide your own API key.");
+    showApiKeyModal();
+    throw new Error("API limit reached.");
   }
-  
   if (!res.ok) throw new Error("Request failed");
   return res.json();
 }
 
-function showApiKeyModal(failedRequest) {
-  const modal = document.getElementById('apiKeyModal');
-  const useOwnBtn = document.getElementById('apiKeyUseOwn');
-  const tutorialBtn = document.getElementById('apiKeyTutorial');
-  const inputSection = document.getElementById('apiKeyInputSection');
-  const tutorialSection = document.getElementById('apiKeyTutorialSection');
-  const apiKeyInput = document.getElementById('apiKeyInput');
-  const saveBtn = document.getElementById('apiKeySave');
-  const closeBtn = document.getElementById('apiKeyClose');
-  
-  modal.classList.add('show');
-  modal.setAttribute('aria-hidden', 'false');
-  
-  useOwnBtn.addEventListener('click', () => {
-    inputSection.style.display = 'flex';
-    tutorialSection.style.display = 'none';
-  });
-  
-  tutorialBtn.addEventListener('click', () => {
-    if (tutorialSection.style.display === 'none') {
-      tutorialSection.style.display = 'block';
-      inputSection.style.display = 'none';
-    } else {
-      tutorialSection.style.display = 'none';
-    }
-  });
-  
-  saveBtn.addEventListener('click', () => {
-    const key = apiKeyInput.value.trim();
-    if (key) {
-      sessionStorage.setItem('user_gemini_key', key);
-      showToast('✓ Your API key is active for this session', 'success');
-      modal.classList.remove('show');
-      modal.setAttribute('aria-hidden', 'true');
-      apiKeyInput.value = '';
-      inputSection.style.display = 'none';
-      tutorialSection.style.display = 'none';
-    }
-  });
-  
-  closeBtn.addEventListener('click', () => {
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden', 'true');
-    apiKeyInput.value = '';
-    inputSection.style.display = 'none';
-    tutorialSection.style.display = 'none';
-  });
-  
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.classList.remove('show');
-      modal.setAttribute('aria-hidden', 'true');
-      apiKeyInput.value = '';
-      inputSection.style.display = 'none';
-      tutorialSection.style.display = 'none';
-    }
-  });
-}
-
-function showToast(message, type = 'info') {
-  const toast = document.createElement('div');
-  toast.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: ${type === 'success' ? '#10b981' : '#3b82f6'};
-    color: white;
-    padding: 16px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    z-index: 10000;
-    animation: slideIn 0.3s ease;
-  `;
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  setTimeout(() => {
-    toast.style.animation = 'slideOut 0.3s ease';
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
-}
+// ── Tool handlers ──────────────────────────────────────
 
 async function handleSearch() {
   const question = searchInput.value.trim();
-  if (!question) return;
+  if (!question) { searchInput.focus(); return; }
   setLoading(searchBtn, searchResultCard, searchResult);
   try {
     const data = await postJson("/api/search", { question });
     showResult(searchResultCard, searchResult, data.summary || data.result || data.response || "");
-  } catch (error) {
+  } catch {
     showResult(searchResultCard, searchResult, "Unable to fetch results right now.");
   } finally {
     clearLoading(searchBtn, searchResult);
@@ -386,12 +455,12 @@ async function handleSearch() {
 
 async function handleSummarize() {
   const text = summarizeInput.value.trim();
-  if (!text) return;
+  if (!text) { summarizeInput.focus(); showToast("Please paste some text first", "info"); return; }
   setLoading(summarizeBtn, summarizeResultCard, summarizeResult);
   try {
     const data = await postJson("/api/summarize", { text, length: state.length });
     showResult(summarizeResultCard, summarizeResult, data.summary || data.result || data.response || "");
-  } catch (error) {
+  } catch {
     showResult(summarizeResultCard, summarizeResult, "Unable to summarize right now.");
   } finally {
     clearLoading(summarizeBtn, summarizeResult);
@@ -400,16 +469,12 @@ async function handleSummarize() {
 
 async function handleLyrics() {
   const content = lyricsInput.value.trim();
-  if (!content) return;
+  if (!content) { lyricsInput.focus(); showToast("Please paste some lyrics first", "info"); return; }
   setLoading(lyricsBtn, lyricsResultCard, lyricsResult);
   try {
-    const data = await postJson("/api/analyze", {
-      type: "lyrics",
-      analysisType: state.lyricsFocus,
-      content
-    });
+    const data = await postJson("/api/analyze", { type: "lyrics", analysisType: state.lyricsFocus, content });
     showResult(lyricsResultCard, lyricsResult, data.analysis || data.result || data.response || "");
-  } catch (error) {
+  } catch {
     showResult(lyricsResultCard, lyricsResult, "Unable to analyze lyrics right now.");
   } finally {
     clearLoading(lyricsBtn, lyricsResult);
@@ -424,37 +489,33 @@ async function lookupWord(word) {
 }
 
 function buildPartOfSpeechBadge(pos) {
-  const colorMap = {
-    noun: "#3b82f6",
-    verb: "#10b981",
-    adjective: "#f97316",
-    adverb: "#7c3aed"
-  };
-  const color = colorMap[pos] || "#3b82f6";
-  return `<span style="display:inline-block;padding:6px 12px;border-radius:999px;background:${color};color:#fff;font-weight:600;font-size:0.8rem;">${pos || "Definition"}</span>`;
+  const colors = { noun: "#2563eb", verb: "#059669", adjective: "#ea580c", adverb: "#6d28d9" };
+  const c = colors[pos] || "#2563eb";
+  const bg = c + "20";
+  return `<span style="display:inline-block;padding:4px 12px;border-radius:999px;background:${bg};color:${c};font-weight:700;font-size:0.78rem;border:1.5px solid ${c}40">${pos || "Definition"}</span>`;
 }
 
 async function handleDictionary() {
   const word = dictionaryInput.value.trim();
-  if (!word) return;
+  if (!word) { dictionaryInput.focus(); return; }
   setLoading(dictionaryBtn, dictionaryResultCard, dictionaryResult);
   try {
     const entry = await lookupWord(word);
-    const meaning = entry.meanings?.[0];
+    const meaning    = entry.meanings?.[0];
     const definition = meaning?.definitions?.[0];
-    const phonetic = entry.phonetic || entry.phonetics?.[0]?.text || "";
-    const synonyms = definition?.synonyms || meaning?.synonyms || [];
+    const phonetic   = entry.phonetic || entry.phonetics?.[0]?.text || "";
+    const synonyms   = definition?.synonyms || meaning?.synonyms || [];
     dictionaryResult.innerHTML = `
-      <div style="font-size:2.5rem;font-weight:800;color:#10b981;">${entry.word}</div>
-      <div style="margin:6px 0;color:#64748b;font-style:italic;">🔊 ${phonetic}</div>
+      <div style="font-size:2.2rem;font-weight:800;color:#059669;font-family:'Playfair Display',serif;">${entry.word}</div>
+      <div style="margin:6px 0;color:#64748b;font-style:italic;font-size:0.9rem;">🔊 ${phonetic}</div>
       ${buildPartOfSpeechBadge(meaning?.partOfSpeech)}
-      <div style="margin-top:14px;font-size:1.1rem;line-height:1.8;color:#0f172a;">${definition?.definition || ""}</div>
-      ${definition?.example ? `<div style="margin-top:10px;color:#64748b;font-style:italic;border-left:3px solid #10b981;padding-left:12px;">${definition.example}</div>` : ""}
-      ${synonyms.length ? `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">${synonyms.slice(0, 6).map((syn) => `<span style="background:#f1f5f9;padding:4px 10px;border-radius:999px;font-size:0.8rem;">${syn}</span>`).join("")}</div>` : ""}
+      <div style="margin-top:14px;font-size:1rem;line-height:1.8;color:#0f172a;">${definition?.definition || ""}</div>
+      ${definition?.example ? `<div style="margin-top:10px;color:#64748b;font-style:italic;border-left:3px solid #059669;padding-left:12px;font-size:0.93rem;">${definition.example}</div>` : ""}
+      ${synonyms.length ? `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">${synonyms.slice(0,6).map(syn => `<span style="background:#f1f5f9;padding:4px 10px;border-radius:999px;font-size:0.8rem;border:1px solid #e2e8f0;">${syn}</span>`).join("")}</div>` : ""}
     `;
     dictionaryResultCard.classList.add("show");
     dictionaryPrompt.value = `Use the word '${entry.word}' in 3 creative sentences showing different contexts and explain its nuance`;
-  } catch (error) {
+  } catch {
     showResult(dictionaryResultCard, dictionaryResult, "Word not found. Try another.");
   } finally {
     clearLoading(dictionaryBtn, dictionaryResult);
@@ -469,7 +530,7 @@ async function handleDictionaryGemini() {
     const data = await postJson("/api/analyze", { text: prompt });
     dictionaryGemini.textContent = data.analysis || data.result || data.response || "";
     dictionaryGeminiCard.classList.add("show");
-  } catch (error) {
+  } catch {
     dictionaryGemini.textContent = "Unable to fetch response right now.";
   } finally {
     clearLoading(dictionaryAsk, dictionaryGemini);
@@ -478,16 +539,12 @@ async function handleDictionaryGemini() {
 
 async function handleAnalyzer() {
   const content = analyzerInput.value.trim();
-  if (!content) return;
+  if (!content) { analyzerInput.focus(); showToast("Please paste some content first", "info"); return; }
   setLoading(analyzerBtn, analyzerResultCard, analyzerResult);
   try {
-    const data = await postJson("/api/analyze", {
-      type: state.analyzerType,
-      analysisType: state.analyzerFocus,
-      content
-    });
+    const data = await postJson("/api/analyze", { type: state.analyzerType, analysisType: state.analyzerFocus, content });
     showResult(analyzerResultCard, analyzerResult, data.analysis || data.result || data.response || "");
-  } catch (error) {
+  } catch {
     showResult(analyzerResultCard, analyzerResult, "Unable to analyze right now.");
   } finally {
     clearLoading(analyzerBtn, analyzerResult);
@@ -499,7 +556,7 @@ async function handleBriefing() {
   try {
     const data = await postJson("/api/briefing", {});
     showResult(briefingResult, briefingText, data.summary || data.result || data.response || "");
-  } catch (error) {
+  } catch {
     showResult(briefingResult, briefingText, "Unable to load briefing.");
   } finally {
     clearLoading(briefingBtn, briefingText);
@@ -512,280 +569,303 @@ async function handleHeadlines() {
     const data = await postJson("/api/briefing", {});
     const list = data.headlines || [];
     headlineList.innerHTML = "";
-    list.forEach((item) => {
-      const button = document.createElement("button");
-      button.textContent = item;
-      headlineList.appendChild(button);
+    list.forEach(item => {
+      const btn = document.createElement("button");
+      btn.textContent = typeof item === "string" ? item : item.title;
+      headlineList.appendChild(btn);
     });
-    showResult(briefingResult, briefingText, "Headlines loaded below.");
-  } catch (error) {
+    briefingText.textContent = "";
+    briefingResult.classList.add("show");
+  } catch {
     showResult(briefingResult, briefingText, "Unable to load headlines.");
   } finally {
     clearLoading(headlinesBtn, briefingText);
   }
 }
 
-function attachPictureFallback(img) {
-  const name = img.dataset.picture;
-  if (!name) return;
-  const base = "pictures/" + encodeURIComponent(name);
-  const extensions = ["jpg", "png", "jpeg", "webp"];
-  let index = 0;
-  const tryNext = () => {
-    if (index >= extensions.length) return;
-    img.src = `${base}.${extensions[index]}`;
-    index += 1;
+// ═══════════════════════════════════════════════════════
+//  API KEY MODAL
+// ═══════════════════════════════════════════════════════
+
+function showApiKeyModal() {
+  const modal         = document.getElementById("apiKeyModal");
+  const useOwnBtn     = document.getElementById("apiKeyUseOwn");
+  const tutorialBtn   = document.getElementById("apiKeyTutorial");
+  const inputSection  = document.getElementById("apiKeyInputSection");
+  const tutorialSection = document.getElementById("apiKeyTutorialSection");
+  const apiKeyInput   = document.getElementById("apiKeyInput");
+  const saveBtn       = document.getElementById("apiKeySave");
+  const closeBtn      = document.getElementById("apiKeyClose");
+
+  modal.classList.add("show");
+  modal.setAttribute("aria-hidden", "false");
+
+  useOwnBtn.onclick = () => { inputSection.style.display = "flex"; tutorialSection.style.display = "none"; };
+  tutorialBtn.onclick = () => {
+    tutorialSection.style.display = tutorialSection.style.display === "none" ? "block" : "none";
+    inputSection.style.display = "none";
   };
-  img.onerror = tryNext;
-  tryNext();
-}
-
-function applyImages() {
-  document.querySelectorAll("img[data-picture]").forEach(attachPictureFallback);
-}
-
-function initInfoPanels() {
-  document.querySelectorAll(".info-panel").forEach((panel) => {
-    const toggle = panel.querySelector(".info-toggle");
-    toggle.addEventListener("click", () => panel.classList.toggle("open"));
-  });
-}
-
-function initButtonGroups() {
-  const lengthGroup = document.getElementById("lengthGroup");
-  lengthGroup.addEventListener("click", (event) => {
-    const button = event.target.closest("button");
-    if (!button) return;
-    state.length = button.dataset.value;
-    setButtonGroup(lengthGroup, state.length);
-  });
-
-  const lyricsGroup = document.getElementById("lyricsGroup");
-  lyricsGroup.addEventListener("click", (event) => {
-    const button = event.target.closest("button");
-    if (!button) return;
-    state.lyricsFocus = button.dataset.value;
-    setButtonGroup(lyricsGroup, state.lyricsFocus);
-  });
-
-  analyzerType.addEventListener("click", (event) => {
-    const button = event.target.closest("button");
-    if (!button) return;
-    state.analyzerType = button.dataset.value;
-    setButtonGroup(analyzerType, state.analyzerType);
-    updateAnalyzerOptions();
-  });
-}
-
-function initResultsActions() {
-  document.querySelectorAll(".result-btn").forEach((button) => {
-    button.addEventListener("click", () => {
-      const targetId = button.dataset.target;
-      const target = document.getElementById(targetId);
-      if (!target) return;
-      if (button.dataset.action === "copy") {
-        navigator.clipboard.writeText(target.textContent || "");
-        const original = button.textContent;
-        button.textContent = "✓ Copied!";
-        setTimeout(() => { button.textContent = original; }, 2000);
-      }
-      if (button.dataset.action === "expand") {
-        modalContent.textContent = target.textContent || "";
-        modal.classList.add("show");
-        modal.setAttribute("aria-hidden", "false");
-      }
-    });
-  });
-}
-
-function initSectionReveal() {
-  // Force all content visible immediately - no opacity hiding
-  document.querySelectorAll(".reveal").forEach((el) => {
-    el.style.opacity = "1";
-    el.style.transform = "none";
-    el.style.visibility = "visible";
-    el.classList.add("show");
-  });
-  document.querySelectorAll(".home-left, .home-right, .home-layout").forEach((el) => {
-    el.style.opacity = "1";
-    el.style.visibility = "visible";
-    el.style.transform = "none";
-    if (el.classList.contains("home-layout")) {
-      el.style.display = "flex";
-    } else {
-      el.style.display = "block";
+  saveBtn.onclick = () => {
+    const key = apiKeyInput.value.trim();
+    if (key) {
+      sessionStorage.setItem("user_gemini_key", key);
+      showToast("✓ API key saved for this session", "success");
+      closeModal();
     }
-  });
-  document.querySelectorAll(".feature-card").forEach((card) => {
-    card.style.opacity = "1";
-    card.style.transform = "none";
+  };
+  closeBtn.onclick = closeModal;
+  modal.onclick = e => { if (e.target === modal) closeModal(); };
+
+  function closeModal() {
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+    apiKeyInput.value = "";
+    inputSection.style.display = "none";
+    tutorialSection.style.display = "none";
+  }
+}
+
+// ─── "Change key" link in API key section ────────────
+const changeKeyBtn = document.getElementById("changeKeyBtn");
+if (changeKeyBtn) {
+  changeKeyBtn.addEventListener("click", () => {
+    sessionStorage.removeItem("user_gemini_key");
+    showApiKeyModal();
   });
 }
+
+// ═══════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════
+
+function showToast(message, type = "info") {
+  const toast = document.createElement("div");
+  const bg = type === "success" ? "#059669" : "#2563eb";
+  toast.style.cssText = `position:fixed;top:20px;right:20px;background:${bg};color:#fff;padding:14px 22px;border-radius:10px;font-weight:600;z-index:10000;font-family:'DM Sans',sans-serif;font-size:0.92rem;box-shadow:0 4px 16px rgba(0,0,0,0.18);`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = "0"; toast.style.transition = "opacity 0.3s"; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCROLL / PROGRESS
+// ═══════════════════════════════════════════════════════
 
 function updateScrollProgress() {
   const scrollTop = window.scrollY;
   const height = document.documentElement.scrollHeight - window.innerHeight;
   const progress = height > 0 ? (scrollTop / height) * 100 : 0;
   scrollProgress.style.width = `${progress}%`;
-  if (scrollTop > 300) {
-    backToTop.classList.add("show");
-  } else {
-    backToTop.classList.remove("show");
-  }
+  backToTop.classList.toggle("show", scrollTop > 300);
 }
 
-function openTour() {
-  tourOverlay.classList.add("show");
-  tourOverlay.setAttribute("aria-hidden", "false");
-  showTourStep(0);
-}
+// ═══════════════════════════════════════════════════════
+//  TOUR
+// ═══════════════════════════════════════════════════════
 
+function openTour() { tourOverlay.classList.add("show"); showTourStep(0); }
 function closeTour() {
   tourOverlay.classList.remove("show");
-  tourOverlay.setAttribute("aria-hidden", "true");
-  document.querySelectorAll(".tour-highlight").forEach((el) => el.classList.remove("tour-highlight"));
+  document.querySelectorAll(".tour-highlight").forEach(el => el.classList.remove("tour-highlight"));
 }
-
 function showTourStep(index) {
   const step = tourSteps[index];
   if (!step) return;
-  document.querySelectorAll(".tour-highlight").forEach((el) => el.classList.remove("tour-highlight"));
+  document.querySelectorAll(".tour-highlight").forEach(el => el.classList.remove("tour-highlight"));
   const target = document.querySelector(step.selector);
   if (!target) return;
   target.classList.add("tour-highlight");
   const rect = target.getBoundingClientRect();
   tourTitle.textContent = step.title;
-  tourText.textContent = step.text;
-  const tooltipWidth = tourTooltip.offsetWidth || 240;
-  const left = Math.min(rect.right + 12, window.innerWidth - tooltipWidth - 20);
-  tourTooltip.style.top = `${rect.top + window.scrollY}px`;
-  tourTooltip.style.left = `${Math.max(left, 20)}px`;
+  tourText.textContent  = step.text;
+  const tw = tourTooltip.offsetWidth || 230;
+  tourTooltip.style.top  = `${rect.top + window.scrollY}px`;
+  tourTooltip.style.left = `${Math.max(20, Math.min(rect.right + 12, window.innerWidth - tw - 20))}px`;
   tourIndex = index;
 }
-
 function initTourControls() {
-  tourPrev.addEventListener("click", () => {
-    if (tourIndex > 0) showTourStep(tourIndex - 1);
-  });
-  tourNext.addEventListener("click", () => {
-    if (tourIndex < tourSteps.length - 1) showTourStep(tourIndex + 1);
-  });
-  tourClose.addEventListener("click", closeTour);
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeTour();
+  if (tourPrev)  tourPrev.addEventListener("click",  () => { if (tourIndex > 0) showTourStep(tourIndex - 1); });
+  if (tourNext)  tourNext.addEventListener("click",  () => { if (tourIndex < tourSteps.length - 1) showTourStep(tourIndex + 1); });
+  if (tourClose) tourClose.addEventListener("click", closeTour);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") { closeTour(); modal.classList.remove("show"); } });
+}
+
+// ═══════════════════════════════════════════════════════
+//  INFO PANELS
+// ═══════════════════════════════════════════════════════
+
+function initInfoPanels() {
+  document.querySelectorAll(".info-panel").forEach(panel => {
+    panel.querySelector(".info-toggle").addEventListener("click", () => panel.classList.toggle("open"));
   });
 }
 
-function initEvents() {
-  navLinks.forEach((link) => {
-    link.addEventListener("click", () => setPage(link.dataset.view));
-  });
-  document.querySelectorAll("[data-view]").forEach((link) => {
-    link.addEventListener("click", () => {
-      const view = link.dataset.view;
-      if (view) setPage(view);
-    });
-  });
-  logoButton.addEventListener("click", () => setPage("home"));
+// ═══════════════════════════════════════════════════════
+//  BUTTON GROUPS INIT
+// ═══════════════════════════════════════════════════════
 
-  menuBtn.addEventListener("click", () => menuDropdown.classList.toggle("show"));
-  aboutCreator.addEventListener("click", () => {
-    menuDropdown.classList.remove("show");
-    modalContent.textContent = state.aboutText;
-    modal.classList.add("show");
-  });
-  exampleBtn.addEventListener("click", () => {
-    menuDropdown.classList.remove("show");
-    searchInput.value = "What are the biggest global stories right now?";
-    setPage("search");
-  });
-  helpBtn.addEventListener("click", openTour);
-
-  modalClose.addEventListener("click", () => modal.classList.remove("show"));
-  modal.addEventListener("click", (event) => {
-    if (event.target === modal) modal.classList.remove("show");
-  });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") modal.classList.remove("show");
-  });
-
-  // Feedback form handling
-  const feedbackForm = document.getElementById('feedbackForm');
-  const feedbackSuccess = document.getElementById('feedbackSuccess');
-  const starRating = document.getElementById('starRating');
-  const stars = starRating.querySelectorAll('.star');
-  let feedbackRating = 0;
-
-  function updateStars() {
-    stars.forEach((star, index) => {
-      star.classList.toggle('filled', index < feedbackRating);
+function initButtonGroups() {
+  const lengthGroup = document.getElementById("lengthGroup");
+  if (lengthGroup) {
+    lengthGroup.addEventListener("click", e => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      state.length = btn.dataset.value;
+      setButtonGroup(lengthGroup, state.length);
     });
   }
-
-  stars.forEach((star, index) => {
-    star.addEventListener('click', (e) => {
-      e.preventDefault();
-      feedbackRating = index + 1;
-      updateStars();
+  const lyricsGroup = document.getElementById("lyricsGroup");
+  if (lyricsGroup) {
+    lyricsGroup.addEventListener("click", e => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      state.lyricsFocus = btn.dataset.value;
+      setButtonGroup(lyricsGroup, state.lyricsFocus);
     });
-    star.addEventListener('mouseover', () => {
-      stars.forEach((s, i) => {
-        s.classList.toggle('filled', i < index + 1);
-      });
+  }
+  if (analyzerType) {
+    analyzerType.addEventListener("click", e => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      state.analyzerType = btn.dataset.value;
+      setButtonGroup(analyzerType, state.analyzerType);
+      updateAnalyzerOptions();
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  RESULT ACTIONS (copy / expand)
+// ═══════════════════════════════════════════════════════
+
+function initResultsActions() {
+  document.querySelectorAll(".result-btn").forEach(button => {
+    button.addEventListener("click", () => {
+      const target = document.getElementById(button.dataset.target);
+      if (!target) return;
+      if (button.dataset.action === "copy") {
+        navigator.clipboard.writeText(target.textContent || "");
+        const orig = button.textContent;
+        button.textContent = "✓ Copied!";
+        setTimeout(() => { button.textContent = orig; }, 2000);
+      }
+      if (button.dataset.action === "expand") {
+        modalContent.textContent = target.textContent || "";
+        modal.classList.add("show");
+      }
     });
   });
+}
 
-  starRating.addEventListener('mouseleave', updateStars);
+// ═══════════════════════════════════════════════════════
+//  FEEDBACK FORM
+// ═══════════════════════════════════════════════════════
 
-  feedbackForm.addEventListener('submit', (e) => {
+function initFeedback() {
+  const feedbackForm    = document.getElementById("feedbackForm");
+  const feedbackSuccess = document.getElementById("feedbackSuccess");
+  const starRating      = document.getElementById("starRating");
+  if (!feedbackForm || !starRating) return;
+
+  const stars = starRating.querySelectorAll(".star");
+  let feedbackRating = 0;
+
+  const updateStars = () => stars.forEach((s, i) => s.classList.toggle("filled", i < feedbackRating));
+
+  stars.forEach((star, index) => {
+    star.addEventListener("click", e => { e.preventDefault(); feedbackRating = index + 1; updateStars(); });
+    star.addEventListener("mouseover", () => stars.forEach((s, i) => s.classList.toggle("filled", i <= index)));
+  });
+  starRating.addEventListener("mouseleave", updateStars);
+
+  feedbackForm.addEventListener("submit", e => {
     e.preventDefault();
-    const name = document.getElementById('feedbackName').value.trim();
-    const text = document.getElementById('feedbackText').value.trim();
-    if (!name || !text || !feedbackRating) {
-      showToast('Please fill in all fields and rate us', 'info');
-      return;
-    }
-    feedbackForm.style.display = 'none';
-    feedbackSuccess.classList.add('show');
+    const name = document.getElementById("feedbackName")?.value.trim();
+    const text = document.getElementById("feedbackText")?.value.trim();
+    if (!name || !text || !feedbackRating) { showToast("Please fill in all fields and rate us", "info"); return; }
+    feedbackForm.style.display = "none";
+    feedbackSuccess.classList.add("show");
     setTimeout(() => {
-      feedbackForm.style.display = 'block';
-      feedbackSuccess.classList.remove('show');
+      feedbackForm.style.display = "block";
+      feedbackSuccess.classList.remove("show");
       feedbackForm.reset();
       feedbackRating = 0;
       updateStars();
     }, 3000);
   });
-
-  searchBtn.addEventListener("click", handleSearch);
-  summarizeBtn.addEventListener("click", handleSummarize);
-  lyricsBtn.addEventListener("click", handleLyrics);
-  dictionaryBtn.addEventListener("click", handleDictionary);
-  dictionaryAsk.addEventListener("click", handleDictionaryGemini);
-  analyzerBtn.addEventListener("click", handleAnalyzer);
-  briefingBtn.addEventListener("click", handleBriefing);
-  headlinesBtn.addEventListener("click", handleHeadlines);
-
-  backToTop.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
-
-  window.addEventListener("scroll", updateScrollProgress);
 }
 
+// ═══════════════════════════════════════════════════════
+//  EVENTS
+// ═══════════════════════════════════════════════════════
+
+function initEvents() {
+  // Nav
+  navLinks.forEach(link => link.addEventListener("click", () => setPage(link.dataset.view)));
+  document.querySelectorAll("[data-view]").forEach(link => {
+    link.addEventListener("click", () => { const v = link.dataset.view; if (v) setPage(v); });
+  });
+  if (logoButton) logoButton.addEventListener("click", () => setPage("home"));
+
+  // Menu
+  if (menuBtn) menuBtn.addEventListener("click", () => menuDropdown.classList.toggle("show"));
+  if (aboutCreator) aboutCreator.addEventListener("click", () => {
+    menuDropdown.classList.remove("show");
+    modalContent.textContent = state.aboutText;
+    modal.classList.add("show");
+  });
+  if (exampleBtn) exampleBtn.addEventListener("click", () => {
+    menuDropdown.classList.remove("show");
+    searchInput.value = "What are the biggest global stories right now?";
+    setPage("search");
+  });
+  if (helpBtn) helpBtn.addEventListener("click", openTour);
+
+  // Modals
+  if (modalClose) modalClose.addEventListener("click", () => modal.classList.remove("show"));
+  if (modal)      modal.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("show"); });
+
+  // Tools
+  if (searchBtn)     searchBtn.addEventListener("click", handleSearch);
+  if (searchInput)   searchInput.addEventListener("keydown", e => { if (e.key === "Enter") handleSearch(); });
+  if (summarizeBtn)  summarizeBtn.addEventListener("click", handleSummarize);
+  if (lyricsBtn)     lyricsBtn.addEventListener("click", handleLyrics);
+  if (dictionaryBtn) dictionaryBtn.addEventListener("click", handleDictionary);
+  if (dictionaryInput) dictionaryInput.addEventListener("keydown", e => { if (e.key === "Enter") handleDictionary(); });
+  if (dictionaryAsk) dictionaryAsk.addEventListener("click", handleDictionaryGemini);
+  if (analyzerBtn)   analyzerBtn.addEventListener("click", handleAnalyzer);
+  if (briefingBtn)   briefingBtn.addEventListener("click", handleBriefing);
+  if (headlinesBtn)  headlinesBtn.addEventListener("click", handleHeadlines);
+
+  // Back to top
+  if (backToTop) backToTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+
+  window.addEventListener("scroll", updateScrollProgress);
+  document.addEventListener("click", e => {
+    if (menuDropdown && !menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) {
+      menuDropdown.classList.remove("show");
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+
 function init() {
-  applyImages();
   buildHeroDots();
   startHeroRotation();
-  startCarousels();
-  setupTopNews();
   initInfoPanels();
   initButtonGroups();
   updateAnalyzerOptions();
   initResultsActions();
-  initSectionReveal();
   initTourControls();
+  initFeedback();
   initEvents();
   updateScrollProgress();
+
+  // Load real news (non-blocking — page renders immediately, news fills in)
+  loadHomeNews().catch(() => console.warn("Home news load failed silently"));
 }
 
 init();
