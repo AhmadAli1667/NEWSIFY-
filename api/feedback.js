@@ -1,6 +1,4 @@
-// Feedback API route (appends to feedback.txt).
-const fs = require("fs");
-const path = require("path");
+// Feedback API route (logs to console — Vercel captures these in function logs).
 const { parseJson } = require("./_utils");
 
 module.exports = async (req, res) => {
@@ -16,17 +14,8 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: "Message is required." });
     }
 
-    const feedbackPath = path.join(process.cwd(), "feedback.txt");
     const stamp = new Date().toISOString();
-    const entry = [
-      `--- ${stamp} ---`,
-      `Name: ${(name || "Anonymous").trim() || "Anonymous"}`,
-      `Email: ${(email || "Not provided").trim() || "Not provided"}`,
-      `Message: ${cleanMessage}`,
-      ""
-    ].join("\n");
-
-    fs.appendFileSync(feedbackPath, entry, { encoding: "utf8" });
+    console.log(`[FEEDBACK] ${stamp} | Name: ${(name || "Anonymous").trim()} | Email: ${(email || "N/A").trim()} | Message: ${cleanMessage}`);
 
     return res.json({ status: "saved" });
   } catch (error) {

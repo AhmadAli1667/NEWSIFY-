@@ -5,12 +5,8 @@
    • Real relative timestamps
 ═══════════════════════════════════════════════════════ */
 
-// ─── ENVIRONMENT SETUP ─────────────────────────────────
-require('dotenv').config();
-
 // ─── CONFIG ────────────────────────────────────────────
-const PEXELS_API_KEY = process.env.PEXELS_API_KEY;
-const LOCAL_FALLBACK  = "pictures/frontpage.jpg";
+const LOCAL_FALLBACK = "pictures/frontpage.jpg";
 
 // ─── STATE ─────────────────────────────────────────────
 const state = {
@@ -137,17 +133,14 @@ async function fetchPexelsImage(query) {
   const key = query.toLowerCase().trim();
   if (pexelsCache[key]) return pexelsCache[key];
   try {
-    const res = await fetch(
-      `https://api.pexels.com/v1/search?query=${encodeURIComponent(key)}&per_page=3&orientation=landscape`,
-      { headers: { Authorization: PEXELS_API_KEY } }
-    );
+    const res = await fetch("/api/pexels", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: key })
+    });
     if (!res.ok) throw new Error("Pexels error");
     const data = await res.json();
-    // Pick a random one from top 3 for variety
-    const photos = data.photos || [];
-    if (!photos.length) throw new Error("No photos");
-    const photo = photos[Math.floor(Math.random() * photos.length)];
-    const url = photo.src?.large || photo.src?.medium || LOCAL_FALLBACK;
+    const url = data.url || LOCAL_FALLBACK;
     pexelsCache[key] = url;
     return url;
   } catch {
@@ -530,8 +523,8 @@ async function handleDictionaryGemini() {
   if (!prompt) return;
   setLoading(dictionaryAsk, dictionaryGeminiCard, dictionaryGemini);
   try {
-    const data = await postJson("/api/analyze", { text: prompt });
-    dictionaryGemini.textContent = data.analysis || data.result || data.response || "";
+    const data = await postJson("/api/summarize", { text: prompt, length: "medium" });
+    dictionaryGemini.textContent = data.summary || data.result || "";
     dictionaryGeminiCard.classList.add("show");
   } catch {
     dictionaryGemini.textContent = "Unable to fetch response right now.";
@@ -558,7 +551,7 @@ async function handleBriefing() {
   setLoading(briefingBtn, briefingResult, briefingText);
   try {
     const data = await postJson("/api/briefing", {});
-    showResult(briefingResult, briefingText, data.summary || data.result || data.response || "");
+    showResult(briefingResult, briefingText, data.briefing || data.summary || data.result || "");
   } catch {
     showResult(briefingResult, briefingText, "Unable to load briefing.");
   } finally {
@@ -781,11 +774,18 @@ function initFeedback() {
   });
   starRating.addEventListener("mouseleave", updateStars);
 
-  feedbackForm.addEventListener("submit", e => {
+  feedbackForm.addEventListener("submit", async e => {
     e.preventDefault();
     const name = document.getElementById("feedbackName")?.value.trim();
     const text = document.getElementById("feedbackText")?.value.trim();
     if (!name || !text || !feedbackRating) { showToast("Please fill in all fields and rate us", "info"); return; }
+    try {
+      await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, message: `[${feedbackRating}★] ${text}` })
+      });
+    } catch {}
     feedbackForm.style.display = "none";
     feedbackSuccess.classList.add("show");
     setTimeout(() => {
