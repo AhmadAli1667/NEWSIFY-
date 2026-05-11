@@ -148,14 +148,27 @@ async function fetchPexelsImage(query) {
   }
 }
 
+const usedImageUrls = new Set();
+
 async function getArticleImage(article, category) {
-  // 1. Use urlToImage if present
-  if (article.urlToImage && article.urlToImage.startsWith("http")) {
+  // 1. Use urlToImage if present and not already used
+  if (article.urlToImage && article.urlToImage.startsWith("http") && !usedImageUrls.has(article.urlToImage)) {
+    usedImageUrls.add(article.urlToImage);
     return article.urlToImage;
   }
-  // 2. Fall back to Pexels
-  const keyword = CATEGORY_KEYWORDS[category] || extractKeyword(article.title || "news");
-  return await fetchPexelsImage(keyword);
+  // 2. Use title keywords first (each article title is unique → unique Pexels query)
+  const titleKw = extractKeyword(article.title || "");
+  const keyword = titleKw || CATEGORY_KEYWORDS[category] || "world news";
+  const url = await fetchPexelsImage(keyword);
+  // 3. If that URL is already shown, try category keyword as fallback
+  if (usedImageUrls.has(url)) {
+    const fallbackKw = CATEGORY_KEYWORDS[category] || "global news";
+    const alt = await fetchPexelsImage(fallbackKw + " " + Math.random().toString(36).slice(2, 5));
+    usedImageUrls.add(alt);
+    return alt;
+  }
+  usedImageUrls.add(url);
+  return url;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -206,6 +219,7 @@ async function fetchTopHeadlines(pageSize = 10) {
 
 // Build the homepage with real data
 async function loadHomeNews() {
+  usedImageUrls.clear();
   const topStoryCard = document.querySelector(".top-story-card");
   const sideCardsEl  = document.querySelector(".side-cards");
   const latestItemsEl= document.querySelector(".latest-news-items");
@@ -825,15 +839,17 @@ function initEvents() {
   });
   if (logoButton) logoButton.addEventListener("click", () => setPage("home"));
 
-  // Category nav buttons (World, Politics, Business, etc.)
+  // Category quick-pick pills (inside Search page)
   document.querySelectorAll("[data-category]").forEach(btn => {
     btn.addEventListener("click", () => {
       const cat = btn.dataset.category;
-      setPage("search");
-      setTimeout(() => {
+      if (state.activePage !== "search") {
+        setPage("search");
+        setTimeout(() => { if (searchInput) searchInput.value = cat; handleSearch(); }, 260);
+      } else {
         if (searchInput) searchInput.value = cat;
         handleSearch();
-      }, 260);
+      }
     });
   });
 

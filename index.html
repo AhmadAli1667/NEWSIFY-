@@ -24,13 +24,12 @@
 
     <div class="navbar-center">
       <button class="nav-link active" data-view="home">Home</button>
-      <button class="nav-link" data-category="world news today">World</button>
-      <button class="nav-link" data-category="politics government">Politics</button>
-      <button class="nav-link" data-category="business economy">Business</button>
-      <button class="nav-link" data-category="technology AI">Technology</button>
-      <button class="nav-link" data-category="sports">Sports</button>
-      <button class="nav-link" data-category="entertainment film music">Entertainment</button>
-      <button class="nav-link" data-category="health medicine">Health</button>
+      <button class="nav-link" data-view="search">Search</button>
+      <button class="nav-link" data-view="summarize">Summarize</button>
+      <button class="nav-link" data-view="lyrics">Lyrics</button>
+      <button class="nav-link" data-view="dictionary">Dictionary</button>
+      <button class="nav-link" data-view="analyzer">Analyzer</button>
+      <button class="nav-link" data-view="briefing">Briefing</button>
     </div>
 
     <div class="navbar-right">
@@ -396,6 +395,16 @@
             <p>Real headlines. AI-powered answers.</p>
           </div>
         </div>
+        <div class="category-pills">
+          <button class="category-pill" data-category="world news today">🌍 World</button>
+          <button class="category-pill" data-category="politics government">🏛 Politics</button>
+          <button class="category-pill" data-category="business economy">💼 Business</button>
+          <button class="category-pill" data-category="technology AI">💻 Technology</button>
+          <button class="category-pill" data-category="sports">⚽ Sports</button>
+          <button class="category-pill" data-category="entertainment film music">🎬 Entertainment</button>
+          <button class="category-pill" data-category="health medicine">🏥 Health</button>
+          <button class="category-pill" data-category="science space">🔬 Science</button>
+        </div>
         <div class="form-card">
           <label for="searchInput">💬 Your Question</label>
           <input type="text" id="searchInput" placeholder="e.g. What are the latest developments in AI?" />
@@ -723,66 +732,91 @@
     if (!canvas) return;
 
     let W, H, cx, cy, r;
-    let rotation = 0;
-    let dragging = false, lastX = 0, spinSpeed = 0.3;
+    // rotY = horizontal (longitude) spin in degrees
+    // rotX = vertical tilt in radians (oscillates like Earth's axial tilt)
+    let rotY = 0, rotX = 0;
+    let dragging = false, lastX = 0, lastY = 0;
+    let spinSpeed = 0.28; // degrees per frame tick
 
     const OCEAN_DARK  = '#0a2a6e';
     const OCEAN_MID   = '#1447b3';
     const OCEAN_LIGHT = '#2563eb';
 
+    // [lat, lon, rlat, rlon, color]
     const LAND = [
-      // [lat, lon, rlat, rlon, color]
-      [55, -100, 17, 22, '#3d7a34'],  // Canada
-      [40, -98,  13, 19, '#4a8c3f'],  // USA
-      [23, -102,  9,  7, '#5a9e48'],  // Mexico
-      [10,  -84,  5,  3, '#5a9e48'],  // Central America
-      [-8,  -55, 21, 14, '#3d7a34'],  // South America
-      [72,  -45,  7, 14, '#c8d8e4'],  // Greenland
-      [65,  -22,  3,  4, '#4a8c3f'],  // Iceland
-      [54,   -5,  4,  3, '#4a8c3f'],  // UK
-      [52,   15, 11, 14, '#4a8c3f'],  // Europe
-      [40,   30,  5,  5, '#4a8c3f'],  // Turkey
-      [60,   50, 10, 14, '#4a8c3f'],  // Russia West
-      [62,   90, 10, 22, '#4a8c3f'],  // Siberia
-      [52,  135,  8, 14, '#4a8c3f'],  // Far East Russia
-      [40,   72,  8, 10, '#8fa060'],  // Central Asia
-      [36,  105, 12, 18, '#4a8c3f'],  // China
-      [22,   80, 10,  8, '#6aaa50'],  // India
-      [10,  105,  7,  5, '#4a8c3f'],  // SE Asia
-      [36,  138,  5,  2, '#4a8c3f'],  // Japan
-      [25,   45,  6,  5, '#c8a050'],  // Arabia
-      [12,   38,  5,  3, '#c8a050'],  // Horn of Africa
-      [ 5,   22, 22, 20, '#c8a050'],  // Africa Main
-      [-28,   25,  8,  8, '#c8a050'], // South Africa
-      [-25,  134, 14, 16, '#c8a050'], // Australia
-      [-42,  172,  3,  2, '#4a8c3f'], // New Zealand
+      [55, -100, 17, 22, '#3d7a34'],
+      [40,  -98, 13, 19, '#4a8c3f'],
+      [23, -102,  9,  7, '#5a9e48'],
+      [10,  -84,  5,  3, '#5a9e48'],
+      [-8,  -55, 21, 14, '#3d7a34'],
+      [72,  -45,  7, 14, '#c8d8e4'],
+      [65,  -22,  3,  4, '#4a8c3f'],
+      [54,   -5,  4,  3, '#4a8c3f'],
+      [52,   15, 11, 14, '#4a8c3f'],
+      [40,   30,  5,  5, '#4a8c3f'],
+      [60,   50, 10, 14, '#4a8c3f'],
+      [62,   90, 10, 22, '#4a8c3f'],
+      [52,  135,  8, 14, '#4a8c3f'],
+      [40,   72,  8, 10, '#8fa060'],
+      [36,  105, 12, 18, '#4a8c3f'],
+      [22,   80, 10,  8, '#6aaa50'],
+      [10,  105,  7,  5, '#4a8c3f'],
+      [36,  138,  5,  2, '#4a8c3f'],
+      [25,   45,  6,  5, '#c8a050'],
+      [12,   38,  5,  3, '#c8a050'],
+      [ 5,   22, 22, 20, '#c8a050'],
+      [-28,  25,  8,  8, '#c8a050'],
+      [-25, 134, 14, 16, '#c8a050'],
+      [-42, 172,  3,  2, '#4a8c3f'],
     ];
 
-    // Cloud wisps [lat, lon, rlat, rlon, opacity]
     const CLOUDS = [
       [45, -30, 5, 14, 0.55],
-      [60, 20,  4,  8, 0.45],
-      [-10, -10, 3, 9, 0.50],
-      [20, 60,  3,  7, 0.40],
+      [60,  20, 4,  8, 0.45],
+      [-10,-10, 3,  9, 0.50],
+      [20,  60, 3,  7, 0.40],
       [-40, 80, 4,  9, 0.45],
     ];
 
+    const HOTSPOTS = [
+      { lat: 33.7, lon:  73.1 },
+      { lat: 40.7, lon: -74.0 },
+      { lat: 51.5, lon:  -0.1 },
+      { lat: 35.7, lon: 139.7 },
+      { lat: -23.5,lon: -46.6 },
+    ];
+
     function resize() {
-      const size = canvas.parentElement.offsetWidth;
-      const s = Math.min(size, 460);
-      canvas.width  = s;
-      canvas.height = s;
-      cx = s / 2; cy = s / 2; r = s * 0.46;
-      W = s; H = s;
+      const s = Math.min(canvas.parentElement.offsetWidth, 460);
+      canvas.width = canvas.height = s;
+      cx = cy = s / 2; r = s * 0.46; W = H = s;
     }
 
+    // Full 3D projection: rotY (horizontal) then rotX (vertical tilt)
     function project(lat, lon) {
-      const phi   = (90 - lat) * Math.PI / 180;
-      const theta = (lon + rotation) * Math.PI / 180;
-      const px = Math.sin(phi) * Math.cos(theta);
-      const py = -Math.cos(phi);
-      const pz = Math.sin(phi) * Math.sin(theta);
-      return { x: cx + r * px, y: cy + r * py, z: pz };
+      const phi = (90 - lat) * Math.PI / 180;
+      const lam = lon * Math.PI / 180;
+
+      // Spherical → Cartesian
+      let vx = Math.sin(phi) * Math.cos(lam);
+      let vy = -Math.cos(phi);
+      let vz = Math.sin(phi) * Math.sin(lam);
+
+      // Rotate around Y-axis (horizontal spin)
+      const cosY = Math.cos(rotY * Math.PI / 180);
+      const sinY = Math.sin(rotY * Math.PI / 180);
+      const vx1 = vx * cosY + vz * sinY;
+      const vz1 = -vx * sinY + vz * cosY;
+      vx = vx1; vz = vz1;
+
+      // Rotate around X-axis (vertical tilt)
+      const cosX = Math.cos(rotX);
+      const sinX = Math.sin(rotX);
+      const vy2 = vy * cosX - vz * sinX;
+      const vz2 = vy * sinX + vz * cosX;
+      vy = vy2; vz = vz2;
+
+      return { x: cx + r * vx, y: cy + r * vy, z: vz };
     }
 
     function drawLand(ctx, lat, lon, rlat, rlon, color) {
@@ -795,26 +829,55 @@
       ctx.globalAlpha = fade;
       ctx.fillStyle = color;
       ctx.shadowColor = 'rgba(0,0,0,0.18)';
-      ctx.shadowBlur  = 4;
+      ctx.shadowBlur = 4;
       ctx.beginPath();
       ctx.ellipse(p.x, p.y, Math.max(1, hw), Math.max(1, hh), 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
 
+    function drawGrid(ctx) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+      ctx.lineWidth = 0.7;
+      // Latitude circles
+      for (let lat = -60; lat <= 60; lat += 30) {
+        ctx.beginPath();
+        let first = true;
+        for (let lon = -180; lon <= 182; lon += 4) {
+          const p = project(lat, lon);
+          if (p.z < 0) { first = true; continue; }
+          first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+          first = false;
+        }
+        ctx.stroke();
+      }
+      // Longitude meridians
+      for (let lon = 0; lon < 360; lon += 30) {
+        ctx.beginPath();
+        let first = true;
+        for (let lat = -88; lat <= 88; lat += 4) {
+          const p = project(lat, lon);
+          if (p.z < 0) { first = true; continue; }
+          first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+          first = false;
+        }
+        ctx.stroke();
+      }
+    }
+
     function draw() {
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, W, H);
 
-      // ── Outer atmosphere glow ──
+      // Atmosphere glow
       const atmo = ctx.createRadialGradient(cx, cy, r * 0.88, cx, cy, r * 1.22);
-      atmo.addColorStop(0, 'rgba(59,130,246,0.30)');
+      atmo.addColorStop(0,   'rgba(59,130,246,0.32)');
       atmo.addColorStop(0.5, 'rgba(37,99,235,0.10)');
       atmo.addColorStop(1,   'rgba(37,99,235,0)');
       ctx.beginPath(); ctx.arc(cx, cy, r * 1.22, 0, Math.PI * 2);
       ctx.fillStyle = atmo; ctx.fill();
 
-      // ── Ocean sphere ──
+      // Ocean sphere
       const ocean = ctx.createRadialGradient(cx - r*0.28, cy - r*0.28, r*0.04, cx, cy, r);
       ocean.addColorStop(0,    '#4a9eff');
       ocean.addColorStop(0.25, OCEAN_LIGHT);
@@ -823,28 +886,11 @@
       ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.fillStyle = ocean; ctx.fill();
 
-      // ── Grid lines ──
-      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
-      ctx.lineWidth = 0.8;
-      for (let lat = -80; lat <= 80; lat += 20) {
-        const p = project(lat, 0);
-        const ry = r * Math.cos(lat * Math.PI / 180);
-        const rx = ry * Math.abs(Math.cos(rotation * Math.PI / 180));
-        ctx.beginPath();
-        ctx.ellipse(cx, cy + r * (-Math.cos(lat * Math.PI / 180)), ry, ry * 0.22, 0, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-      for (let lon = 0; lon < 180; lon += 30) {
-        const angle = (lon + rotation) * Math.PI / 180;
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, r * Math.abs(Math.sin(angle + Math.PI/2)), r, angle, 0, Math.PI * 2);
-        ctx.stroke();
-      }
+      drawGrid(ctx);
 
-      // ── Land masses ──
       LAND.forEach(([lat, lon, rlat, rlon, color]) => drawLand(ctx, lat, lon, rlat, rlon, color));
 
-      // ── Clouds ──
+      // Clouds
       CLOUDS.forEach(([lat, lon, rlat, rlon, alpha]) => {
         const p = project(lat, lon);
         if (p.z < 0) return;
@@ -861,24 +907,17 @@
         ctx.restore();
       });
 
-      // ── Specular highlight ──
+      // Specular highlight
       const spec = ctx.createRadialGradient(cx - r*0.32, cy - r*0.32, 0, cx - r*0.1, cy - r*0.1, r*0.7);
-      spec.addColorStop(0, 'rgba(255,255,255,0.22)');
+      spec.addColorStop(0,   'rgba(255,255,255,0.22)');
       spec.addColorStop(0.4, 'rgba(255,255,255,0.06)');
-      spec.addColorStop(1, 'rgba(255,255,255,0)');
+      spec.addColorStop(1,   'rgba(255,255,255,0)');
       ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.fillStyle = spec; ctx.fill();
 
-      // ── News hotspot pulses ──
-      const hotspots = [
-        { lat: 33.7, lon: 73.1 },   // Islamabad
-        { lat: 40.7, lon: -74.0 },  // New York
-        { lat: 51.5, lon: -0.1 },   // London
-        { lat: 35.7, lon: 139.7 },  // Tokyo
-        { lat: -23.5, lon: -46.6 }, // São Paulo
-      ];
+      // Hotspot pulses
       const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.004);
-      hotspots.forEach(({ lat, lon }) => {
+      HOTSPOTS.forEach(({ lat, lon }) => {
         const p = project(lat, lon);
         if (p.z > 0.1) {
           ctx.save();
@@ -893,31 +932,45 @@
         }
       });
 
-      // ── Dark limb (shadow on right) ──
+      // Dark limb
       const limb = ctx.createRadialGradient(cx + r*0.5, cy + r*0.3, r*0.2, cx, cy, r);
-      limb.addColorStop(0, 'rgba(0,0,0,0)');
+      limb.addColorStop(0,   'rgba(0,0,0,0)');
       limb.addColorStop(0.7, 'rgba(0,0,0,0)');
-      limb.addColorStop(1, 'rgba(0,10,40,0.55)');
+      limb.addColorStop(1,   'rgba(0,10,40,0.55)');
       ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.fillStyle = limb; ctx.fill();
 
-      if (!dragging) rotation += spinSpeed * 0.016;
+      if (!dragging) {
+        rotY += spinSpeed * 0.016;
+        // Slow vertical oscillation ≈ ±22° — simulates Earth's axial tilt perspective
+        rotX = Math.sin(Date.now() * 0.00018) * 0.38;
+      }
       requestAnimationFrame(draw);
     }
 
-    // ── Drag interaction ──
-    canvas.addEventListener('mousedown', e => { dragging = true; lastX = e.clientX; canvas.style.cursor = 'grabbing'; });
-    canvas.addEventListener('touchstart', e => { dragging = true; lastX = e.touches[0].clientX; }, { passive: true });
+    canvas.addEventListener('mousedown', e => {
+      dragging = true; lastX = e.clientX; lastY = e.clientY;
+      canvas.style.cursor = 'grabbing';
+    });
+    canvas.addEventListener('touchstart', e => {
+      dragging = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+    }, { passive: true });
+
     window.addEventListener('mousemove', e => {
       if (!dragging) return;
-      rotation += (e.clientX - lastX) * 0.35;
-      lastX = e.clientX;
+      rotY += (e.clientX - lastX) * 0.35;
+      rotX += (e.clientY - lastY) * 0.006;
+      rotX = Math.max(-1.0, Math.min(1.0, rotX));
+      lastX = e.clientX; lastY = e.clientY;
     });
     window.addEventListener('touchmove', e => {
       if (!dragging) return;
-      rotation += (e.touches[0].clientX - lastX) * 0.35;
-      lastX = e.touches[0].clientX;
+      rotY += (e.touches[0].clientX - lastX) * 0.35;
+      rotX += (e.touches[0].clientY - lastY) * 0.006;
+      rotX = Math.max(-1.0, Math.min(1.0, rotX));
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
     }, { passive: true });
+
     window.addEventListener('mouseup', () => { dragging = false; canvas.style.cursor = 'grab'; });
     window.addEventListener('touchend', () => { dragging = false; });
 
