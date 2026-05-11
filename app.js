@@ -239,16 +239,21 @@ async function loadHomeNews() {
     const img = await getArticleImage(top, cat);
 
     topStoryCard.innerHTML = `
-      <span class="top-story-badge">🔥 TOP STORY</span>
-      <div class="story-meta">
-        <span class="story-time">⏱ ${timeAgo(top.publishedAt) || "Recent"}</span>
-        <span class="category-chip ${cat}">${cat.charAt(0).toUpperCase()+cat.slice(1)}</span>
-      </div>
-      <h2 class="top-story-headline">${safeText(top.title, 140)}</h2>
-      <p class="top-story-description">${safeText(top.description || top.title, 220)}</p>
-      <div class="top-story-image">
-        <img src="${img}" alt="Top story"
-          onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';" />
+      <div class="top-story-inner">
+        <div class="top-story-img">
+          <img src="${img}" alt="Top story"
+            onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';" />
+        </div>
+        <div class="top-story-body">
+          <span class="top-story-badge">TOP STORY</span>
+          <h2 class="top-story-headline">${safeText(top.title, 120)}</h2>
+          <p class="top-story-description">${safeText(top.description || "", 200)}</p>
+          <div class="top-story-meta">
+            <span>${timeAgo(top.publishedAt) || "Recent"}</span>
+            <span class="sep">|</span>
+            <span class="cat cat-${cat}">${cat.charAt(0).toUpperCase()+cat.slice(1)}</span>
+          </div>
+        </div>
       </div>
     `;
     topStoryCard.style.opacity = "1";
@@ -264,15 +269,18 @@ async function loadHomeNews() {
     const sideImgs = await Promise.all(sideArticles.map(a => getArticleImage(a, categoryFromSource(a))));
     sideCardsEl.innerHTML = sideArticles.map((a, i) => {
       const cat = categoryFromSource(a);
+      const catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
       return `
-        <div class="side-card-item" onclick="window.open('${a.url || "#"}','_blank','noopener')" style="cursor:pointer">
+        <div class="side-card-item" onclick="window.open('${a.url || "#"}','_blank','noopener')">
           <img src="${sideImgs[i]}" alt="${safeText(a.title,40)}"
-            onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';"
-            style="width:76px;height:76px;border-radius:10px;object-fit:cover;flex-shrink:0;" />
+            onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';" />
           <div class="side-card-text">
-            <span class="category-chip ${cat}" style="width:fit-content;margin-bottom:4px;">${cat.charAt(0).toUpperCase()+cat.slice(1)}</span>
             <strong>${safeText(a.title, 80)}</strong>
-            <span>${timeAgo(a.publishedAt) || "Recent"}</span>
+            <div class="side-card-meta">
+              <span>${timeAgo(a.publishedAt) || "Recent"}</span>
+              <span class="sep">|</span>
+              <span class="cat cat-${cat}">${catLabel}</span>
+            </div>
           </div>
         </div>`;
     }).join("");
@@ -284,15 +292,19 @@ async function loadHomeNews() {
     const latestImgs = await Promise.all(latestArticles.map(a => getArticleImage(a, categoryFromSource(a))));
     latestItemsEl.innerHTML = latestArticles.map((a, i) => {
       const cat = categoryFromSource(a);
+      const catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
       return `
-        <div class="latest-news-item ${cat}" onclick="window.open('${a.url || "#"}','_blank','noopener')" style="cursor:pointer">
+        <div class="latest-news-item" onclick="window.open('${a.url || "#"}','_blank','noopener')">
           <img src="${latestImgs[i]}" alt="${safeText(a.title,40)}"
-            onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';"
-            style="width:54px;height:54px;border-radius:9px;object-fit:cover;flex-shrink:0;" />
+            onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';" />
           <div class="latest-news-text">
-            <span class="category-chip ${cat}" style="width:fit-content;margin-bottom:4px;">${cat.charAt(0).toUpperCase()+cat.slice(1)}</span>
             <strong>${safeText(a.title, 90)}</strong>
-            <span>${timeAgo(a.publishedAt) || "Recent"}</span>
+            <p class="latest-news-desc">${safeText(a.description || "", 120)}</p>
+            <div class="latest-news-meta">
+              <span>${timeAgo(a.publishedAt) || "Recent"}</span>
+              <span class="sep">|</span>
+              <span class="cat cat-${cat}">${catLabel}</span>
+            </div>
           </div>
         </div>`;
     }).join("");
@@ -330,6 +342,7 @@ function setPage(name) {
 // ═══════════════════════════════════════════════════════
 
 function buildHeroDots() {
+  if (!heroDots) return;
   heroDots.innerHTML = "";
   heroSlides.forEach((_, i) => {
     const dot = document.createElement("button");
@@ -340,6 +353,7 @@ function buildHeroDots() {
 }
 
 function setHeroIndex(index) {
+  if (!heroCarousel || !heroDots) return;
   const slides = heroCarousel.querySelectorAll(".hero-slide");
   const dots   = heroDots.querySelectorAll(".hero-dot");
   slides.forEach(s => s.classList.remove("active"));
@@ -350,6 +364,7 @@ function setHeroIndex(index) {
 }
 
 function startHeroRotation() {
+  if (!heroCarousel) return;
   clearInterval(state.heroTimer);
   state.heroTimer = setInterval(() => {
     setHeroIndex((state.heroIndex + 1) % heroSlides.length);
@@ -804,11 +819,46 @@ function initFeedback() {
 
 function initEvents() {
   // Nav
-  navLinks.forEach(link => link.addEventListener("click", () => setPage(link.dataset.view)));
+  navLinks.forEach(link => link.addEventListener("click", () => { if (link.dataset.view) setPage(link.dataset.view); }));
   document.querySelectorAll("[data-view]").forEach(link => {
     link.addEventListener("click", () => { const v = link.dataset.view; if (v) setPage(v); });
   });
   if (logoButton) logoButton.addEventListener("click", () => setPage("home"));
+
+  // Category nav buttons (World, Politics, Business, etc.)
+  document.querySelectorAll("[data-category]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const cat = btn.dataset.category;
+      setPage("search");
+      setTimeout(() => {
+        if (searchInput) searchInput.value = cat;
+        handleSearch();
+      }, 260);
+    });
+  });
+
+  // Home widget shortcut → Summarize page
+  const homeWidgetInput = document.getElementById("homeWidgetInput");
+  const homeWidgetBtn   = document.getElementById("homeWidgetBtn");
+  if (homeWidgetBtn) {
+    homeWidgetBtn.addEventListener("click", () => {
+      const txt = homeWidgetInput ? homeWidgetInput.value.trim() : "";
+      setPage("summarize");
+      setTimeout(() => {
+        if (summarizeInput && txt) summarizeInput.value = txt;
+        if (txt) handleSummarize();
+      }, 260);
+    });
+  }
+  if (homeWidgetInput) {
+    homeWidgetInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") homeWidgetBtn && homeWidgetBtn.click();
+    });
+  }
+
+  // Search toggle icon → go to search page
+  const searchToggle = document.getElementById("searchToggle");
+  if (searchToggle) searchToggle.addEventListener("click", () => setPage("search"));
 
   // Menu
   if (menuBtn) menuBtn.addEventListener("click", () => menuDropdown.classList.toggle("show"));

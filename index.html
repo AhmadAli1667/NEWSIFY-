@@ -5,325 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NEWSIFY — AI-Powered News</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    /* ── Home page overrides ── */
-    #page-home { padding: 0 !important; }
-
-    /* ── Back to top button ── */
-    .back-to-top {
-      position: fixed;
-      bottom: 32px;
-      right: 32px;
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      background: var(--blue-accent);
-      color: #fff;
-      font-size: 1.4rem;
-      font-weight: 700;
-      box-shadow: 0 4px 14px rgba(59,130,246,0.4);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .back-to-top.show { display: flex; }
-    .back-to-top:hover { transform: translateY(-3px); }
-
-    /* ── Feature cards always visible ── */
-    .feature-card { opacity: 1 !important; transform: none !important; }
-
-    /* ── Globe canvas ── */
-    #globe-container {
-      background: radial-gradient(circle at 30% 30%, #1e3a8a 0%, #0f172a 70%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    #globe-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    /* ── Briefing result card initial ── */
-    #briefingResult { opacity: 0; transform: none; }
-    #briefingResult.show { opacity: 1; }
-
-    /* ── Make page-hero images visible ── */
-    .page-hero img.active { opacity: 1; }
-
-    /* ── nav-link styled as text button ── */
-    .nav-link {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-family: Inter, sans-serif;
-    }
-    .nav-link.active { color: var(--blue-accent); }
-    .nav-link.active::after { width: 100%; }
-  </style>
 </head>
 <body>
 
-  <!-- Scroll progress bar -->
   <div class="progress-bar" id="scrollProgress"></div>
 
-  <!-- Top rainbow gradient stripe -->
-  <div class="top-gradient"></div>
-
-  <!-- ═══════════════════════════════════ NAVBAR ══════════════════════════════════ -->
+  <!-- ═══════════════════ NAVBAR ═══════════════════ -->
   <nav class="navbar">
 
-    <!-- Logo -->
-    <button class="logo-button" style="background:none;border:none;cursor:pointer;">
-      <img
-        class="logo"
-        src="logo.png"
-        alt="NEWSIFY"
-        onerror="this.onerror=null;this.style.display='none';"
-      />
-      <span class="logo-text">NEWSIFY</span>
+    <button class="logo-button">
+      <img class="logo" src="logo.png" alt="NEWSIFY"
+        onerror="this.onerror=null;this.style.display='none';" />
+      <div class="brand-text">
+        <span class="logo-text">NEWSIFY</span>
+        <span class="logo-tagline">Stay Informed. Stay Ahead.</span>
+      </div>
     </button>
 
-    <!-- Nav links -->
     <div class="navbar-center">
       <button class="nav-link active" data-view="home">Home</button>
-      <button class="nav-link" data-view="search">Search</button>
-      <button class="nav-link" data-view="summarize">Summarize</button>
-      <button class="nav-link" data-view="lyrics">Lyrics</button>
-      <button class="nav-link" data-view="dictionary">Dictionary</button>
-      <button class="nav-link" data-view="analyzer">Analyzer</button>
-      <button class="nav-link" data-view="briefing">Briefing</button>
+      <button class="nav-link" data-category="world news today">World</button>
+      <button class="nav-link" data-category="politics government">Politics</button>
+      <button class="nav-link" data-category="business economy">Business</button>
+      <button class="nav-link" data-category="technology AI">Technology</button>
+      <button class="nav-link" data-category="sports">Sports</button>
+      <button class="nav-link" data-category="entertainment film music">Entertainment</button>
+      <button class="nav-link" data-category="health medicine">Health</button>
     </div>
 
-    <!-- Right actions -->
     <div class="navbar-right">
-      <button class="btn-outline" id="helpBtn">🗺 Tour</button>
-      <button class="menu-button" id="menuBtn">☰</button>
-      <div class="menu-dropdown" id="menuDropdown">
-        <button class="menu-item" id="aboutCreator">👤 About Creator</button>
-        <button class="menu-item" id="exampleBtn">🔍 Try Example</button>
+      <button class="icon-btn" id="searchToggle" title="Search News">🔍</button>
+      <button class="icon-btn" id="helpBtn" title="Take a Tour">🗺</button>
+      <button class="btn-signin" id="aboutCreator">Sign In</button>
+      <div style="position:relative;">
+        <button class="icon-btn" id="menuBtn" title="More Tools">☰</button>
+        <div class="menu-dropdown" id="menuDropdown">
+          <button class="menu-item" data-view="search">🔍 AI News Search</button>
+          <button class="menu-item" data-view="summarize">✂️ Summarize Text</button>
+          <button class="menu-item" data-view="lyrics">🎵 Lyrics Analyzer</button>
+          <button class="menu-item" data-view="dictionary">📖 Dictionary</button>
+          <button class="menu-item" data-view="analyzer">📊 Content Analyzer</button>
+          <button class="menu-item" data-view="briefing">📋 Daily Briefing</button>
+          <button class="menu-item" id="exampleBtn">🧪 Try Example</button>
+        </div>
       </div>
     </div>
 
   </nav>
 
-  <!-- ═══════════════════════════════════ PAGES ═══════════════════════════════════ -->
+  <!-- ═══════════════════ MAIN ═══════════════════ -->
   <main class="main">
 
-    <!-- ══════════════════════════════════ HOME ══════════════════════════════════ -->
+    <!-- ══════════════ HOME PAGE ══════════════ -->
     <div class="page active" id="page-home">
 
-      <!-- 1. LEFT / RIGHT PANEL LAYOUT -->
-      <section class="section home-news-section top-news">
-        <div class="home-layout" id="home-layout">
-
-          <!-- ── LEFT PANEL (58%): News content ── -->
-          <div class="home-left" id="topNewsRow">
-
-            <!-- TOP STORY -->
-            <div class="top-story-card">
-              <span class="top-story-badge">🔥 TOP STORY</span>
-              <div class="story-meta">
-                <span class="story-time">⏱ 2 hours ago</span>
-                <span class="story-category business">Business</span>
-              </div>
-              <h2 class="top-story-headline">
-                AI Revolution Drives Unprecedented Growth in Global Tech Sector
-              </h2>
-              <p class="top-story-description">
-                Artificial intelligence investments surge as major corporations race to integrate
-                machine learning into core operations, transforming industries from healthcare
-                to finance. Experts forecast a $1.8 trillion AI economy by 2030.
-              </p>
-              <div class="top-story-image">
-                <img
-                  data-picture="frontpage"
-                  src="pictures/frontpage.jpg"
-                  alt="AI Technology"
-                  onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:block';"
-                />
-              </div>
-            </div>
-
-            <!-- SIDE STORY CARDS (2×2 grid) -->
-            <div class="side-cards">
-
-              <div class="side-card-item">
-                <img
-                  data-picture="frontpage3"
-                  src="pictures/frontpage3.jpg"
-                  alt="Pakistan Tech"
-                  onerror="this.onerror=null;this.style.cssText='width:80px;height:80px;min-width:80px;background:#e53935;display:block;border-radius:8px';"
-                />
-                <div class="side-card-text">
-                  <span class="story-category politics" style="width:fit-content;margin-bottom:4px;font-size:0.72rem;">Politics</span>
-                  <strong>Pakistan Digital Policy Wins International Recognition</strong>
-                  <span>3 hours ago</span>
-                </div>
-              </div>
-
-              <div class="side-card-item">
-                <img
-                  data-picture="frontpage5"
-                  src="pictures/frontpage5.jpg"
-                  alt="Climate"
-                  onerror="this.onerror=null;this.style.cssText='width:80px;height:80px;min-width:80px;background:#7c3aed;display:block;border-radius:8px';"
-                />
-                <div class="side-card-text">
-                  <span class="category-chip world" style="margin-bottom:4px;">World</span>
-                  <strong>COP30 Reaches Historic Carbon Agreement in Dubai</strong>
-                  <span>5 hours ago</span>
-                </div>
-              </div>
-
-              <div class="side-card-item">
-                <img
-                  data-picture="news2"
-                  src="pictures/news2.jpg"
-                  alt="Sports"
-                  onerror="this.onerror=null;this.style.cssText='width:80px;height:80px;min-width:80px;background:#f97316;display:block;border-radius:8px';"
-                />
-                <div class="side-card-text">
-                  <span class="category-chip sports" style="margin-bottom:4px;">Sports</span>
-                  <strong>PSL Finals Draw Record 50M Online Viewers</strong>
-                  <span>6 hours ago</span>
-                </div>
-              </div>
-
-              <div class="side-card-item">
-                <img
-                  data-picture="summary"
-                  src="pictures/summary.jpg"
-                  alt="Health"
-                  onerror="this.onerror=null;this.style.cssText='width:80px;height:80px;min-width:80px;background:#10b981;display:block;border-radius:8px';"
-                />
-                <div class="side-card-text">
-                  <span class="category-chip health" style="margin-bottom:4px;">Health</span>
-                  <strong>New Vaccine Shows 95% Efficacy in Global Trials</strong>
-                  <span>8 hours ago</span>
-                </div>
-              </div>
-
-            </div><!-- /side-cards -->
-
-            <!-- LATEST NEWS LIST -->
-            <div class="latest-news">
-              <div class="latest-news-header">📰 LATEST NEWS</div>
-              <div class="latest-news-items">
-
-                <div class="latest-news-item technology">
-                  <img
-                    data-picture="frontpage3"
-                    src="pictures/frontpage3.jpg"
-                    alt="Tech"
-                    onerror="this.onerror=null;this.style.cssText='width:56px;height:56px;min-width:56px;background:#0f766e;display:block;border-radius:8px';"
-                  />
-                  <div class="latest-news-text">
-                    <span class="category-chip technology" style="width:fit-content;margin-bottom:4px;">Technology</span>
-                    <strong>OpenAI Releases Most Capable Model Yet for Enterprise Users</strong>
-                    <span>30 min ago</span>
-                  </div>
-                </div>
-
-                <div class="latest-news-item sports">
-                  <img
-                    data-picture="news2"
-                    src="pictures/news2.jpg"
-                    alt="Cricket"
-                    onerror="this.onerror=null;this.style.cssText='width:56px;height:56px;min-width:56px;background:#f97316;display:block;border-radius:8px';"
-                  />
-                  <div class="latest-news-text">
-                    <span class="category-chip sports" style="width:fit-content;margin-bottom:4px;">Sports</span>
-                    <strong>Pakistan Cricket Team Announces World Cup Squad of 15</strong>
-                    <span>1 hour ago</span>
-                  </div>
-                </div>
-
-                <div class="latest-news-item entertainment">
-                  <img
-                    data-picture="frontpage4"
-                    src="pictures/frontpage4.jpg"
-                    alt="Entertainment"
-                    onerror="this.onerror=null;this.style.cssText='width:56px;height:56px;min-width:56px;background:#e91e8c;display:block;border-radius:8px';"
-                  />
-                  <div class="latest-news-text">
-                    <span class="category-chip entertainment" style="width:fit-content;margin-bottom:4px;">Entertainment</span>
-                    <strong>Bollywood Blockbuster Breaks All-Time Box Office Records</strong>
-                    <span>2 hours ago</span>
-                  </div>
-                </div>
-
-                <div class="latest-news-item health">
-                  <img
-                    data-picture="summary2"
-                    src="pictures/summary2.jpg"
-                    alt="Health"
-                    onerror="this.onerror=null;this.style.cssText='width:56px;height:56px;min-width:56px;background:#10b981;display:block;border-radius:8px';"
-                  />
-                  <div class="latest-news-text">
-                    <span class="category-chip health" style="width:fit-content;margin-bottom:4px;">Health</span>
-                    <strong>WHO Announces New Global Mental Health Guidelines</strong>
-                    <span>3 hours ago</span>
-                  </div>
-                </div>
-
-                <div class="latest-news-item technology">
-                  <img
-                    data-picture="frontpage5"
-                    src="pictures/frontpage5.jpg"
-                    alt="Startup"
-                    onerror="this.onerror=null;this.style.cssText='width:56px;height:56px;min-width:56px;background:#7c3aed;display:block;border-radius:8px';"
-                  />
-                  <div class="latest-news-text">
-                    <span class="category-chip technology" style="width:fit-content;margin-bottom:4px;">Tech</span>
-                    <strong>Pakistani Startup Raises $20M Series A from Silicon Valley</strong>
-                    <span>4 hours ago</span>
-                  </div>
-                </div>
-
-              </div><!-- /latest-news-items -->
-            </div><!-- /latest-news -->
-
-          </div><!-- /home-left -->
-
-          <!-- ── RIGHT PANEL (38%): Globe + widgets ── -->
-          <div class="home-right">
-
-            <!-- Interactive Globe -->
-            <div id="globe-container">
-              <canvas id="globe-canvas"></canvas>
-              <div id="globe-hint">🌍 Live World News Globe</div>
-            </div>
-
-            <!-- Quick AI Search Widget -->
-            <div class="summarize-card" style="margin-top:20px;">
-              <div class="summarize-header" style="color:#1e40af;">⚡ QUICK AI SEARCH</div>
-              <p class="summarize-description" style="color:#334155;font-weight:600;">Ask anything about today's news</p>
-              <input
-                type="text"
-                placeholder="e.g. Latest AI developments..."
-                style="width:100%;margin-bottom:12px;"
-                onkeydown="if(event.key==='Enter'){document.querySelector('[data-view=search]').click();}"
-              />
-              <button
-                class="btn-primary full"
-                onclick="document.querySelector('[data-view=search]').click();"
-              >Search with AI →</button>
-              <span class="powered-by" style="margin-top:8px;color:#64748b;font-weight:600;">Powered by Gemini AI + NewsAPI</span>
-            </div>
-
-          </div><!-- /home-right -->
-
-        </div><!-- /home-layout -->
-      </section>
-
-      <!-- 2. BREAKING NEWS TICKER -->
+      <!-- Breaking Ticker -->
       <div class="ticker-section">
         <span class="ticker-badge">🔴 BREAKING</span>
         <div class="ticker-track">
@@ -348,219 +84,265 @@
         </div>
       </div>
 
-      <!-- 3. HERO CAROUSEL -->
-      <div class="hero-section">
-        <div class="hero-carousel" id="heroCarousel">
-          <div class="hero-slide active">
-            <img data-picture="frontpage" src="pictures/frontpage.jpg" alt="Breaking News" onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;object-fit:cover;background:linear-gradient(135deg,#1e40af,#3b82f6);display:block';" />
-            <div class="hero-overlay"><h1>Stay Informed. Stay Ahead.</h1><p>AI-powered news briefings in seconds</p></div>
-          </div>
-          <div class="hero-slide">
-            <img data-picture="frontpage2" src="pictures/frontpage2.jpg" alt="Summarize" onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;object-fit:cover;background:linear-gradient(135deg,#7c3aed,#1e40af);display:block';" />
-            <div class="hero-overlay"><h1>Summarize Any Article</h1><p>Paste it. Choose length. Get the gist.</p></div>
-          </div>
-          <div class="hero-slide">
-            <img data-picture="frontpage3" src="pictures/frontpage3.jpg" alt="Analyze" onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;object-fit:cover;background:linear-gradient(135deg,#f97316,#7c3aed);display:block';" />
-            <div class="hero-overlay"><h1>Analyze Lyrics &amp; Literature</h1><p>Deep insights from songs, books, and articles</p></div>
-          </div>
-          <div class="hero-slide">
-            <img data-picture="frontpage4" src="pictures/frontpage4.jpg" alt="Briefing" onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;object-fit:cover;background:linear-gradient(135deg,#10b981,#1e40af);display:block';" />
-            <div class="hero-overlay"><h1>Your Morning Briefing</h1><p>One click. Today's world in 4 paragraphs.</p></div>
-          </div>
-          <div class="hero-slide">
-            <img data-picture="frontpage5" src="pictures/frontpage5.jpg" alt="NUST SEECS" onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;object-fit:cover;background:linear-gradient(135deg,#1e40af,#10b981);display:block';" />
-            <div class="hero-overlay"><h1>Built at NUST SEECS</h1><p>Ahmad Ali &amp; Team · Semester 2 Project</p></div>
-          </div>
-          <div class="hero-glow hero-glow-top"></div>
-          <div class="hero-glow hero-glow-bottom"></div>
-          <div class="hero-glow hero-glow-center"></div>
-        </div>
-        <div class="hero-dots" id="heroDots"></div>
-      </div>
+      <!-- Hero Grid: Left news + Right globe -->
+      <div class="home-hero">
 
-      <!-- 4. FEATURE CARDS SECTION -->
-      <section class="section" style="background:#f8faff;">
-        <div class="section-header">
-          <div class="accent-bar blue"></div>
-          <div>
-            <h2 style="color:#1e40af;font-weight:800;">Explore Our AI Tools</h2>
-            <p style="color:#334155;font-weight:600;">Six powerful features to keep you informed</p>
-          </div>
-        </div>
-        <div class="feature-grid">
+        <!-- LEFT: News Cards -->
+        <div class="home-left">
 
-          <div class="feature-card blue show" style="cursor:pointer;" data-view="search">
-            <div class="feature-icon">🔍</div>
-            <h3 style="color:#1e40af;font-size:1.15rem;margin:0 0 8px;font-weight:800;">AI News Search</h3>
-            <p style="color:#1e3a8a;font-weight:700;">Ask any question, get answers from real live headlines.</p>
-            <span class="feature-link" style="font-weight:800;">Try Now →</span>
-          </div>
-
-          <div class="feature-card purple show" style="cursor:pointer;" data-view="summarize">
-            <div class="feature-icon">✂️</div>
-            <h3 style="color:#6d28d9;font-size:1.15rem;margin:0 0 8px;font-weight:800;">Article Summarizer</h3>
-            <p style="color:#5b21b6;font-weight:700;">Paste any article, essay, or report. Crisp summary instantly.</p>
-            <span class="feature-link" style="font-weight:800;">Try Now →</span>
-          </div>
-
-          <div class="feature-card green show" style="cursor:pointer;" data-view="lyrics">
-            <div class="feature-icon">🎵</div>
-            <h3 style="color:#065f46;font-size:1.15rem;margin:0 0 8px;font-weight:800;">Lyrics Analyzer</h3>
-            <p style="color:#064e3b;font-weight:700;">Decode the deeper meaning behind songs with AI.</p>
-            <span class="feature-link" style="font-weight:800;">Try Now →</span>
-          </div>
-
-          <div class="feature-card orange show" style="cursor:pointer;" data-view="dictionary">
-            <div class="feature-icon">📖</div>
-            <h3 style="color:#9a3412;font-size:1.15rem;margin:0 0 8px;font-weight:800;">Smart Dictionary</h3>
-            <p style="color:#7c2d12;font-weight:700;">Instant definitions, synonyms, and AI usage examples.</p>
-            <span class="feature-link" style="font-weight:800;">Try Now →</span>
-          </div>
-
-          <div class="feature-card blue show" style="cursor:pointer;" data-view="analyzer">
-            <div class="feature-icon">📊</div>
-            <h3 style="color:#1e40af;font-size:1.15rem;margin:0 0 8px;font-weight:800;">Content Analyzer</h3>
-            <p style="color:#1e3a8a;font-weight:700;">Deep analysis of articles, book excerpts, and lyrics.</p>
-            <span class="feature-link" style="font-weight:800;">Try Now →</span>
-          </div>
-
-          <div class="feature-card purple show" style="cursor:pointer;" data-view="briefing">
-            <div class="feature-icon">📋</div>
-            <h3 style="color:#6d28d9;font-size:1.15rem;margin:0 0 8px;font-weight:800;">Daily Briefing</h3>
-            <p style="color:#5b21b6;font-weight:700;">One click. Today's world in 4 paragraphs.</p>
-            <span class="feature-link" style="font-weight:800;">Try Now →</span>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- 5. HOW IT WORKS -->
-      <section class="section">
-        <div class="section-header">
-          <div class="accent-bar purple"></div>
-          <div>
-            <h2 style="color:#1e40af;font-weight:800;">How NEWSIFY Works</h2>
-            <p style="color:#334155;font-weight:600;">Three steps to smarter news consumption</p>
-          </div>
-        </div>
-        <div class="how-grid">
-          <div class="how-card" data-color="blue">
-            <div class="how-number" style="color:#1e40af;">01</div>
-            <h3 style="color:#1e40af;font-size:1.15rem;font-weight:800;">Choose a Tool</h3>
-            <p style="color:#1e293b;font-weight:600;line-height:1.7;">Pick from 6 AI-powered tools — search, summarize, analyze lyrics, look up words, deep-analyze content, or get a morning briefing.</p>
-          </div>
-          <div class="how-card" data-color="purple">
-            <div class="how-number" style="color:#7c3aed;">02</div>
-            <h3 style="color:#7c3aed;font-size:1.15rem;font-weight:800;">Input Your Content</h3>
-            <p style="color:#1e293b;font-weight:600;line-height:1.7;">Type a question, paste an article, enter lyrics, or just click a button. NEWSIFY handles the rest with Gemini AI + NewsAPI.</p>
-          </div>
-          <div class="how-card" data-color="green">
-            <div class="how-number" style="color:#059669;">03</div>
-            <h3 style="color:#059669;font-size:1.15rem;font-weight:800;">Get AI Insights</h3>
-            <p style="color:#1e293b;font-weight:600;line-height:1.7;">Receive clean, readable AI-generated summaries, analysis, and insights. Copy or expand results with one click.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- 6. ABOUT SECTION -->
-      <section class="section about-section">
-        <div class="about-grid">
-          <div>
-            <div class="section-header">
-              <div class="accent-bar green"></div>
-              <div>
-                <h2 style="color:#1e40af;font-weight:800;">About NEWSIFY</h2>
-                <p style="color:#334155;font-weight:600;">Built with purpose. Powered by AI.</p>
+          <!-- Top Story -->
+          <div class="top-story-card">
+            <div class="top-story-inner">
+              <div class="top-story-img">
+                <img src="pictures/frontpage.jpg" alt="Top Story"
+                  onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:block';" />
+              </div>
+              <div class="top-story-body">
+                <span class="top-story-badge">TOP STORY</span>
+                <h2 class="top-story-headline">AI Revolution Drives Unprecedented Growth in Global Tech Sector</h2>
+                <p class="top-story-description">Artificial intelligence investments surge as major corporations race to integrate machine learning into core operations, transforming industries from healthcare to finance.</p>
+                <div class="top-story-meta">
+                  <span>2h ago</span>
+                  <span class="sep">|</span>
+                  <span class="cat cat-technology">Technology</span>
+                </div>
               </div>
             </div>
-            <p class="about-copy" style="font-size:1.05rem;color:#1e293b;font-weight:600;line-height:1.8;">
-              NEWSIFY is an AI-powered news platform built by
-              <strong style="color:#1e40af;">Ahmad Ali</strong> and team at
-              <strong style="color:#1e40af;">NUST SEECS</strong> as a Semester 2 project.
-              It combines <strong>Google's Gemini AI</strong> with real-time news from
-              <strong>NewsAPI</strong> to deliver intelligent, summarized, and analyzed
-              news content in seconds.
-            </p>
-            <div class="tag-row">
-              <span class="tag">🤖 Gemini AI</span>
-              <span class="tag">📰 NewsAPI</span>
-              <span class="tag">🎓 NUST SEECS</span>
-              <span class="tag">⚡ Real-time</span>
-              <span class="tag">🌍 Global Coverage</span>
-              <span class="tag">💯 Free to Use</span>
+          </div>
+
+          <!-- Side Cards (2-col) -->
+          <div class="side-cards">
+            <div class="side-card-item">
+              <img src="pictures/frontpage3.jpg" alt="Politics"
+                onerror="this.onerror=null;this.style.cssText='width:72px;height:72px;background:#3b82f6;display:block;border-radius:9px';" />
+              <div class="side-card-text">
+                <strong>EU Leaders Agree on New Climate Plan</strong>
+                <div class="side-card-meta">
+                  <span>4h ago</span>
+                  <span class="sep">|</span>
+                  <span class="cat cat-world">World</span>
+                </div>
+              </div>
+            </div>
+            <div class="side-card-item">
+              <img src="pictures/frontpage5.jpg" alt="Politics"
+                onerror="this.onerror=null;this.style.cssText='width:72px;height:72px;background:#ef4444;display:block;border-radius:9px';" />
+              <div class="side-card-text">
+                <strong>Senate Passes Bill to Improve Healthcare Access</strong>
+                <div class="side-card-meta">
+                  <span>5h ago</span>
+                  <span class="sep">|</span>
+                  <span class="cat cat-politics">Politics</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <h3 style="color:#1e40af;">6</h3>
-              <p style="color:#334155;font-weight:700;">AI Tools</p>
+
+          <!-- Latest News -->
+          <div class="latest-news">
+            <div class="latest-news-header">Latest News</div>
+            <div class="latest-news-items">
+              <div class="latest-news-item">
+                <img src="pictures/frontpage2.jpg" alt="Tech"
+                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#8b5cf6;display:block;border-radius:9px';" />
+                <div class="latest-news-text">
+                  <strong>New Smartphone Launches With AI Features</strong>
+                  <p class="latest-news-desc">The latest device promises smarter performance and longer battery life.</p>
+                  <div class="latest-news-meta">
+                    <span>1h ago</span>
+                    <span class="sep">|</span>
+                    <span class="cat cat-technology">Technology</span>
+                  </div>
+                </div>
+              </div>
+              <div class="latest-news-item">
+                <img src="pictures/news2.jpg" alt="Sports"
+                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#f97316;display:block;border-radius:9px';" />
+                <div class="latest-news-text">
+                  <strong>City United Wins Thriller in Extra Time</strong>
+                  <p class="latest-news-desc">A dramatic 3-2 victory keeps their championship hopes alive.</p>
+                  <div class="latest-news-meta">
+                    <span>3h ago</span>
+                    <span class="sep">|</span>
+                    <span class="cat cat-sports">Sports</span>
+                  </div>
+                </div>
+              </div>
+              <div class="latest-news-item">
+                <img src="pictures/frontpage4.jpg" alt="Entertainment"
+                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#ec4899;display:block;border-radius:9px';" />
+                <div class="latest-news-text">
+                  <strong>New Film Breaks Box Office Records</strong>
+                  <p class="latest-news-desc">The weekend hit draws huge crowds worldwide.</p>
+                  <div class="latest-news-meta">
+                    <span>6h ago</span>
+                    <span class="sep">|</span>
+                    <span class="cat cat-entertainment">Entertainment</span>
+                  </div>
+                </div>
+              </div>
+              <div class="latest-news-item">
+                <img src="pictures/summary.jpg" alt="Health"
+                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#06b6d4;display:block;border-radius:9px';" />
+                <div class="latest-news-text">
+                  <strong>Study Finds Daily Walks Boost Mental Health</strong>
+                  <p class="latest-news-desc">Researchers say even short walks can reduce stress and improve mood.</p>
+                  <div class="latest-news-meta">
+                    <span>7h ago</span>
+                    <span class="sep">|</span>
+                    <span class="cat cat-health">Health</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="stat-card">
-              <h3 style="color:#1e40af;">∞</h3>
-              <p style="color:#334155;font-weight:700;">News Sources</p>
-            </div>
-            <div class="stat-card">
-              <h3 style="color:#1e40af;">24/7</h3>
-              <p style="color:#334155;font-weight:700;">Live Coverage</p>
-            </div>
-            <div class="stat-card">
-              <h3 style="color:#1e40af;">100%</h3>
-              <p style="color:#334155;font-weight:700;">Free to Use</p>
-            </div>
+          </div>
+
+        </div><!-- /home-left -->
+
+        <!-- RIGHT: Globe + Summarize Widget -->
+        <div class="home-right">
+
+          <div class="globe-section">
+            <canvas id="globe-canvas"></canvas>
+          </div>
+
+          <div class="summarize-widget">
+            <h4>Summarize News</h4>
+            <p>Paste a news article or text to get a quick AI summary.</p>
+            <textarea id="homeWidgetInput" placeholder="Enter URL or paste text here..."></textarea>
+            <button class="btn-summarize" id="homeWidgetBtn">
+              ✂️ Summarize
+            </button>
+            <p class="widget-powered">Powered by AI</p>
+          </div>
+
+        </div><!-- /home-right -->
+
+      </div><!-- /home-hero -->
+
+      <!-- ── FEATURE CARDS ── -->
+      <section class="features-section">
+        <div class="section-header">
+          <h2>Explore Our AI Tools</h2>
+          <p>Six powerful features to keep you informed and insightful</p>
+        </div>
+        <div class="feature-grid">
+          <div class="feature-card fc-blue" data-view="search">
+            <div class="feature-icon">🔍</div>
+            <h3 style="color:#1e40af;">AI News Search</h3>
+            <p>Ask any question, get answers from real live headlines.</p>
+            <span class="feature-link">Try Now →</span>
+          </div>
+          <div class="feature-card fc-purple" data-view="summarize">
+            <div class="feature-icon">✂️</div>
+            <h3 style="color:#6d28d9;">Article Summarizer</h3>
+            <p>Paste any article, essay, or report. Crisp summary instantly.</p>
+            <span class="feature-link" style="color:#6d28d9;">Try Now →</span>
+          </div>
+          <div class="feature-card fc-green" data-view="lyrics">
+            <div class="feature-icon">🎵</div>
+            <h3 style="color:#065f46;">Lyrics Analyzer</h3>
+            <p>Decode the deeper meaning behind songs with AI.</p>
+            <span class="feature-link" style="color:#059669;">Try Now →</span>
+          </div>
+          <div class="feature-card fc-orange" data-view="dictionary">
+            <div class="feature-icon">📖</div>
+            <h3 style="color:#9a3412;">Smart Dictionary</h3>
+            <p>Instant definitions, synonyms, and AI usage examples.</p>
+            <span class="feature-link" style="color:#ea580c;">Try Now →</span>
+          </div>
+          <div class="feature-card fc-blue" data-view="analyzer">
+            <div class="feature-icon">📊</div>
+            <h3 style="color:#1e40af;">Content Analyzer</h3>
+            <p>Deep analysis of articles, book excerpts, and lyrics.</p>
+            <span class="feature-link">Try Now →</span>
+          </div>
+          <div class="feature-card fc-pink" data-view="briefing">
+            <div class="feature-icon">📋</div>
+            <h3 style="color:#9d174d;">Daily Briefing</h3>
+            <p>One click. Today's world in 4 paragraphs.</p>
+            <span class="feature-link" style="color:#ec4899;">Try Now →</span>
           </div>
         </div>
       </section>
 
-      <section class="section culture-section reveal">
+      <!-- ── HOW IT WORKS ── -->
+      <section class="how-section">
         <div class="section-header">
-          <div class="accent-bar purple"></div>
-          <div>
-            <h2>Trending in Culture</h2>
-            <p>Top artists and songs people are discovering right now.</p>
+          <h2>How NEWSIFY Works</h2>
+          <p>Three steps to smarter news consumption</p>
+        </div>
+        <div class="how-grid">
+          <div class="how-card">
+            <div class="how-number" style="color:#2563eb;">01</div>
+            <h3 style="color:#2563eb;">Choose a Tool</h3>
+            <p>Pick from 6 AI-powered tools — search, summarize, analyze lyrics, look up words, deep-analyze content, or get a morning briefing.</p>
+          </div>
+          <div class="how-card">
+            <div class="how-number" style="color:#7c3aed;">02</div>
+            <h3 style="color:#7c3aed;">Input Your Content</h3>
+            <p>Type a question, paste an article, enter lyrics, or click a button. NEWSIFY handles the rest with Gemini AI + NewsAPI.</p>
+          </div>
+          <div class="how-card">
+            <div class="how-number" style="color:#059669;">03</div>
+            <h3 style="color:#059669;">Get AI Insights</h3>
+            <p>Receive clean, readable AI-generated summaries, analysis, and insights. Copy or expand results with one click.</p>
           </div>
         </div>
+      </section>
+
+      <!-- ── TRENDING IN CULTURE (dark) ── -->
+      <section class="culture-section">
+        <h2>Trending in Culture</h2>
         <div class="culture-grid">
           <div class="culture-block">
             <h3>Music Radar</h3>
             <div class="artist-grid">
               <button class="artist-card" data-view="lyrics">
-                <img data-picture="taylor swift" src="pictures/taylor%20swift.jpg" alt="Taylor Swift" />
+                <img src="pictures/taylor%20swift.jpg" alt="Taylor Swift"
+                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#1e40af;display:block';" />
                 <span>Taylor Swift</span>
               </button>
               <button class="artist-card" data-view="lyrics">
-                <img data-picture="the weeknd" src="pictures/the%20weeknd.jpg" alt="The Weeknd" />
+                <img src="pictures/the%20weeknd.jpg" alt="The Weeknd"
+                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#312e81;display:block';" />
                 <span>The Weeknd</span>
               </button>
               <button class="artist-card" data-view="lyrics">
-                <img data-picture="travis scott" src="pictures/travis%20scott.jpg" alt="Travis Scott" />
+                <img src="pictures/travis%20scott.jpg" alt="Travis Scott"
+                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#7c3aed;display:block';" />
                 <span>Travis Scott</span>
               </button>
               <button class="artist-card" data-view="lyrics">
-                <img data-picture="r" src="pictures/r.jpg" alt="Rihanna" />
+                <img src="pictures/rihanna.jpg" alt="Rihanna"
+                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#9d174d;display:block';" />
                 <span>Rihanna</span>
               </button>
             </div>
           </div>
           <div class="culture-block">
-            <h3>Top Songs</h3>
+            <h3>Top Tracks</h3>
             <div class="track-list">
               <div class="track-item">
-                <img data-picture="all too well" src="pictures/all%20too%20well.jpg" alt="All Too Well" />
-                <div>
+                <img src="pictures/all%20too%20well.jpg" alt="All Too Well"
+                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#1e40af;display:block';" />
+                <div class="track-info">
                   <strong>All Too Well</strong>
                   <span>Taylor Swift</span>
                 </div>
               </div>
               <div class="track-item">
-                <img data-picture="love story" src="pictures/love%20story.jpg" alt="Love Story" />
-                <div>
+                <img src="pictures/love%20story.jpg" alt="Love Story"
+                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#1e3a8a;display:block';" />
+                <div class="track-info">
                   <strong>Love Story</strong>
                   <span>Taylor Swift</span>
                 </div>
               </div>
               <div class="track-item">
-                <img data-picture="moth to a flame" src="pictures/moth%20to%20a%20flame.jpg" alt="Moth To A Flame" />
-                <div>
+                <img src="pictures/moth%20to%20a%20flame.jpg" alt="Moth To A Flame"
+                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#312e81;display:block';" />
+                <div class="track-info">
                   <strong>Moth To A Flame</strong>
                   <span>The Weeknd</span>
                 </div>
@@ -570,12 +352,10 @@
         </div>
       </section>
 
-      <!-- 7. FEEDBACK FORM SECTION -->
+      <!-- ── FEEDBACK ── -->
       <div class="feedback-form-section">
-        <div style="text-align:center;margin-bottom:24px;">
-          <h2 style="color:#1e40af;font-weight:800;margin:0 0 8px;">Share Your Feedback</h2>
-          <p style="color:#334155;font-weight:600;margin:0;">Help us make NEWSIFY better</p>
-        </div>
+        <h2>Share Your Feedback</h2>
+        <p>Help us make NEWSIFY better</p>
         <form class="feedback-form" id="feedbackForm">
           <input type="text" id="feedbackName" placeholder="Your name" required />
           <div id="starRating" class="star-rating">
@@ -588,13 +368,11 @@
           <textarea id="feedbackText" placeholder="Tell us what you think about NEWSIFY..." rows="4" required></textarea>
           <button type="submit" class="feedback-btn">Send Feedback ✉️</button>
         </form>
-        <div class="feedback-success" id="feedbackSuccess">
-          ✅ Thank you! Your feedback has been received.
-        </div>
+        <div class="feedback-success" id="feedbackSuccess">✅ Thank you! Your feedback has been received.</div>
         <div class="feedback-links">
           <a href="#">Privacy Policy</a>
           <span class="separator">·</span>
-          <a href="#">GitHub</a>
+          <a href="https://github.com" target="_blank">GitHub</a>
           <span class="separator">·</span>
           <a href="#">Contact</a>
         </div>
@@ -602,364 +380,287 @@
 
     </div><!-- /page-home -->
 
-    <!-- ═════════════════════════════════ SEARCH ════════════════════════════════ -->
+    <!-- ══════════════ SEARCH PAGE ══════════════ -->
     <div class="page" id="page-search">
-
-      <div class="section-header">
-        <div class="accent-bar blue"></div>
-        <div>
-          <h2 style="color:#1e40af;font-weight:800;">🔍 AI News Search</h2>
-          <p style="color:#334155;font-weight:600;">Ask any question — get AI answers from real headlines</p>
+      <div class="inner-page">
+        <div class="page-header">
+          <h1>🔍 AI News Search</h1>
+          <p>Ask any question — get AI answers from real headlines</p>
+          <div class="accent-line"></div>
         </div>
-      </div>
-
-      <div class="page-hero" style="margin-bottom:24px;">
-        <img
-          data-picture="search-hero"
-          src="pictures/frontpage.jpg"
-          alt="Search"
-          class="active"
-          onerror="this.onerror=null;this.style.cssText='position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:block;object-fit:cover';"
-        />
-        <div class="hero-overlay" style="border-radius:16px;">
-          <h1 style="font-size:2rem;font-weight:800;">Ask the News</h1>
-          <p style="font-size:1.1rem;font-weight:600;">Real headlines. AI-powered answers.</p>
-        </div>
-      </div>
-
-      <div class="form-card">
-        <label for="searchInput" style="font-size:1.1rem;color:#1e40af;font-weight:800;">💬 Your Question</label>
-        <input type="text" id="searchInput" placeholder="e.g. What are the latest developments in AI?" />
-        <button class="btn-primary" id="searchBtn">🔍 Search News</button>
-        <span class="powered-by" style="color:#64748b;font-weight:600;">Powered by Gemini AI + NewsAPI</span>
-      </div>
-
-      <div class="result-card" id="searchResultCard">
-        <div class="result-actions">
-          <button class="result-btn" data-action="copy" data-target="searchResult">📋 Copy</button>
-          <button class="result-btn" data-action="expand" data-target="searchResult">⛶ Expand</button>
-        </div>
-        <div class="result-body" id="searchResult"></div>
-      </div>
-
-      <div class="info-panel" style="margin-top:8px;">
-        <button class="info-toggle" style="color:#1e40af;font-weight:800;">ℹ️ How does AI News Search work?</button>
-        <p style="color:#334155;font-weight:600;">Our AI fetches real headlines from NewsAPI and uses Google Gemini to generate a comprehensive answer — not just training data, but actual live articles.</p>
-      </div>
-
-    </div><!-- /page-search -->
-
-    <!-- ══════════════════════════════ SUMMARIZE ════════════════════════════════ -->
-    <div class="page" id="page-summarize">
-
-      <div class="section-header">
-        <div class="accent-bar purple"></div>
-        <div>
-          <h2 style="color:#6d28d9;font-weight:800;">✂️ Article Summarizer</h2>
-          <p style="color:#334155;font-weight:600;">Paste anything. Get a crisp summary in seconds.</p>
-        </div>
-      </div>
-
-      <div class="page-hero" style="margin-bottom:24px;">
-        <img
-          data-picture="summarize-hero"
-          src="pictures/summary.jpg"
-          alt="Summarize"
-          class="active"
-          onerror="this.onerror=null;this.style.cssText='position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#1e40af);display:block;object-fit:cover';"
-        />
-        <div class="hero-overlay" style="border-radius:16px;">
-          <h1 style="font-size:2rem;font-weight:800;">Summarize Any Text</h1>
-          <p style="font-size:1.1rem;font-weight:600;">Articles · Essays · Research Papers</p>
-        </div>
-      </div>
-
-      <div class="form-card green">
-        <label for="summarizeInput" style="font-size:1.1rem;color:#065f46;font-weight:800;">📄 Paste Your Text</label>
-        <textarea id="summarizeInput" placeholder="Paste an article, essay, or any long text here..."></textarea>
-        <div>
-          <label style="font-size:0.95rem;color:#334155;font-weight:700;">Summary Length</label>
-          <div class="button-group" id="lengthGroup" style="margin-top:8px;">
-            <button data-value="short">Short</button>
-            <button data-value="medium" class="active">Medium</button>
-            <button data-value="long">Long</button>
+        <div class="page-hero">
+          <img src="pictures/frontpage.jpg" alt="Search"
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:block';" />
+          <div class="hero-overlay">
+            <h1>Ask the News</h1>
+            <p>Real headlines. AI-powered answers.</p>
           </div>
         </div>
-        <button class="btn-primary green" id="summarizeBtn">✂️ Summarize Now</button>
-        <span class="powered-by" style="color:#64748b;font-weight:600;">Powered by Google Gemini AI</span>
-      </div>
-
-      <div class="result-card green" id="summarizeResultCard">
-        <div class="result-actions">
-          <button class="result-btn" data-action="copy" data-target="summarizeResult">📋 Copy</button>
-          <button class="result-btn" data-action="expand" data-target="summarizeResult">⛶ Expand</button>
+        <div class="form-card">
+          <label for="searchInput">💬 Your Question</label>
+          <input type="text" id="searchInput" placeholder="e.g. What are the latest developments in AI?" />
+          <button class="btn-primary full" id="searchBtn">🔍 Search News</button>
+          <span class="powered-by">Powered by Gemini AI + NewsAPI</span>
         </div>
-        <div class="result-body" id="summarizeResult"></div>
-      </div>
-
-    </div><!-- /page-summarize -->
-
-    <!-- ════════════════════════════════ LYRICS ═════════════════════════════════ -->
-    <div class="page" id="page-lyrics">
-
-      <div class="section-header">
-        <div class="accent-bar purple"></div>
-        <div>
-          <h2 style="color:#7c3aed;font-weight:800;">🎵 Lyrics Analyzer</h2>
-          <p style="color:#334155;font-weight:600;">Decode the hidden meaning behind any song</p>
-        </div>
-      </div>
-
-      <div class="page-hero" style="margin-bottom:24px;">
-        <img
-          data-picture="lyrics-hero"
-          src="pictures/music1.jpg"
-          alt="Lyrics"
-          class="active"
-          onerror="this.onerror=null;this.style.cssText='position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#e91e8c);display:block;object-fit:cover';"
-        />
-        <div class="hero-overlay" style="border-radius:16px;">
-          <h1 style="font-size:2rem;font-weight:800;">Lyrics Intelligence</h1>
-          <p style="font-size:1.1rem;font-weight:600;">AI-powered music analysis &amp; insights</p>
-        </div>
-      </div>
-
-      <div class="form-card" style="border-left:4px solid #7c3aed;">
-        <label for="lyricsInput" style="font-size:1.1rem;color:#6d28d9;font-weight:800;">🎶 Paste Song Lyrics</label>
-        <textarea id="lyricsInput" placeholder="Paste song lyrics here..."></textarea>
-        <div>
-          <label style="font-size:0.95rem;color:#334155;font-weight:700;">Analysis Type</label>
-          <div class="button-group purple" id="lyricsGroup" style="margin-top:8px;">
-            <button data-value="main" class="active">Main Message</button>
-            <button data-value="insights">Artist Insights</button>
-            <button data-value="creative">Creative Ideas</button>
-          </div>
-        </div>
-        <button class="btn-primary purple" id="lyricsBtn">🎵 Analyze Lyrics</button>
-        <span class="powered-by" style="color:#64748b;font-weight:600;">Powered by Google Gemini AI</span>
-      </div>
-
-      <div class="result-card" style="border-left-color:#7c3aed;" id="lyricsResultCard">
-        <div class="result-actions">
-          <button class="result-btn" data-action="copy" data-target="lyricsResult">📋 Copy</button>
-          <button class="result-btn" data-action="expand" data-target="lyricsResult">⛶ Expand</button>
-        </div>
-        <div class="result-body" id="lyricsResult"></div>
-      </div>
-
-    </div><!-- /page-lyrics -->
-
-    <!-- ══════════════════════════════ DICTIONARY ═══════════════════════════════ -->
-    <div class="page" id="page-dictionary">
-
-      <div class="section-header">
-        <div class="accent-bar orange"></div>
-        <div>
-          <h2 style="color:#ea580c;font-weight:800;">📖 Smart Dictionary</h2>
-          <p style="color:#334155;font-weight:600;">Instant definitions, synonyms, and AI usage examples</p>
-        </div>
-      </div>
-
-      <div class="page-hero" style="margin-bottom:24px;">
-        <img
-          data-picture="dictionary-hero"
-          src="pictures/dictionary.jpg"
-          alt="Dictionary"
-          class="active"
-          onerror="this.onerror=null;this.style.cssText='position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(135deg,#f97316,#1e40af);display:block;object-fit:cover';"
-        />
-        <div class="hero-overlay" style="border-radius:16px;">
-          <h1 style="font-size:2rem;font-weight:800;">Word Intelligence</h1>
-          <p style="font-size:1.1rem;font-weight:600;">Free definitions — no API key required</p>
-        </div>
-      </div>
-
-      <div class="form-card" style="border-left:4px solid #f97316;">
-        <label for="dictionaryInput" style="font-size:1.1rem;color:#ea580c;font-weight:800;">🔤 Enter a Word</label>
-        <input type="text" id="dictionaryInput" placeholder="e.g. serendipity, ephemeral, ubiquitous..." />
-        <button class="btn-primary orange" id="dictionaryBtn">📖 Look Up Definition</button>
-        <span class="powered-by" style="color:#64748b;font-weight:600;">Free · Powered by DictionaryAPI.dev · No key needed</span>
-      </div>
-
-      <div class="result-card orange" id="dictionaryResultCard">
-        <div class="result-actions">
-          <button class="result-btn" data-action="copy" data-target="dictionaryResult">📋 Copy</button>
-        </div>
-        <div class="result-body" id="dictionaryResult"></div>
-      </div>
-
-      <div class="form-card" style="margin-top:8px;border-left:4px solid #3b82f6;">
-        <label style="font-size:1.1rem;color:#1e40af;font-weight:800;">🤖 Ask Gemini AI About This Word</label>
-        <p style="color:#334155;font-weight:600;margin:0 0 8px;font-size:0.9rem;">Look up a word above first — a prompt will appear here automatically</p>
-        <input type="text" id="dictionaryPrompt" placeholder="Gemini prompt will appear here after word lookup..." />
-        <button class="btn-primary" id="dictionaryAsk">Ask Gemini AI</button>
-      </div>
-
-      <div class="result-card" id="dictionaryGeminiCard">
-        <div class="result-actions">
-          <button class="result-btn" data-action="copy" data-target="dictionaryGemini">📋 Copy</button>
-        </div>
-        <div class="result-body" id="dictionaryGemini"></div>
-      </div>
-
-    </div><!-- /page-dictionary -->
-
-    <!-- ═══════════════════════════════ ANALYZER ════════════════════════════════ -->
-    <div class="page" id="page-analyzer">
-
-      <div class="section-header">
-        <div class="accent-bar blue"></div>
-        <div>
-          <h2 style="color:#1e40af;font-weight:800;">📊 Content Analyzer</h2>
-          <p style="color:#334155;font-weight:600;">Deep AI analysis for articles, books, and lyrics</p>
-        </div>
-      </div>
-
-      <div class="page-hero" style="margin-bottom:24px;">
-        <img
-          data-picture="analyzer-hero"
-          src="pictures/analyzer-hero.jpg"
-          alt="Analyzer"
-          class="active"
-          onerror="this.onerror=null;this.style.cssText='position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(135deg,#1e40af,#10b981);display:block;object-fit:cover';"
-        />
-        <div class="hero-overlay" style="border-radius:16px;">
-          <h1 style="font-size:2rem;font-weight:800;">Deep Content Analysis</h1>
-          <p style="font-size:1.1rem;font-weight:600;">AI-powered insights for any content type</p>
-        </div>
-      </div>
-
-      <div class="form-card">
-        <div>
-          <label style="font-size:1.1rem;color:#1e40af;font-weight:800;">📁 Content Type</label>
-          <div class="button-group" id="analyzerType" style="margin-top:8px;">
-            <button data-value="newspaper" class="active">📰 Article</button>
-            <button data-value="lyrics">🎵 Lyrics</button>
-            <button data-value="book">📚 Book Excerpt</button>
-          </div>
-        </div>
-        <div>
-          <label id="analyzerLabel" style="font-size:1.1rem;color:#1e40af;font-weight:800;">Content</label>
-          <textarea id="analyzerInput" placeholder="Paste the article..." style="margin-top:8px;"></textarea>
-        </div>
-        <div>
-          <label style="font-size:0.95rem;color:#334155;font-weight:700;">Analysis Focus</label>
-          <div class="button-group" id="analyzerFocus" style="margin-top:8px;">
-            <!-- Populated dynamically by app.js -->
-          </div>
-        </div>
-        <button class="btn-primary" id="analyzerBtn">📊 Analyze Now</button>
-        <span class="powered-by" style="color:#64748b;font-weight:600;">Powered by Google Gemini AI</span>
-      </div>
-
-      <div class="result-card" id="analyzerResultCard">
-        <div class="result-actions">
-          <button class="result-btn" data-action="copy" data-target="analyzerResult">📋 Copy</button>
-          <button class="result-btn" data-action="expand" data-target="analyzerResult">⛶ Expand</button>
-        </div>
-        <div class="result-body" id="analyzerResult"></div>
-      </div>
-
-      <div class="info-panel purple" style="margin-top:8px;">
-        <button class="info-toggle" style="color:#6d28d9;font-weight:800;">ℹ️ What can the Content Analyzer do?</button>
-        <p style="color:#334155;font-weight:600;">Analyze newspaper articles for key facts and summaries, song lyrics for meaning and artist insights, or book excerpts for themes and plot analysis — all powered by Gemini AI.</p>
-      </div>
-
-    </div><!-- /page-analyzer -->
-
-    <!-- ══════════════════════════════ BRIEFING ═════════════════════════════════ -->
-    <div class="page" id="page-briefing">
-
-      <div class="section-header">
-        <div class="accent-bar green"></div>
-        <div>
-          <h2 style="color:#059669;font-weight:800;">📋 Daily Briefing</h2>
-          <p style="color:#334155;font-weight:600;">Your AI-powered morning digest — one click to know the world</p>
-        </div>
-      </div>
-
-      <div class="page-hero" style="margin-bottom:24px;">
-        <img
-          data-picture="briefing-hero"
-          src="pictures/briefing-hero.jpg"
-          alt="Briefing"
-          class="active"
-          onerror="this.onerror=null;this.style.cssText='position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(135deg,#059669,#1e40af);display:block;object-fit:cover';"
-        />
-        <div class="briefing-overlay">
-          <span style="font-size:1.2rem;font-weight:800;">☀️ Today's World at a Glance</span>
-        </div>
-      </div>
-
-      <div class="briefing-card">
-        <div class="briefing-actions">
-          <button class="btn-primary" id="briefingBtn">📋 Get AI Briefing</button>
-          <button class="btn-outline" id="headlinesBtn">📰 Show Headlines</button>
-        </div>
-        <div class="result-card" id="briefingResult">
+        <div class="result-card" id="searchResultCard">
           <div class="result-actions">
-            <button class="result-btn" data-action="copy" data-target="briefingText">📋 Copy</button>
-            <button class="result-btn" data-action="expand" data-target="briefingText">⛶ Expand</button>
+            <button class="result-btn" data-action="copy" data-target="searchResult">📋 Copy</button>
+            <button class="result-btn" data-action="expand" data-target="searchResult">⛶ Expand</button>
           </div>
-          <div class="result-body" id="briefingText"></div>
+          <div class="result-body" id="searchResult"></div>
         </div>
-        <div class="headline-list" id="headlineList"></div>
+        <div class="info-panel">
+          <button class="info-toggle">ℹ️ How does AI News Search work?</button>
+          <p>Our AI fetches real headlines from NewsAPI and uses Google Gemini to generate a comprehensive answer — not just training data, but actual live articles.</p>
+        </div>
       </div>
+    </div>
 
-      <div class="info-panel green" style="margin-top:16px;">
-        <button class="info-toggle" style="color:#059669;font-weight:800;">ℹ️ What is the Daily Briefing?</button>
-        <p style="color:#334155;font-weight:600;">NewsAPI fetches today's top headlines and Gemini AI synthesises them into a concise, readable 4-paragraph summary covering world events, technology, business, sports, and more.</p>
+    <!-- ══════════════ SUMMARIZE PAGE ══════════════ -->
+    <div class="page" id="page-summarize">
+      <div class="inner-page">
+        <div class="page-header">
+          <h1>✂️ Article Summarizer</h1>
+          <p>Paste anything. Get a crisp summary in seconds.</p>
+          <div class="accent-line" style="background:#7c3aed;"></div>
+        </div>
+        <div class="page-hero">
+          <img src="pictures/summary.jpg" alt="Summarize"
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#1e40af);display:block';" />
+          <div class="hero-overlay">
+            <h1>Summarize Any Text</h1>
+            <p>Articles · Essays · Research Papers</p>
+          </div>
+        </div>
+        <div class="form-card">
+          <label for="summarizeInput">📄 Paste Your Text</label>
+          <textarea id="summarizeInput" placeholder="Paste an article, essay, or any long text here..."></textarea>
+          <div>
+            <label>Summary Length</label>
+            <div class="button-group" id="lengthGroup" style="margin-top:8px;">
+              <button data-value="short">Short</button>
+              <button data-value="medium" class="active">Medium</button>
+              <button data-value="long">Long</button>
+            </div>
+          </div>
+          <button class="btn-primary full" id="summarizeBtn">✂️ Summarize Now</button>
+          <span class="powered-by">Powered by Google Gemini AI</span>
+        </div>
+        <div class="result-card" id="summarizeResultCard">
+          <div class="result-actions">
+            <button class="result-btn" data-action="copy" data-target="summarizeResult">📋 Copy</button>
+            <button class="result-btn" data-action="expand" data-target="summarizeResult">⛶ Expand</button>
+          </div>
+          <div class="result-body" id="summarizeResult"></div>
+        </div>
       </div>
+    </div>
 
-    </div><!-- /page-briefing -->
+    <!-- ══════════════ LYRICS PAGE ══════════════ -->
+    <div class="page" id="page-lyrics">
+      <div class="inner-page">
+        <div class="page-header">
+          <h1>🎵 Lyrics Analyzer</h1>
+          <p>Decode the hidden meaning behind any song</p>
+          <div class="accent-line" style="background:#7c3aed;"></div>
+        </div>
+        <div class="page-hero">
+          <img src="pictures/music1.jpg" alt="Lyrics"
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#ec4899);display:block';" />
+          <div class="hero-overlay">
+            <h1>Lyrics Intelligence</h1>
+            <p>AI-powered music analysis &amp; insights</p>
+          </div>
+        </div>
+        <div class="form-card">
+          <label for="lyricsInput">🎶 Paste Song Lyrics</label>
+          <textarea id="lyricsInput" placeholder="Paste song lyrics here..."></textarea>
+          <div>
+            <label>Analysis Type</label>
+            <div class="button-group" id="lyricsGroup" style="margin-top:8px;">
+              <button data-value="main" class="active">Main Message</button>
+              <button data-value="insights">Artist Insights</button>
+              <button data-value="creative">Creative Ideas</button>
+            </div>
+          </div>
+          <button class="btn-primary full" id="lyricsBtn">🎵 Analyze Lyrics</button>
+          <span class="powered-by">Powered by Google Gemini AI</span>
+        </div>
+        <div class="result-card" id="lyricsResultCard">
+          <div class="result-actions">
+            <button class="result-btn" data-action="copy" data-target="lyricsResult">📋 Copy</button>
+            <button class="result-btn" data-action="expand" data-target="lyricsResult">⛶ Expand</button>
+          </div>
+          <div class="result-body" id="lyricsResult"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ DICTIONARY PAGE ══════════════ -->
+    <div class="page" id="page-dictionary">
+      <div class="inner-page">
+        <div class="page-header">
+          <h1>📖 Smart Dictionary</h1>
+          <p>Instant definitions, synonyms, and AI usage examples</p>
+          <div class="accent-line" style="background:#ea580c;"></div>
+        </div>
+        <div class="page-hero">
+          <img src="pictures/dictionary.jpg" alt="Dictionary"
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#f97316,#1e40af);display:block';" />
+          <div class="hero-overlay">
+            <h1>Word Intelligence</h1>
+            <p>Free definitions — no API key required</p>
+          </div>
+        </div>
+        <div class="form-card">
+          <label for="dictionaryInput">🔤 Enter a Word</label>
+          <input type="text" id="dictionaryInput" placeholder="e.g. serendipity, ephemeral, ubiquitous..." />
+          <button class="btn-primary full" id="dictionaryBtn">📖 Look Up Definition</button>
+          <span class="powered-by">Free · Powered by DictionaryAPI.dev · No key needed</span>
+        </div>
+        <div class="result-card" id="dictionaryResultCard">
+          <div class="result-actions">
+            <button class="result-btn" data-action="copy" data-target="dictionaryResult">📋 Copy</button>
+          </div>
+          <div class="result-body" id="dictionaryResult"></div>
+        </div>
+        <div class="form-card" style="margin-top:0;">
+          <label>🤖 Ask Gemini AI About This Word</label>
+          <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">Look up a word above — a prompt will appear here automatically</p>
+          <input type="text" id="dictionaryPrompt" placeholder="Gemini prompt will appear here after word lookup..." />
+          <button class="btn-primary full" id="dictionaryAsk">Ask Gemini AI</button>
+        </div>
+        <div class="result-card" id="dictionaryGeminiCard">
+          <div class="result-actions">
+            <button class="result-btn" data-action="copy" data-target="dictionaryGemini">📋 Copy</button>
+          </div>
+          <div class="result-body" id="dictionaryGemini"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ ANALYZER PAGE ══════════════ -->
+    <div class="page" id="page-analyzer">
+      <div class="inner-page">
+        <div class="page-header">
+          <h1>📊 Content Analyzer</h1>
+          <p>Deep AI analysis for articles, books, and lyrics</p>
+          <div class="accent-line"></div>
+        </div>
+        <div class="page-hero">
+          <img src="pictures/analyzing.jpg" alt="Analyzer"
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#1e40af,#10b981);display:block';" />
+          <div class="hero-overlay">
+            <h1>Deep Content Analysis</h1>
+            <p>AI-powered insights for any content type</p>
+          </div>
+        </div>
+        <div class="form-card">
+          <div>
+            <label>📁 Content Type</label>
+            <div class="button-group" id="analyzerType" style="margin-top:8px;">
+              <button data-value="newspaper" class="active">📰 Article</button>
+              <button data-value="lyrics">🎵 Lyrics</button>
+              <button data-value="book">📚 Book Excerpt</button>
+            </div>
+          </div>
+          <div>
+            <label id="analyzerLabel">Content</label>
+            <textarea id="analyzerInput" placeholder="Paste the article..." style="margin-top:8px;"></textarea>
+          </div>
+          <div>
+            <label>Analysis Focus</label>
+            <div class="button-group" id="analyzerFocus" style="margin-top:8px;"></div>
+          </div>
+          <button class="btn-primary full" id="analyzerBtn">📊 Analyze Now</button>
+          <span class="powered-by">Powered by Google Gemini AI</span>
+        </div>
+        <div class="result-card" id="analyzerResultCard">
+          <div class="result-actions">
+            <button class="result-btn" data-action="copy" data-target="analyzerResult">📋 Copy</button>
+            <button class="result-btn" data-action="expand" data-target="analyzerResult">⛶ Expand</button>
+          </div>
+          <div class="result-body" id="analyzerResult"></div>
+        </div>
+        <div class="info-panel">
+          <button class="info-toggle">ℹ️ What can the Content Analyzer do?</button>
+          <p>Analyze newspaper articles for key facts and summaries, song lyrics for meaning and artist insights, or book excerpts for themes and plot analysis — all powered by Gemini AI.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ BRIEFING PAGE ══════════════ -->
+    <div class="page" id="page-briefing">
+      <div class="inner-page">
+        <div class="page-header">
+          <h1>📋 Daily Briefing</h1>
+          <p>Your AI-powered morning digest — one click to know the world</p>
+          <div class="accent-line" style="background:#059669;"></div>
+        </div>
+        <div class="page-hero">
+          <img src="pictures/frontpage2.jpg" alt="Briefing"
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#059669,#1e40af);display:block';" />
+          <div class="hero-overlay">
+            <h1>☀️ Today's World at a Glance</h1>
+          </div>
+        </div>
+        <div class="briefing-card">
+          <div class="briefing-actions">
+            <button class="btn-primary" id="briefingBtn">📋 Get AI Briefing</button>
+            <button class="btn-outline" id="headlinesBtn">📰 Show Headlines</button>
+          </div>
+          <div class="result-card" id="briefingResult">
+            <div class="result-actions">
+              <button class="result-btn" data-action="copy" data-target="briefingText">📋 Copy</button>
+              <button class="result-btn" data-action="expand" data-target="briefingText">⛶ Expand</button>
+            </div>
+            <div class="result-body" id="briefingText"></div>
+          </div>
+          <div class="headline-list" id="headlineList"></div>
+        </div>
+        <div class="info-panel">
+          <button class="info-toggle">ℹ️ What is the Daily Briefing?</button>
+          <p>NewsAPI fetches today's top headlines and Gemini AI synthesises them into a concise, readable 4-paragraph summary covering world events, technology, business, sports, and more.</p>
+        </div>
+      </div>
+    </div>
 
   </main><!-- /main -->
 
-  <!-- ════════════════════════════════ FOOTER ══════════════════════════════════ -->
-  <div class="footer-divider"></div>
-  <footer class="footer">
+  <!-- ═══════════════════ FOOTER ═══════════════════ -->
+  <footer>
     <div class="footer-grid">
-      <div class="footer-column">
-        <img
-          class="footer-logo"
-          src="logo.png"
-          alt="NEWSIFY"
-          onerror="this.onerror=null;this.style.display='none';"
-        />
-        <h3>NEWSIFY</h3>
-        <p style="color:#94a3b8;margin-top:8px;font-weight:600;">AI-powered news platform built at NUST SEECS, Islamabad.</p>
+      <div class="footer-brand">
+        <img class="footer-logo" src="logo.png" alt="NEWSIFY"
+          onerror="this.onerror=null;this.style.display='none';" />
+        <div class="logo-text">NEWSIFY</div>
+        <p>Developed by Ahmad Ali &amp; Team | NUST SEECS (Software Engineering Coursework).</p>
       </div>
-      <div class="footer-column">
+      <div class="footer-col">
         <h4>Quick Links</h4>
-        <button data-view="home">🏠 Home</button>
-        <button data-view="search">🔍 AI Search</button>
-        <button data-view="summarize">✂️ Summarize</button>
-        <button data-view="briefing">📋 Briefing</button>
+        <button data-view="search">Search News</button>
+        <button data-view="summarize">Summarize Text</button>
+        <button data-view="lyrics">Lyrics Analysis</button>
+        <button data-view="dictionary">Dictionary</button>
+        <button data-view="analyzer">Content Analyzer</button>
       </div>
-      <div class="footer-column">
-        <h4>AI Tools</h4>
-        <button data-view="lyrics">🎵 Lyrics Analyzer</button>
-        <button data-view="dictionary">📖 Dictionary</button>
-        <button data-view="analyzer">📊 Content Analyzer</button>
-      </div>
-      <div class="footer-column">
-        <h4>About</h4>
-        <p style="color:#94a3b8;font-weight:600;line-height:1.7;">
-          Built by Ahmad Ali<br />
-          Team Leader · NUST SEECS<br />
-          Semester 2 · Islamabad, Pakistan
-        </p>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <a href="https://github.com" target="_blank">GitHub</a>
+        <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+        <a href="#">Email</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 NEWSIFY &nbsp;·&nbsp; Built with ❤️ at NUST SEECS &nbsp;·&nbsp; Powered by Gemini AI &amp; NewsAPI</p>
+      <p>© 2026 NEWSIFY</p>
+      <p>Built at NUST SEECS, Islamabad, Pakistan</p>
     </div>
   </footer>
 
-  <!-- Back to Top Button -->
+  <!-- Back to Top -->
   <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
-  <!-- ══════════════════════════════ EXPAND MODAL ═══════════════════════════════ -->
+  <!-- Expand Modal -->
   <div class="modal" id="expandModal" aria-hidden="true">
     <div class="modal-card">
       <button class="modal-close" id="modalClose">×</button>
@@ -967,27 +668,25 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════ API KEY MODAL ════════════════════════════════ -->
+  <!-- API Key Modal -->
   <div class="modal" id="apiKeyModal" aria-hidden="true">
     <div class="modal-card api-key-card">
       <button class="modal-close" id="apiKeyClose">×</button>
       <h2 class="api-key-title">⚡ API Limit Reached</h2>
-      <p class="api-key-body">
-        The shared API key has reached its limit. Use your own free Gemini API key to continue — it takes 30 seconds to get one.
-      </p>
+      <p class="api-key-body">The shared API key has reached its limit. Use your own free Gemini API key to continue — it takes 30 seconds to get one.</p>
       <div class="api-key-buttons">
         <button class="btn-primary" id="apiKeyUseOwn">🔑 Use My Own API Key</button>
         <button class="btn-outline" id="apiKeyTutorial">📖 How to Get a Free Key</button>
       </div>
       <div class="api-key-input-section" id="apiKeyInputSection" style="display:none;">
-        <label style="font-weight:700;color:#1e40af;">Enter Your Gemini API Key</label>
+        <label>Enter Your Gemini API Key</label>
         <input type="password" id="apiKeyInput" placeholder="AIzaSy..." />
         <button class="btn-primary" id="apiKeySave">✅ Save &amp; Continue</button>
       </div>
       <div class="api-key-tutorial" id="apiKeyTutorialSection" style="display:none;">
         <h3>Get Your Free Gemini API Key</h3>
         <ol class="tutorial-steps">
-          <li>Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#3b82f6;font-weight:700;">aistudio.google.com</a></li>
+          <li>Visit <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a></li>
           <li>Sign in with your Google account</li>
           <li>Click <strong>"Create API Key"</strong></li>
           <li>Copy and paste the key above</li>
@@ -995,144 +694,239 @@
         <p class="tutorial-note">⚡ Completely free with generous limits!</p>
       </div>
       <div class="api-key-trust">
-        <p>🔒 Your API key is stored only in this browser session and never sent to our servers.</p>
+        <p>🔒 Your API key is stored only in this browser session.</p>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════ TOUR OVERLAY ═══════════════════════════════ -->
+  <!-- Tour Overlay -->
   <div class="tour-overlay" id="tourOverlay" aria-hidden="true">
     <div class="tour-tooltip" id="tourTooltip">
-      <strong id="tourTitle" style="font-size:1rem;color:#1e40af;"></strong>
-      <p id="tourText" style="color:#334155;margin:8px 0 0;font-size:0.9rem;font-weight:600;line-height:1.5;"></p>
+      <strong id="tourTitle" style="font-size:1rem;color:var(--blue);"></strong>
+      <p id="tourText" style="color:var(--text-muted);margin:8px 0 0;font-size:0.88rem;line-height:1.6;"></p>
       <div class="tour-actions">
-        <button class="btn-outline" id="tourPrev" style="font-size:0.82rem;padding:6px 12px;">← Prev</button>
-        <button class="btn-primary" id="tourNext" style="font-size:0.82rem;padding:6px 12px;">Next →</button>
-        <button class="result-btn" id="tourClose" style="font-size:0.82rem;">✕ Close</button>
+        <button class="btn-outline" id="tourPrev" style="padding:6px 14px;font-size:0.8rem;">← Prev</button>
+        <button class="btn-primary" id="tourNext" style="padding:6px 14px;font-size:0.8rem;">Next →</button>
+        <button class="result-btn" id="tourClose">✕ Close</button>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════ GLOBE JS ═══════════════════════════════ -->
+  <!-- Hidden hero elements (required by app.js) -->
+  <div id="heroCarousel" style="display:none;"></div>
+  <div id="heroDots" style="display:none;"></div>
+
+  <!-- ═══════════════════ GLOBE SCRIPT ═══════════════════ -->
   <script>
-    (function() {
-      const canvas = document.getElementById('globe-canvas');
-      if (!canvas) return;
+  (function() {
+    const canvas = document.getElementById('globe-canvas');
+    if (!canvas) return;
 
-      let animFrame;
-      let frame = 0;
+    let W, H, cx, cy, r;
+    let rotation = 0;
+    let dragging = false, lastX = 0, spinSpeed = 0.3;
 
-      function resize() {
-        const container = canvas.parentElement;
-        canvas.width  = container.offsetWidth  || 400;
-        canvas.height = container.offsetHeight || 400;
+    const OCEAN_DARK  = '#0a2a6e';
+    const OCEAN_MID   = '#1447b3';
+    const OCEAN_LIGHT = '#2563eb';
+
+    const LAND = [
+      // [lat, lon, rlat, rlon, color]
+      [55, -100, 17, 22, '#3d7a34'],  // Canada
+      [40, -98,  13, 19, '#4a8c3f'],  // USA
+      [23, -102,  9,  7, '#5a9e48'],  // Mexico
+      [10,  -84,  5,  3, '#5a9e48'],  // Central America
+      [-8,  -55, 21, 14, '#3d7a34'],  // South America
+      [72,  -45,  7, 14, '#c8d8e4'],  // Greenland
+      [65,  -22,  3,  4, '#4a8c3f'],  // Iceland
+      [54,   -5,  4,  3, '#4a8c3f'],  // UK
+      [52,   15, 11, 14, '#4a8c3f'],  // Europe
+      [40,   30,  5,  5, '#4a8c3f'],  // Turkey
+      [60,   50, 10, 14, '#4a8c3f'],  // Russia West
+      [62,   90, 10, 22, '#4a8c3f'],  // Siberia
+      [52,  135,  8, 14, '#4a8c3f'],  // Far East Russia
+      [40,   72,  8, 10, '#8fa060'],  // Central Asia
+      [36,  105, 12, 18, '#4a8c3f'],  // China
+      [22,   80, 10,  8, '#6aaa50'],  // India
+      [10,  105,  7,  5, '#4a8c3f'],  // SE Asia
+      [36,  138,  5,  2, '#4a8c3f'],  // Japan
+      [25,   45,  6,  5, '#c8a050'],  // Arabia
+      [12,   38,  5,  3, '#c8a050'],  // Horn of Africa
+      [ 5,   22, 22, 20, '#c8a050'],  // Africa Main
+      [-28,   25,  8,  8, '#c8a050'], // South Africa
+      [-25,  134, 14, 16, '#c8a050'], // Australia
+      [-42,  172,  3,  2, '#4a8c3f'], // New Zealand
+    ];
+
+    // Cloud wisps [lat, lon, rlat, rlon, opacity]
+    const CLOUDS = [
+      [45, -30, 5, 14, 0.55],
+      [60, 20,  4,  8, 0.45],
+      [-10, -10, 3, 9, 0.50],
+      [20, 60,  3,  7, 0.40],
+      [-40, 80, 4,  9, 0.45],
+    ];
+
+    function resize() {
+      const size = canvas.parentElement.offsetWidth;
+      const s = Math.min(size, 460);
+      canvas.width  = s;
+      canvas.height = s;
+      cx = s / 2; cy = s / 2; r = s * 0.46;
+      W = s; H = s;
+    }
+
+    function project(lat, lon) {
+      const phi   = (90 - lat) * Math.PI / 180;
+      const theta = (lon + rotation) * Math.PI / 180;
+      const px = Math.sin(phi) * Math.cos(theta);
+      const py = -Math.cos(phi);
+      const pz = Math.sin(phi) * Math.sin(theta);
+      return { x: cx + r * px, y: cy + r * py, z: pz };
+    }
+
+    function drawLand(ctx, lat, lon, rlat, rlon, color) {
+      const p = project(lat, lon);
+      if (p.z < -0.05) return;
+      const fade = Math.min(1, (p.z + 0.15) * 5);
+      const hw = r * (rlon * Math.PI / 180) * Math.max(0.05, Math.abs(p.z));
+      const hh = r * (rlat * Math.PI / 180);
+      ctx.save();
+      ctx.globalAlpha = fade;
+      ctx.fillStyle = color;
+      ctx.shadowColor = 'rgba(0,0,0,0.18)';
+      ctx.shadowBlur  = 4;
+      ctx.beginPath();
+      ctx.ellipse(p.x, p.y, Math.max(1, hw), Math.max(1, hh), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function draw() {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, W, H);
+
+      // ── Outer atmosphere glow ──
+      const atmo = ctx.createRadialGradient(cx, cy, r * 0.88, cx, cy, r * 1.22);
+      atmo.addColorStop(0, 'rgba(59,130,246,0.30)');
+      atmo.addColorStop(0.5, 'rgba(37,99,235,0.10)');
+      atmo.addColorStop(1,   'rgba(37,99,235,0)');
+      ctx.beginPath(); ctx.arc(cx, cy, r * 1.22, 0, Math.PI * 2);
+      ctx.fillStyle = atmo; ctx.fill();
+
+      // ── Ocean sphere ──
+      const ocean = ctx.createRadialGradient(cx - r*0.28, cy - r*0.28, r*0.04, cx, cy, r);
+      ocean.addColorStop(0,    '#4a9eff');
+      ocean.addColorStop(0.25, OCEAN_LIGHT);
+      ocean.addColorStop(0.65, OCEAN_MID);
+      ocean.addColorStop(1,    OCEAN_DARK);
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = ocean; ctx.fill();
+
+      // ── Grid lines ──
+      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+      ctx.lineWidth = 0.8;
+      for (let lat = -80; lat <= 80; lat += 20) {
+        const p = project(lat, 0);
+        const ry = r * Math.cos(lat * Math.PI / 180);
+        const rx = ry * Math.abs(Math.cos(rotation * Math.PI / 180));
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + r * (-Math.cos(lat * Math.PI / 180)), ry, ry * 0.22, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      for (let lon = 0; lon < 180; lon += 30) {
+        const angle = (lon + rotation) * Math.PI / 180;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, r * Math.abs(Math.sin(angle + Math.PI/2)), r, angle, 0, Math.PI * 2);
+        ctx.stroke();
       }
 
-      function draw() {
-        const ctx = canvas.getContext('2d');
-        const W = canvas.width, H = canvas.height;
-        const cx = W / 2, cy = H / 2;
-        const r  = Math.min(W, H) * 0.44;
+      // ── Land masses ──
+      LAND.forEach(([lat, lon, rlat, rlon, color]) => drawLand(ctx, lat, lon, rlat, rlon, color));
 
-        ctx.clearRect(0, 0, W, H);
-
-        // Base sphere
-        const baseGrad = ctx.createRadialGradient(cx - r*0.25, cy - r*0.25, r*0.05, cx, cy, r);
-        baseGrad.addColorStop(0,   '#60a5fa');
-        baseGrad.addColorStop(0.3, '#2563eb');
-        baseGrad.addColorStop(0.65,'#1e3a8a');
-        baseGrad.addColorStop(1,   '#0f172a');
+      // ── Clouds ──
+      CLOUDS.forEach(([lat, lon, rlat, rlon, alpha]) => {
+        const p = project(lat, lon);
+        if (p.z < 0) return;
+        const fade = Math.min(1, p.z * 4) * alpha;
+        const hw = r * (rlon * Math.PI / 180) * Math.max(0.05, p.z);
+        const hh = r * (rlat * Math.PI / 180);
+        ctx.save();
+        ctx.globalAlpha = fade;
+        ctx.fillStyle = 'white';
+        ctx.filter = 'blur(3px)';
         ctx.beginPath();
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.fillStyle = baseGrad;
+        ctx.ellipse(p.x, p.y, Math.max(1, hw), Math.max(1, hh), 0, 0, Math.PI * 2);
         ctx.fill();
-
-        // Latitude lines
-        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-        ctx.lineWidth = 1;
-        for (let lat = -80; lat <= 80; lat += 20) {
-          const ry = r * Math.sin(lat * Math.PI / 180);
-          const rx = r * Math.cos(lat * Math.PI / 180);
-          ctx.beginPath();
-          ctx.ellipse(cx, cy + ry, rx, rx * 0.25, 0, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-
-        // Longitude lines (rotating)
-        for (let i = 0; i < 6; i++) {
-          const angle = (i / 6) * Math.PI + (frame * 0.004);
-          ctx.beginPath();
-          ctx.ellipse(cx, cy, r * Math.abs(Math.sin(angle + Math.PI/2)), r, angle, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-
-        // Shimmer highlight
-        const shimGrad = ctx.createRadialGradient(cx - r*0.35, cy - r*0.35, r*0.01, cx - r*0.2, cy - r*0.2, r*0.6);
-        shimGrad.addColorStop(0,   'rgba(255,255,255,0.20)');
-        shimGrad.addColorStop(0.5, 'rgba(255,255,255,0.03)');
-        shimGrad.addColorStop(1,   'rgba(255,255,255,0)');
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.fillStyle = shimGrad;
-        ctx.fill();
-
-        // Outer glow ring
-        const glowGrad = ctx.createRadialGradient(cx, cy, r*0.85, cx, cy, r*1.18);
-        glowGrad.addColorStop(0, 'rgba(59,130,246,0.25)');
-        glowGrad.addColorStop(1, 'rgba(59,130,246,0)');
-        ctx.beginPath();
-        ctx.arc(cx, cy, r * 1.18, 0, Math.PI * 2);
-        ctx.fillStyle = glowGrad;
-        ctx.fill();
-
-        // Pulsing dots (news hotspots)
-        const hotspots = [
-          { lat: 33.7, lng: 73.1 },  // Islamabad
-          { lat: 40.7, lng:-74.0 },  // New York
-          { lat: 51.5, lng: -0.1 },  // London
-          { lat: 35.7, lng:139.7 },  // Tokyo
-          { lat:-23.5, lng:-46.6 },  // São Paulo
-        ];
-        const pulse = 0.5 + 0.5 * Math.sin(frame * 0.06);
-        hotspots.forEach(({lat, lng}) => {
-          const phi   = (90 - lat)  * Math.PI / 180;
-          const theta = (lng + frame * 0.25) * Math.PI / 180;
-          const x = cx + r * Math.sin(phi) * Math.cos(theta);
-          const y = cy - r * Math.cos(phi);
-          if (Math.sin(phi) * Math.cos(theta) > 0) {  // front face only
-            ctx.beginPath();
-            ctx.arc(x, y, 3 + pulse * 2, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(249,115,22,${0.6 + pulse * 0.4})`;
-            ctx.fill();
-          }
-        });
-
-        frame++;
-        animFrame = requestAnimationFrame(draw);
-      }
-
-      // Globe drag interaction
-      let dragging = false, lastX = 0;
-      canvas.addEventListener('mousedown', e => { dragging = true; lastX = e.clientX; });
-      window.addEventListener('mousemove', e => {
-        if (!dragging) return;
-        frame += (e.clientX - lastX) * 0.5;
-        lastX = e.clientX;
+        ctx.restore();
       });
-      window.addEventListener('mouseup', () => { dragging = false; });
 
-      // Hide hint after 4 seconds
-      const hint = document.getElementById('globe-hint');
-      setTimeout(() => hint && hint.classList.add('hidden'), 4000);
+      // ── Specular highlight ──
+      const spec = ctx.createRadialGradient(cx - r*0.32, cy - r*0.32, 0, cx - r*0.1, cy - r*0.1, r*0.7);
+      spec.addColorStop(0, 'rgba(255,255,255,0.22)');
+      spec.addColorStop(0.4, 'rgba(255,255,255,0.06)');
+      spec.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = spec; ctx.fill();
 
-      resize();
-      draw();
-      window.addEventListener('resize', () => { resize(); });
-    })();
+      // ── News hotspot pulses ──
+      const hotspots = [
+        { lat: 33.7, lon: 73.1 },   // Islamabad
+        { lat: 40.7, lon: -74.0 },  // New York
+        { lat: 51.5, lon: -0.1 },   // London
+        { lat: 35.7, lon: 139.7 },  // Tokyo
+        { lat: -23.5, lon: -46.6 }, // São Paulo
+      ];
+      const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.004);
+      hotspots.forEach(({ lat, lon }) => {
+        const p = project(lat, lon);
+        if (p.z > 0.1) {
+          ctx.save();
+          ctx.globalAlpha = 0.6 + pulse * 0.4;
+          ctx.fillStyle = '#f97316';
+          ctx.shadowColor = '#f97316';
+          ctx.shadowBlur = 6;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 2.5 + pulse * 1.8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+
+      // ── Dark limb (shadow on right) ──
+      const limb = ctx.createRadialGradient(cx + r*0.5, cy + r*0.3, r*0.2, cx, cy, r);
+      limb.addColorStop(0, 'rgba(0,0,0,0)');
+      limb.addColorStop(0.7, 'rgba(0,0,0,0)');
+      limb.addColorStop(1, 'rgba(0,10,40,0.55)');
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = limb; ctx.fill();
+
+      if (!dragging) rotation += spinSpeed * 0.016;
+      requestAnimationFrame(draw);
+    }
+
+    // ── Drag interaction ──
+    canvas.addEventListener('mousedown', e => { dragging = true; lastX = e.clientX; canvas.style.cursor = 'grabbing'; });
+    canvas.addEventListener('touchstart', e => { dragging = true; lastX = e.touches[0].clientX; }, { passive: true });
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      rotation += (e.clientX - lastX) * 0.35;
+      lastX = e.clientX;
+    });
+    window.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      rotation += (e.touches[0].clientX - lastX) * 0.35;
+      lastX = e.touches[0].clientX;
+    }, { passive: true });
+    window.addEventListener('mouseup', () => { dragging = false; canvas.style.cursor = 'grab'; });
+    window.addEventListener('touchend', () => { dragging = false; });
+
+    resize();
+    draw();
+    window.addEventListener('resize', resize);
+  })();
   </script>
 
-  <!-- ════════════════════════════════ APP JS ═══════════════════════════════════ -->
   <script src="app.js"></script>
-
 </body>
 </html>
