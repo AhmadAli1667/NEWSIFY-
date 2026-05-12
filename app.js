@@ -76,6 +76,13 @@ const dictionaryAsk        = document.getElementById("dictionaryAsk");
 const dictionaryGemini     = document.getElementById("dictionaryGemini");
 const dictionaryGeminiCard = document.getElementById("dictionaryGeminiCard");
 
+const essayTopic      = document.getElementById("essayTopic");
+const essayTypeEl     = document.getElementById("essayType");
+const essayWordsEl    = document.getElementById("essayWords");
+const essayBtn        = document.getElementById("essayBtn");
+const essayResult     = document.getElementById("essayResult");
+const essayResultCard = document.getElementById("essayResultCard");
+
 const analyzerInput      = document.getElementById("analyzerInput");
 const analyzerBtn        = document.getElementById("analyzerBtn");
 const analyzerResult     = document.getElementById("analyzerResult");
@@ -207,9 +214,18 @@ function safeText(str, max = 120) {
 //  REAL NEWS LOADER
 // ═══════════════════════════════════════════════════════
 
-async function fetchTopHeadlines(pageSize = 10) {
+async function fetchTopHeadlines() {
+  // Try GNews first — articles have real images (urlToImage) for variety
   try {
-    // We use our own backend briefing endpoint which calls NewsAPI
+    const res = await fetch("/api/gnews");
+    if (res.ok) {
+      const data = await res.json();
+      const articles = data.articles || [];
+      if (articles.length >= 6) return articles;
+    }
+  } catch {}
+  // Fall back to briefing endpoint (NewsAPI headlines)
+  try {
     const data = await postJson("/api/briefing", {});
     return data.headlines || [];
   } catch {
@@ -588,6 +604,24 @@ async function handleBriefing() {
   }
 }
 
+async function handleEssay() {
+  const topic = essayTopic ? essayTopic.value.trim() : "";
+  if (!topic) { if (essayTopic) essayTopic.focus(); showToast("Please enter an essay topic", "info"); return; }
+  setLoading(essayBtn, essayResultCard, essayResult);
+  try {
+    const wordCount  = essayWordsEl ? parseInt(essayWordsEl.value) || 500 : 500;
+    const essayType  = essayTypeEl  ? essayTypeEl.value : "academic";
+    const data = await postJson("/api/essay", { topic, wordCount, essayType });
+    const text = data.essay || data.result || "";
+    essayResult.innerHTML = text.split("\n\n").map(p => `<p style="margin-bottom:1.1em;">${p.replace(/\n/g,"<br>")}</p>`).join("");
+    essayResultCard.classList.add("show");
+  } catch {
+    showResult(essayResultCard, essayResult, "Unable to generate essay right now.");
+  } finally {
+    clearLoading(essayBtn, essayResult);
+  }
+}
+
 async function handleHeadlines() {
   setLoading(headlinesBtn, briefingResult, briefingText);
   try {
@@ -903,6 +937,8 @@ function initEvents() {
   if (dictionaryInput) dictionaryInput.addEventListener("keydown", e => { if (e.key === "Enter") handleDictionary(); });
   if (dictionaryAsk) dictionaryAsk.addEventListener("click", handleDictionaryGemini);
   if (analyzerBtn)   analyzerBtn.addEventListener("click", handleAnalyzer);
+  if (essayBtn)      essayBtn.addEventListener("click", handleEssay);
+  if (essayTopic)    essayTopic.addEventListener("keydown", e => { if (e.key === "Enter") handleEssay(); });
   if (briefingBtn)   briefingBtn.addEventListener("click", handleBriefing);
   if (headlinesBtn)  headlinesBtn.addEventListener("click", handleHeadlines);
 

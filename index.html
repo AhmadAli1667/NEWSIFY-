@@ -26,6 +26,7 @@
       <button class="nav-link active" data-view="home">Home</button>
       <button class="nav-link" data-view="search">Search</button>
       <button class="nav-link" data-view="summarize">Summarize</button>
+      <button class="nav-link" data-view="essay">Essay</button>
       <button class="nav-link" data-view="lyrics">Lyrics</button>
       <button class="nav-link" data-view="dictionary">Dictionary</button>
       <button class="nav-link" data-view="analyzer">Analyzer</button>
@@ -41,6 +42,7 @@
         <div class="menu-dropdown" id="menuDropdown">
           <button class="menu-item" data-view="search">🔍 AI News Search</button>
           <button class="menu-item" data-view="summarize">✂️ Summarize Text</button>
+          <button class="menu-item" data-view="essay">📝 Essay Writer</button>
           <button class="menu-item" data-view="lyrics">🎵 Lyrics Analyzer</button>
           <button class="menu-item" data-view="dictionary">📖 Dictionary</button>
           <button class="menu-item" data-view="analyzer">📊 Content Analyzer</button>
@@ -261,6 +263,12 @@
             <h3 style="color:#9d174d;">Daily Briefing</h3>
             <p>One click. Today's world in 4 paragraphs.</p>
             <span class="feature-link" style="color:#ec4899;">Try Now →</span>
+          </div>
+          <div class="feature-card fc-green" data-view="essay">
+            <div class="feature-icon">📝</div>
+            <h3 style="color:#065f46;">Essay Writer</h3>
+            <p>Generate a full structured essay — pick type, set word count, done.</p>
+            <span class="feature-link" style="color:#059669;">Try Now →</span>
           </div>
         </div>
       </section>
@@ -634,6 +642,62 @@
       </div>
     </div>
 
+    <!-- ══════════════ ESSAY PAGE ══════════════ -->
+    <div class="page" id="page-essay">
+      <div class="inner-page">
+        <div class="page-header">
+          <h1>📝 Essay Writer</h1>
+          <p>Generate a full, structured essay with AI in seconds</p>
+          <div class="accent-line" style="background:#059669;"></div>
+        </div>
+        <div class="page-hero">
+          <img src="pictures/summary.jpg" alt="Essay"
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#059669,#1e40af);display:block';" />
+          <div class="hero-overlay">
+            <h1>Write Any Essay</h1>
+            <p>Academic · Argumentative · Comparative · Narrative</p>
+          </div>
+        </div>
+        <div class="form-card">
+          <label for="essayTopic">✏️ Essay Topic</label>
+          <input type="text" id="essayTopic" placeholder="e.g. The impact of social media on mental health" />
+
+          <div class="essay-controls">
+            <div class="essay-control-group">
+              <label for="essayType">📁 Essay Type</label>
+              <select id="essayType" class="essay-select">
+                <option value="academic">Academic</option>
+                <option value="argumentative">Argumentative</option>
+                <option value="comparative">Comparative</option>
+                <option value="descriptive">Descriptive</option>
+                <option value="narrative">Narrative</option>
+                <option value="expository">Expository</option>
+                <option value="persuasive">Persuasive</option>
+              </select>
+            </div>
+            <div class="essay-control-group">
+              <label for="essayWords">🔢 Word Count</label>
+              <input type="number" id="essayWords" min="100" max="2000" value="500" placeholder="500" class="essay-number" />
+            </div>
+          </div>
+
+          <button class="btn-primary full" id="essayBtn">📝 Generate Essay</button>
+          <span class="powered-by">Powered by Google Gemini AI</span>
+        </div>
+        <div class="result-card" id="essayResultCard">
+          <div class="result-actions">
+            <button class="result-btn" data-action="copy" data-target="essayResult">📋 Copy</button>
+            <button class="result-btn" data-action="expand" data-target="essayResult">⛶ Expand</button>
+          </div>
+          <div class="result-body essay-body" id="essayResult"></div>
+        </div>
+        <div class="info-panel">
+          <button class="info-toggle">ℹ️ How does the Essay Writer work?</button>
+          <p>Enter your topic, choose an essay type (academic, argumentative, comparative, etc.), set your target word count (100–2000 words), and Gemini AI writes a complete, structured essay with introduction, body paragraphs, and conclusion.</p>
+        </div>
+      </div>
+    </div>
+
   </main><!-- /main -->
 
   <!-- ═══════════════════ FOOTER ═══════════════════ -->
@@ -732,58 +796,122 @@
     if (!canvas) return;
 
     let W, H, cx, cy, r;
-    // rotY = horizontal (longitude) spin in degrees
-    // rotX = vertical tilt in radians (oscillates like Earth's axial tilt)
     let rotY = 0, rotX = 0;
     let dragging = false, lastX = 0, lastY = 0;
-    let spinSpeed = 0.28; // degrees per frame tick
+    const SPIN = 0.26;
 
-    const OCEAN_DARK  = '#0a2a6e';
-    const OCEAN_MID   = '#1447b3';
-    const OCEAN_LIGHT = '#2563eb';
+    // GNews article pins — populated async after page load
+    let globePins = [];
+    let hoveredPin = null;
+    let mouseGX = -999, mouseGY = -999;
 
+    // ── Geo keyword → lat/lon for pin placement ──────────────
+    const GEO = [
+      { lat: 37.09, lon:  -95.71, kw: ['united states','usa ',' us ','america','washington','new york','pentagon','congress','white house','biden','trump','nasa','silicon valley'] },
+      { lat: 51.5,  lon:   -0.1,  kw: ['united kingdom','britain','england','london',' uk ','scotland','parliament','sunak','buckingham'] },
+      { lat: 30.37, lon:   69.34, kw: ['pakistan','islamabad','lahore','karachi','psl','imran','nawaz','rawalpindi'] },
+      { lat: 20.59, lon:   78.96, kw: ['india','new delhi','mumbai','bangalore','modi','sensex','bollywood'] },
+      { lat: 51.16, lon:   10.45, kw: ['germany','berlin','münchen','bundestag','scholz','deutsche'] },
+      { lat: 46.22, lon:    2.21, kw: ['france','paris','macron','élysée','marseille'] },
+      { lat: 35.86, lon:  104.19, kw: ['china','beijing','shanghai','xi jinping','hong kong','taiwan','pla','yuan'] },
+      { lat:-25.27, lon:  133.77, kw: ['australia','sydney','melbourne','canberra','asx'] },
+      { lat: 56.13, lon: -106.34, kw: ['canada','ottawa','toronto','trudeau','montreal'] },
+      { lat:-14.23, lon:  -51.92, kw: ['brazil','brasília','são paulo','lula','rio','amazon'] },
+      { lat: 36.20, lon:  138.25, kw: ['japan','tokyo','osaka','yen','nikkei','kishida'] },
+      { lat: 61.52, lon:  105.31, kw: ['russia','moscow','kremlin','putin','ukraine','siberia'] },
+      { lat:-30.55, lon:   22.93, kw: ['south africa','johannesburg','cape town','anc','pretoria'] },
+      { lat: 31.0,  lon:   35.0,  kw: ['israel','gaza','hamas','west bank','netanyahu','idf','tel aviv'] },
+      { lat: 25.0,  lon:   45.0,  kw: ['saudi','riyadh','mbs','iran','tehran','middle east','gulf'] },
+      { lat: 38.96, lon:   35.24, kw: ['turkey','ankara','istanbul','erdogan'] },
+      { lat:  9.08, lon:    8.67, kw: ['nigeria','lagos','abuja'] },
+      { lat: 26.82, lon:   30.80, kw: ['egypt','cairo','suez'] },
+      { lat:  1.35, lon:  103.81, kw: ['singapore','asean'] },
+      { lat: 25.2,  lon:   55.27, kw: ['dubai','uae','abu dhabi','emirates'] },
+      { lat: 48.8,  lon:    2.35, kw: ['europe','european union','eu ','nato'] },
+      { lat: 33.7,  lon:   73.1,  kw: ['islamabad'] },
+    ];
+
+    function guessGeo(text) {
+      const t = text.toLowerCase();
+      for (const g of GEO) {
+        if (g.kw.some(k => t.includes(k))) return { lat: g.lat, lon: g.lon };
+      }
+      return null;
+    }
+
+    async function loadGlobePins() {
+      try {
+        const res = await fetch('/api/gnews');
+        const data = await res.json();
+        const pins = [];
+        (data.articles || []).forEach(a => {
+          const coords = guessGeo((a.title || '') + ' ' + (a.description || ''));
+          if (coords) {
+            pins.push({ lat: coords.lat, lon: coords.lon, label: a.title, url: a.url, source: a.source?.name || '' });
+          }
+        });
+        globePins = pins;
+      } catch {}
+    }
+
+    // ── Stars (generated once) ────────────────────────────
+    const STARS = Array.from({ length: 90 }, () => ({
+      a: Math.random() * Math.PI * 2,
+      d: 0.52 + Math.random() * 0.42,
+      s: 0.5 + Math.random() * 1.2,
+      o: 0.3 + Math.random() * 0.5
+    }));
+
+    // ── Land masses ───────────────────────────────────────
     // [lat, lon, rlat, rlon, color]
     const LAND = [
-      [55, -100, 17, 22, '#3d7a34'],
-      [40,  -98, 13, 19, '#4a8c3f'],
-      [23, -102,  9,  7, '#5a9e48'],
-      [10,  -84,  5,  3, '#5a9e48'],
-      [-8,  -55, 21, 14, '#3d7a34'],
-      [72,  -45,  7, 14, '#c8d8e4'],
-      [65,  -22,  3,  4, '#4a8c3f'],
-      [54,   -5,  4,  3, '#4a8c3f'],
-      [52,   15, 11, 14, '#4a8c3f'],
-      [40,   30,  5,  5, '#4a8c3f'],
-      [60,   50, 10, 14, '#4a8c3f'],
-      [62,   90, 10, 22, '#4a8c3f'],
-      [52,  135,  8, 14, '#4a8c3f'],
-      [40,   72,  8, 10, '#8fa060'],
-      [36,  105, 12, 18, '#4a8c3f'],
-      [22,   80, 10,  8, '#6aaa50'],
-      [10,  105,  7,  5, '#4a8c3f'],
-      [36,  138,  5,  2, '#4a8c3f'],
-      [25,   45,  6,  5, '#c8a050'],
-      [12,   38,  5,  3, '#c8a050'],
-      [ 5,   22, 22, 20, '#c8a050'],
-      [-28,  25,  8,  8, '#c8a050'],
-      [-25, 134, 14, 16, '#c8a050'],
+      // North America
+      [60, -120, 10, 14, '#3a7a32'], [55,  -95, 10, 14, '#3d7a34'],
+      [49,  -85,  8, 12, '#4a8c3f'], [48,  -65,  6,  8, '#4a8c3f'],
+      [44,  -98,  7, 15, '#4a8c3f'], [37,  -96,  7, 15, '#5a9e48'],
+      [30,  -90,  5, 12, '#6aaa50'], [29, -108,  5,  8, '#8fa060'],
+      [35, -118,  5,  6, '#6aaa50'], [23,  -99,  8,  7, '#6aaa50'],
+      [12,  -85,  5,  4, '#6aaa50'],
+      // Caribbean
+      [18,  -75,  2,  4, '#6aaa50'],
+      // South America
+      [ 6,  -60,  6,  9, '#3d7a34'], [-5,  -52, 10, 10, '#4a8c3f'],
+      [-18, -55,  9,  9, '#5a9e48'], [-28, -65,  8,  8, '#4a8c3f'],
+      [-42, -68,  5,  4, '#4a8c3f'],
+      // Greenland + Iceland
+      [72,  -42,  8, 13, '#cce4ee'], [65,  -18,  3,  4, '#4a8c3f'],
+      // British Isles
+      [54,   -3,  4,  3, '#4a8c3f'],
+      // Europe
+      [63,   15,  5,  8, '#4a8c3f'], [56,   10,  3,  3, '#4a8c3f'],
+      [51,   10,  5,  9, '#5a9e48'], [46,   13,  4,  8, '#5a9e48'],
+      [40,   -6,  4,  5, '#6aaa50'], [41,   22,  4,  5, '#5a9e48'],
+      // Russia/Asia
+      [65,   40,  8, 14, '#4a8c3f'], [65,   80,  8, 22, '#4a8c3f'],
+      [62,  130,  7, 14, '#4a8c3f'], [52,   70,  6, 12, '#8fa060'],
+      [38,   55,  5,  6, '#8fa060'], [40,   28,  4,  5, '#6aaa50'],
+      [35,  100,  8, 14, '#4a8c3f'], [33,  116,  6, 10, '#5a9e48'],
+      [22,   80,  9,  8, '#6aaa50'], [12,   80,  5,  3, '#6aaa50'],
+      [14,  102,  5,  5, '#4a8c3f'], [ 4,  108,  4,  5, '#4a8c3f'],
+      [36,  136,  5,  2, '#5a9e48'],
+      // Middle East
+      [25,   45,  7,  7, '#c8a050'], [31,   35,  3,  4, '#c8a050'],
+      // Africa
+      [15,   17, 12, 14, '#b89040'], [18,   32, 10, 10, '#b89040'],
+      [10,   22, 15, 16, '#c8a050'], [-5,   23, 10, 12, '#b47a30'],
+      [ 8,   40,  6,  4, '#b89040'], [-15,  32,  8,  6, '#c8a050'],
+      [-28,  25,  8,  8, '#b89040'], [-18,  46,  4,  3, '#6aaa50'],
+      // Australia/Oceania
+      [-23, 132, 12, 16, '#c8a050'], [-35, 150,  3,  2, '#4a8c3f'],
       [-42, 172,  3,  2, '#4a8c3f'],
+      // Ice caps
+      [ 83,   0,  7, 90, '#dff0f8'], [-83,  0,  7, 90, '#e4f4fb'],
     ];
 
     const CLOUDS = [
-      [45, -30, 5, 14, 0.55],
-      [60,  20, 4,  8, 0.45],
-      [-10,-10, 3,  9, 0.50],
-      [20,  60, 3,  7, 0.40],
-      [-40, 80, 4,  9, 0.45],
-    ];
-
-    const HOTSPOTS = [
-      { lat: 33.7, lon:  73.1 },
-      { lat: 40.7, lon: -74.0 },
-      { lat: 51.5, lon:  -0.1 },
-      { lat: 35.7, lon: 139.7 },
-      { lat: -23.5,lon: -46.6 },
+      [48, -35, 5, 14, 0.50], [62,  22, 4,  8, 0.40],
+      [-8, -12, 3,  9, 0.45], [22,  62, 3,  7, 0.38],
+      [-38, 82, 4,  9, 0.42], [30, -80, 4,  8, 0.38],
     ];
 
     function resize() {
@@ -792,31 +920,21 @@
       cx = cy = s / 2; r = s * 0.46; W = H = s;
     }
 
-    // Full 3D projection: rotY (horizontal) then rotX (vertical tilt)
     function project(lat, lon) {
       const phi = (90 - lat) * Math.PI / 180;
       const lam = lon * Math.PI / 180;
-
-      // Spherical → Cartesian
       let vx = Math.sin(phi) * Math.cos(lam);
       let vy = -Math.cos(phi);
       let vz = Math.sin(phi) * Math.sin(lam);
-
-      // Rotate around Y-axis (horizontal spin)
-      const cosY = Math.cos(rotY * Math.PI / 180);
-      const sinY = Math.sin(rotY * Math.PI / 180);
-      const vx1 = vx * cosY + vz * sinY;
-      const vz1 = -vx * sinY + vz * cosY;
+      // Y-axis rotation (horizontal)
+      const cY = Math.cos(rotY * Math.PI / 180), sY = Math.sin(rotY * Math.PI / 180);
+      const vx1 = vx*cY + vz*sY; const vz1 = -vx*sY + vz*cY;
       vx = vx1; vz = vz1;
-
-      // Rotate around X-axis (vertical tilt)
-      const cosX = Math.cos(rotX);
-      const sinX = Math.sin(rotX);
-      const vy2 = vy * cosX - vz * sinX;
-      const vz2 = vy * sinX + vz * cosX;
+      // X-axis rotation (vertical tilt)
+      const cX = Math.cos(rotX), sX = Math.sin(rotX);
+      const vy2 = vy*cX - vz*sX; const vz2 = vy*sX + vz*cX;
       vy = vy2; vz = vz2;
-
-      return { x: cx + r * vx, y: cy + r * vy, z: vz };
+      return { x: cx + r*vx, y: cy + r*vy, z: vz };
     }
 
     function drawLand(ctx, lat, lon, rlat, rlon, color) {
@@ -828,8 +946,8 @@
       ctx.save();
       ctx.globalAlpha = fade;
       ctx.fillStyle = color;
-      ctx.shadowColor = 'rgba(0,0,0,0.18)';
-      ctx.shadowBlur = 4;
+      ctx.shadowColor = 'rgba(0,0,0,0.22)';
+      ctx.shadowBlur = 5;
       ctx.beginPath();
       ctx.ellipse(p.x, p.y, Math.max(1, hw), Math.max(1, hh), 0, 0, Math.PI * 2);
       ctx.fill();
@@ -837,29 +955,23 @@
     }
 
     function drawGrid(ctx) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
-      ctx.lineWidth = 0.7;
-      // Latitude circles
+      ctx.strokeStyle = 'rgba(100,160,255,0.09)';
+      ctx.lineWidth = 0.6;
       for (let lat = -60; lat <= 60; lat += 30) {
-        ctx.beginPath();
-        let first = true;
-        for (let lon = -180; lon <= 182; lon += 4) {
+        ctx.beginPath(); let first = true;
+        for (let lon = -180; lon <= 182; lon += 5) {
           const p = project(lat, lon);
           if (p.z < 0) { first = true; continue; }
-          first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
-          first = false;
+          first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); first = false;
         }
         ctx.stroke();
       }
-      // Longitude meridians
       for (let lon = 0; lon < 360; lon += 30) {
-        ctx.beginPath();
-        let first = true;
-        for (let lat = -88; lat <= 88; lat += 4) {
+        ctx.beginPath(); let first = true;
+        for (let lat = -88; lat <= 88; lat += 5) {
           const p = project(lat, lon);
           if (p.z < 0) { first = true; continue; }
-          first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
-          first = false;
+          first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); first = false;
         }
         ctx.stroke();
       }
@@ -869,20 +981,40 @@
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, W, H);
 
-      // Atmosphere glow
-      const atmo = ctx.createRadialGradient(cx, cy, r * 0.88, cx, cy, r * 1.22);
-      atmo.addColorStop(0,   'rgba(59,130,246,0.32)');
-      atmo.addColorStop(0.5, 'rgba(37,99,235,0.10)');
-      atmo.addColorStop(1,   'rgba(37,99,235,0)');
-      ctx.beginPath(); ctx.arc(cx, cy, r * 1.22, 0, Math.PI * 2);
+      // ── Dark space background ──
+      const spaceBg = ctx.createRadialGradient(cx, cy, r * 0.7, cx, cy, r * 1.35);
+      spaceBg.addColorStop(0, '#050d1a');
+      spaceBg.addColorStop(1, '#000510');
+      ctx.beginPath(); ctx.arc(cx, cy, r * 1.35, 0, Math.PI * 2);
+      ctx.fillStyle = spaceBg; ctx.fill();
+
+      // ── Stars ──
+      STARS.forEach(s => {
+        const sx = cx + Math.cos(s.a) * r * s.d;
+        const sy = cy + Math.sin(s.a) * r * s.d;
+        ctx.save();
+        ctx.globalAlpha = s.o;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(sx, sy, s.s, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // ── Outer atmosphere glow ──
+      const atmo = ctx.createRadialGradient(cx, cy, r * 0.88, cx, cy, r * 1.20);
+      atmo.addColorStop(0,   'rgba(59,130,246,0.40)');
+      atmo.addColorStop(0.4, 'rgba(37,99,235,0.14)');
+      atmo.addColorStop(1,   'rgba(10,40,180,0)');
+      ctx.beginPath(); ctx.arc(cx, cy, r * 1.20, 0, Math.PI * 2);
       ctx.fillStyle = atmo; ctx.fill();
 
-      // Ocean sphere
-      const ocean = ctx.createRadialGradient(cx - r*0.28, cy - r*0.28, r*0.04, cx, cy, r);
-      ocean.addColorStop(0,    '#4a9eff');
-      ocean.addColorStop(0.25, OCEAN_LIGHT);
-      ocean.addColorStop(0.65, OCEAN_MID);
-      ocean.addColorStop(1,    OCEAN_DARK);
+      // ── Ocean sphere ──
+      const ocean = ctx.createRadialGradient(cx - r*0.26, cy - r*0.26, r*0.04, cx, cy, r);
+      ocean.addColorStop(0,    '#5ab4ff');
+      ocean.addColorStop(0.22, '#2878e8');
+      ocean.addColorStop(0.60, '#0e44b0');
+      ocean.addColorStop(1,    '#061838');
       ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.fillStyle = ocean; ctx.fill();
 
@@ -890,72 +1022,95 @@
 
       LAND.forEach(([lat, lon, rlat, rlon, color]) => drawLand(ctx, lat, lon, rlat, rlon, color));
 
-      // Clouds
+      // ── Clouds ──
       CLOUDS.forEach(([lat, lon, rlat, rlon, alpha]) => {
         const p = project(lat, lon);
         if (p.z < 0) return;
         const fade = Math.min(1, p.z * 4) * alpha;
         const hw = r * (rlon * Math.PI / 180) * Math.max(0.05, p.z);
         const hh = r * (rlat * Math.PI / 180);
-        ctx.save();
-        ctx.globalAlpha = fade;
-        ctx.fillStyle = 'white';
+        ctx.save(); ctx.globalAlpha = fade; ctx.fillStyle = 'white';
         ctx.filter = 'blur(3px)';
         ctx.beginPath();
         ctx.ellipse(p.x, p.y, Math.max(1, hw), Math.max(1, hh), 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
+        ctx.fill(); ctx.restore();
       });
 
-      // Specular highlight
-      const spec = ctx.createRadialGradient(cx - r*0.32, cy - r*0.32, 0, cx - r*0.1, cy - r*0.1, r*0.7);
-      spec.addColorStop(0,   'rgba(255,255,255,0.22)');
+      // ── Specular highlight ──
+      const spec = ctx.createRadialGradient(cx - r*0.30, cy - r*0.30, 0, cx - r*0.08, cy - r*0.08, r*0.65);
+      spec.addColorStop(0,   'rgba(255,255,255,0.24)');
       spec.addColorStop(0.4, 'rgba(255,255,255,0.06)');
       spec.addColorStop(1,   'rgba(255,255,255,0)');
       ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.fillStyle = spec; ctx.fill();
 
-      // Hotspot pulses
+      // ── GNews article pins ──
+      hoveredPin = null;
       const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.004);
-      HOTSPOTS.forEach(({ lat, lon }) => {
-        const p = project(lat, lon);
-        if (p.z > 0.1) {
-          ctx.save();
-          ctx.globalAlpha = 0.6 + pulse * 0.4;
-          ctx.fillStyle = '#f97316';
-          ctx.shadowColor = '#f97316';
-          ctx.shadowBlur = 6;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, 2.5 + pulse * 1.8, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        }
+      globePins.forEach(pin => {
+        const p = project(pin.lat, pin.lon);
+        if (p.z < 0.05) return;
+        const dx = p.x - mouseGX, dy = p.y - mouseGY;
+        const near = Math.sqrt(dx*dx + dy*dy) < 14;
+        if (near) hoveredPin = { ...pin, px: p.x, py: p.y };
+        const sz = near ? 5 + pulse * 2 : 3 + pulse * 1.2;
+        ctx.save();
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = near ? '#facc15' : '#ef4444';
+        ctx.shadowColor = near ? '#facc15' : '#ef4444';
+        ctx.shadowBlur = near ? 12 : 6;
+        ctx.beginPath(); ctx.arc(p.x, p.y, sz, 0, Math.PI * 2); ctx.fill();
+        // Pulse ring
+        ctx.globalAlpha = 0.3 * (1 - pulse);
+        ctx.beginPath(); ctx.arc(p.x, p.y, sz + 4 + pulse * 4, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
       });
 
-      // Dark limb
-      const limb = ctx.createRadialGradient(cx + r*0.5, cy + r*0.3, r*0.2, cx, cy, r);
+      // ── Tooltip for hovered pin ──
+      if (hoveredPin) {
+        const label = hoveredPin.label.length > 42 ? hoveredPin.label.slice(0, 42) + '…' : hoveredPin.label;
+        const tw = 220, th = 52;
+        const tx = Math.min(W - tw - 8, Math.max(8, hoveredPin.px - tw / 2));
+        const ty = Math.max(8, hoveredPin.py - th - 14);
+        ctx.save();
+        ctx.globalAlpha = 0.92;
+        ctx.fillStyle = '#0a0f24';
+        if (ctx.roundRect) ctx.roundRect(tx, ty, tw, th, 8);
+        else ctx.rect(tx, ty, tw, th);
+        ctx.fill();
+        ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 10px Inter,sans-serif';
+        ctx.fillText(label, tx + 9, ty + 18);
+        ctx.fillStyle = '#60a5fa'; ctx.font = '9px Inter,sans-serif';
+        ctx.fillText(hoveredPin.source, tx + 9, ty + 34);
+        ctx.restore();
+      }
+
+      // ── Dark night-side limb ──
+      const limb = ctx.createRadialGradient(cx + r*0.48, cy + r*0.28, r*0.18, cx, cy, r);
       limb.addColorStop(0,   'rgba(0,0,0,0)');
-      limb.addColorStop(0.7, 'rgba(0,0,0,0)');
-      limb.addColorStop(1,   'rgba(0,10,40,0.55)');
+      limb.addColorStop(0.65,'rgba(0,0,0,0)');
+      limb.addColorStop(1,   'rgba(0,8,30,0.60)');
       ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.fillStyle = limb; ctx.fill();
 
+      // ── Clip canvas to circle (clean edge) ──
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.beginPath(); ctx.arc(cx, cy, r * 1.36, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+
       if (!dragging) {
-        rotY += spinSpeed * 0.016;
-        // Slow vertical oscillation ≈ ±22° — simulates Earth's axial tilt perspective
+        rotY += SPIN * 0.016;
         rotX = Math.sin(Date.now() * 0.00018) * 0.38;
       }
+      canvas.style.cursor = hoveredPin ? 'pointer' : (dragging ? 'grabbing' : 'grab');
       requestAnimationFrame(draw);
     }
 
-    canvas.addEventListener('mousedown', e => {
-      dragging = true; lastX = e.clientX; lastY = e.clientY;
-      canvas.style.cursor = 'grabbing';
-    });
-    canvas.addEventListener('touchstart', e => {
-      dragging = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
-    }, { passive: true });
-
+    canvas.addEventListener('mousedown', e => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+    canvas.addEventListener('touchstart', e => { dragging = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; }, { passive: true });
     window.addEventListener('mousemove', e => {
       if (!dragging) return;
       rotY += (e.clientX - lastX) * 0.35;
@@ -970,13 +1125,23 @@
       rotX = Math.max(-1.0, Math.min(1.0, rotX));
       lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
     }, { passive: true });
-
-    window.addEventListener('mouseup', () => { dragging = false; canvas.style.cursor = 'grab'; });
+    window.addEventListener('mouseup', () => { dragging = false; });
     window.addEventListener('touchend', () => { dragging = false; });
+
+    canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      mouseGX = (e.clientX - rect.left) * (W / rect.width);
+      mouseGY = (e.clientY - rect.top)  * (H / rect.height);
+    });
+    canvas.addEventListener('mouseleave', () => { mouseGX = mouseGY = -999; });
+    canvas.addEventListener('click', () => {
+      if (hoveredPin && hoveredPin.url) window.open(hoveredPin.url, '_blank', 'noopener');
+    });
 
     resize();
     draw();
     window.addEventListener('resize', resize);
+    loadGlobePins();
   })();
   </script>
 
