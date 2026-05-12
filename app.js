@@ -839,13 +839,20 @@ function initFeedback() {
   if (!feedbackForm || !starRating) return;
 
   const stars = starRating.querySelectorAll(".star");
+  const starCountDisplay = document.getElementById("starCountDisplay");
   let feedbackRating = 0;
 
-  const updateStars = () => stars.forEach((s, i) => s.classList.toggle("filled", i < feedbackRating));
+  const updateStars = () => {
+    stars.forEach((s, i) => s.classList.toggle("filled", i < feedbackRating));
+    if (starCountDisplay) starCountDisplay.textContent = feedbackRating ? `${feedbackRating} / 5` : "0 / 5";
+  };
 
   stars.forEach((star, index) => {
     star.addEventListener("click", e => { e.preventDefault(); feedbackRating = index + 1; updateStars(); });
-    star.addEventListener("mouseover", () => stars.forEach((s, i) => s.classList.toggle("filled", i <= index)));
+    star.addEventListener("mouseover", () => {
+      stars.forEach((s, i) => s.classList.toggle("filled", i <= index));
+      if (starCountDisplay) starCountDisplay.textContent = `${index + 1} / 5`;
+    });
   });
   starRating.addEventListener("mouseleave", updateStars);
 
@@ -858,7 +865,7 @@ function initFeedback() {
       await fetch("/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, message: `[${feedbackRating}★] ${text}` })
+        body: JSON.stringify({ name, rating: feedbackRating, message: text })
       });
     } catch {}
     feedbackForm.style.display = "none";

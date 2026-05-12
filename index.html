@@ -6,6 +6,7 @@
   <title>NEWSIFY — AI-Powered News</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <script>(function(){var t=localStorage.getItem('nf_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
 <body>
 
@@ -25,22 +26,15 @@
 
     <div class="navbar-center">
       <button class="nav-link active" data-view="home">Home</button>
-
-      <div class="nav-group" id="navGroupNews">
-        <button class="nav-link nav-group-trigger" id="newsGroupBtn">News ▾</button>
-        <div class="nav-group-menu" id="newsGroupMenu">
-          <button class="nav-group-item" data-view="search">AI News Search</button>
-          <button class="nav-group-item" data-view="briefing">Daily Briefing</button>
-        </div>
-      </div>
+      <button class="nav-link" data-view="search">News Search</button>
+      <button class="nav-link" data-view="dictionary">Dictionary</button>
+      <button class="nav-link" data-view="lyrics">Lyrics</button>
+      <button class="nav-link" data-view="essay">Essay</button>
 
       <div class="nav-group" id="navGroupTools">
         <button class="nav-link nav-group-trigger" id="toolsGroupBtn">Tools ▾</button>
         <div class="nav-group-menu" id="toolsGroupMenu">
           <button class="nav-group-item" data-view="summarize">Summarize Text</button>
-          <button class="nav-group-item" data-view="essay">Essay Writer</button>
-          <button class="nav-group-item" data-view="lyrics">Lyrics Analyzer</button>
-          <button class="nav-group-item" data-view="dictionary">Dictionary</button>
           <button class="nav-group-item" data-view="analyzer">Content Analyzer</button>
         </div>
       </div>
@@ -62,13 +56,13 @@
           <i class="ti ti-menu-2"></i>
         </button>
         <div class="menu-dropdown" id="menuDropdown">
-          <button class="menu-item" data-view="search">AI News Search</button>
+          <button class="menu-item" data-view="search">News Search</button>
           <button class="menu-item" data-view="briefing">Daily Briefing</button>
           <div class="menu-divider"></div>
-          <button class="menu-item" data-view="summarize">Summarize Text</button>
-          <button class="menu-item" data-view="essay">Essay Writer</button>
-          <button class="menu-item" data-view="lyrics">Lyrics Analyzer</button>
           <button class="menu-item" data-view="dictionary">Dictionary</button>
+          <button class="menu-item" data-view="lyrics">Lyrics Analyzer</button>
+          <button class="menu-item" data-view="essay">Essay Writer</button>
+          <button class="menu-item" data-view="summarize">Summarize Text</button>
           <button class="menu-item" data-view="analyzer">Content Analyzer</button>
           <div class="menu-divider"></div>
           <button class="menu-item" id="exampleBtn">Try Example</button>
@@ -346,6 +340,55 @@
         </div>
       </section>
 
+      <!-- ── TESTIMONIALS ── -->
+      <div class="testimonials-section">
+        <div class="section-header">
+          <h2>What People Are Saying</h2>
+          <p>Real reviews from NEWSIFY users</p>
+        </div>
+        <div class="testimonials-grid">
+          <div class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar" style="background:linear-gradient(135deg,#5b8af5,#a78bfa);">A</div>
+              <div>
+                <div class="testimonial-name">Adnan</div>
+                <div class="testimonial-stars">
+                  <span class="t-stars">★★★★★</span>
+                  <span class="t-score">5 / 5</span>
+                </div>
+              </div>
+            </div>
+            <p class="testimonial-text">NEWSIFY is genuinely one of the best tools I've come across. The AI News Search pulls actual live headlines and the summaries are spot-on — it's completely replaced my morning news scroll. Absolutely love it.</p>
+          </div>
+          <div class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar" style="background:linear-gradient(135deg,#f43f5e,#f59e0b);">H</div>
+              <div>
+                <div class="testimonial-name">Hassan</div>
+                <div class="testimonial-stars">
+                  <span class="t-stars">★★★★★</span>
+                  <span class="t-score">5 / 5</span>
+                </div>
+              </div>
+            </div>
+            <p class="testimonial-text">The dark editorial design looks absolutely stunning and the Daily Briefing feature is incredible. One click and I know exactly what happened globally today. The neural network animation on the homepage is also a really impressive touch.</p>
+          </div>
+          <div class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar" style="background:linear-gradient(135deg,#10b981,#06d6a0);">L</div>
+              <div>
+                <div class="testimonial-name">Laiba</div>
+                <div class="testimonial-stars">
+                  <span class="t-stars">★★★★★</span>
+                  <span class="t-score">5 / 5</span>
+                </div>
+              </div>
+            </div>
+            <p class="testimonial-text">The Lyrics Analyzer blew me away — I used it on my favorite songs and the AI broke down meanings I'd never noticed before. The whole platform is polished, fast, and super easy to use. Highly recommend!</p>
+          </div>
+        </div>
+      </div>
+
       <!-- ── FEEDBACK ── -->
       <div class="feedback-form-section">
         <h2>Share Your Feedback</h2>
@@ -358,6 +401,7 @@
             <button type="button" class="star">★</button>
             <button type="button" class="star">★</button>
             <button type="button" class="star">★</button>
+            <span class="star-count-display" id="starCountDisplay">0 / 5</span>
           </div>
           <textarea id="feedbackText" placeholder="Tell us what you think about NEWSIFY..." rows="4" required></textarea>
           <button type="submit" class="feedback-btn">
@@ -382,12 +426,12 @@
     <div class="page" id="page-search">
       <div class="inner-page">
         <div class="page-header">
-          <h1><i class="ti ti-search"></i> AI News Search</h1>
+          <h1><i class="ti ti-search"></i> News Search</h1>
           <p>Ask any question — get AI answers from real headlines</p>
           <div class="accent-line"></div>
         </div>
         <div class="page-hero">
-          <img src="pictures/frontpage.jpg" alt="Search"
+          <img src="frontend%20pictures/Screenshot%202026-05-12%20135233.jpg" alt="Search"
             onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
             <h1>Ask the News</h1>
@@ -439,7 +483,7 @@
           <div class="accent-line" style="background:#a78bfa;"></div>
         </div>
         <div class="page-hero">
-          <img src="pictures/summary.jpg" alt="Summarize"
+          <img src="frontend%20pictures/Screenshot%202026-05-12%20135304.jpg" alt="Summarize"
             onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
             <h1>Summarize Any Text</h1>
@@ -485,7 +529,7 @@
           <div class="accent-line" style="background:#a78bfa;"></div>
         </div>
         <div class="page-hero">
-          <img src="pictures/music1.jpg" alt="Lyrics"
+          <img src="frontend%20pictures/Screenshot%202026-05-12%20135338.jpg" alt="Lyrics"
             onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
             <h1>Lyrics Intelligence</h1>
@@ -583,7 +627,7 @@
           <div class="accent-line" style="background:#f59e0b;"></div>
         </div>
         <div class="page-hero">
-          <img src="pictures/dictionary.jpg" alt="Dictionary"
+          <img src="frontend%20pictures/Screenshot%202026-05-12%20135407.jpg" alt="Dictionary"
             onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
             <h1>Word Intelligence</h1>
@@ -634,7 +678,7 @@
           <div class="accent-line"></div>
         </div>
         <div class="page-hero">
-          <img src="pictures/analyzing.jpg" alt="Analyzer"
+          <img src="frontend%20pictures/x.jpg" alt="Analyzer"
             onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
             <h1>Deep Content Analysis</h1>
@@ -690,7 +734,7 @@
           <div class="accent-line" style="background:#10b981;"></div>
         </div>
         <div class="page-hero">
-          <img src="pictures/frontpage2.jpg" alt="Briefing"
+          <img src="frontend%20pictures/Screenshot%202026-05-12%20135233.jpg" alt="Briefing"
             onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
             <h1>Today's World at a Glance</h1>
@@ -734,7 +778,7 @@
           <div class="accent-line" style="background:#10b981;"></div>
         </div>
         <div class="page-hero">
-          <img src="pictures/summary.jpg" alt="Essay"
+          <img src="frontend%20pictures/Screenshot%202026-05-12%20135304.jpg" alt="Essay"
             onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
             <h1>Write Any Essay</h1>
@@ -1064,7 +1108,7 @@
 
     function resize() {
       W = canvas.parentElement.offsetWidth || 480;
-      H = Math.round(W * 0.54);
+      H = Math.round(W * 0.65);
       canvas.width = W; canvas.height = H;
     }
 
