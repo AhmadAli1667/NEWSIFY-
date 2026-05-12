@@ -246,7 +246,10 @@
               <span class="heatmap-title">Global News Pulse</span>
               <span class="heatmap-sub">Hover a dot to see the story</span>
             </div>
-            <canvas id="heatmap-canvas"></canvas>
+            <div class="heatmap-canvas-wrap">
+              <canvas id="heatmap-canvas"></canvas>
+              <canvas id="holo-figure"></canvas>
+            </div>
           </div>
         </div>
         <div class="pulse-widget">
@@ -1106,7 +1109,7 @@
 
     function resize() {
       W = canvas.parentElement.offsetWidth || 480;
-      H = Math.round(W * 0.65);
+      H = Math.round(W * 0.40);
       canvas.width = W; canvas.height = H;
     }
 
@@ -1146,7 +1149,7 @@
         ctx.shadowColor = 'rgba(91,138,245,0.15)';
         ctx.shadowBlur = 8;
         ctx.beginPath();
-        ctx.ellipse(p.x, p.y, Math.max(2, hw), Math.max(2, hh), 0, 0, Math.PI * 2);
+        ctx.ellipse(p.x, p.y, Math.max(2, hw), Math.max(2, hh * 0.55), 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       });
@@ -1159,7 +1162,7 @@
         ctx.strokeStyle = 'rgba(30,80,160,0.35)';
         ctx.lineWidth = 0.8;
         ctx.beginPath();
-        ctx.ellipse(p.x, p.y, Math.max(2, hw), Math.max(2, hh), 0, 0, Math.PI * 2);
+        ctx.ellipse(p.x, p.y, Math.max(2, hw), Math.max(2, hh * 0.55), 0, 0, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
       });
@@ -1246,5 +1249,178 @@
   </script>
 
   <script src="app.js"></script>
+
+  <!-- ══ HOLOGRAPHIC FIGURE ══ -->
+  <script>
+  (function() {
+    const hc = document.getElementById('holo-figure');
+    if (!hc) return;
+    const ctx = hc.getContext('2d');
+    let W = 0, H = 0, t = 0;
+
+    function syncSize() {
+      const ref = document.getElementById('heatmap-canvas');
+      if (!ref) return;
+      W = ref.offsetWidth  || ref.width  || 600;
+      H = ref.offsetHeight || ref.height || 240;
+      hc.width  = W;
+      hc.height = H;
+    }
+    syncSize();
+    window.addEventListener('resize', () => { setTimeout(syncSize, 100); });
+
+    function draw() {
+      syncSize();
+      ctx.clearRect(0, 0, W, H);
+
+      /* ── figure geometry ── */
+      const cx    = W * 0.13;             // left-side anchor
+      const scale = H / 200;             // 200 design units tall
+      const float = Math.sin(t * 0.0014) * 4 * scale;
+      const flick = 0.80 + Math.sin(t * 0.009) * 0.11 + Math.sin(t * 0.023) * 0.04;
+      const swing = Math.sin(t * 0.0020) * 8 * scale;
+      const fy    = H * 0.88 + float;    // feet Y
+
+      /* helper: set holographic pen */
+      function hp(alpha) {
+        ctx.strokeStyle = `rgba(0,225,255,${alpha * flick})`;
+        ctx.shadowColor = '#00e0ff';
+        ctx.shadowBlur  = 14;
+        ctx.lineWidth   = 1.6 * scale;
+        ctx.lineCap     = 'round';
+        ctx.lineJoin    = 'round';
+      }
+
+      ctx.save();
+      ctx.globalAlpha = flick;
+
+      /* ── legs ── */
+      hp(0.82);
+      ctx.beginPath();                                    // left leg
+      ctx.moveTo(cx - 11*scale, fy - 62*scale);
+      ctx.quadraticCurveTo(cx - 15*scale, fy - 30*scale, cx - 14*scale, fy);
+      ctx.stroke();
+      ctx.beginPath();                                    // right leg
+      ctx.moveTo(cx + 11*scale, fy - 62*scale);
+      ctx.quadraticCurveTo(cx + 15*scale, fy - 30*scale, cx + 14*scale, fy);
+      ctx.stroke();
+
+      /* ── torso ── */
+      hp(0.90);
+      ctx.beginPath();
+      ctx.moveTo(cx - 22*scale, fy - 118*scale);
+      ctx.lineTo(cx - 11*scale, fy - 62*scale);
+      ctx.lineTo(cx + 11*scale, fy - 62*scale);
+      ctx.lineTo(cx + 22*scale, fy - 118*scale);
+      ctx.stroke();
+
+      /* ── left arm (relaxed, slight swing) ── */
+      hp(0.82);
+      ctx.beginPath();
+      ctx.moveTo(cx - 22*scale, fy - 118*scale);
+      ctx.quadraticCurveTo(cx - 36*scale, fy - 90*scale + swing, cx - 30*scale, fy - 68*scale + swing);
+      ctx.stroke();
+
+      /* ── right arm (pointing at map) ── */
+      hp(0.88);
+      const handX = cx + 68*scale;
+      const handY = fy - 100*scale - swing * 0.35;
+      ctx.beginPath();
+      ctx.moveTo(cx + 22*scale, fy - 118*scale);
+      ctx.quadraticCurveTo(cx + 45*scale, fy - 112*scale, handX, handY);
+      ctx.stroke();
+
+      /* ── pointing hand dot glow ── */
+      ctx.save();
+      ctx.globalAlpha = flick * 0.85;
+      ctx.fillStyle   = 'rgba(0,225,255,0.7)';
+      ctx.shadowColor = '#00e0ff';
+      ctx.shadowBlur  = 22;
+      ctx.beginPath();
+      ctx.arc(handX, handY, 3.5 * scale, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      /* ── neck ── */
+      hp(0.78);
+      ctx.beginPath();
+      ctx.moveTo(cx, fy - 120*scale);
+      ctx.lineTo(cx, fy - 134*scale);
+      ctx.stroke();
+
+      /* ── head (oval) ── */
+      hp(0.90);
+      ctx.beginPath();
+      ctx.ellipse(cx, fy - 150*scale, 15*scale, 17*scale, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      /* ── visor / face detail ── */
+      ctx.save();
+      ctx.globalAlpha = flick * 0.55;
+      ctx.strokeStyle = `rgba(160,90,255,${flick})`;
+      ctx.shadowColor = '#a050ff';
+      ctx.shadowBlur  = 10;
+      ctx.lineWidth   = 1.1 * scale;
+      ctx.beginPath();
+      ctx.ellipse(cx, fy - 150*scale, 9*scale, 6*scale, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      /* ── torso scanlines ── */
+      ctx.save();
+      const sTop  = fy - 118*scale;
+      const sBot  = fy - 62*scale;
+      const sScan = ((t * 1.1) % (56 * scale));
+      for (let sy = sTop; sy < sBot; sy += 5 * scale) {
+        const rel = sy - sTop;
+        const y   = sTop + ((rel + sScan) % (sBot - sTop));
+        const xOff = (rel / (sBot - sTop)) * 11 * scale;
+        ctx.globalAlpha = flick * 0.18;
+        ctx.strokeStyle  = 'rgba(0,225,255,0.9)';
+        ctx.shadowBlur   = 0;
+        ctx.lineWidth    = 0.7;
+        ctx.beginPath();
+        ctx.moveTo(cx - 22*scale + xOff, y);
+        ctx.lineTo(cx + 22*scale - xOff, y);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      /* ── dashed data beam from hand to map center ── */
+      ctx.save();
+      const beamAlpha = (0.25 + 0.20 * Math.sin(t * 0.007)) * flick;
+      ctx.globalAlpha = beamAlpha;
+      ctx.strokeStyle = 'rgba(0,225,255,0.7)';
+      ctx.shadowColor = '#00e0ff';
+      ctx.shadowBlur  = 8;
+      ctx.lineWidth   = 0.8;
+      ctx.setLineDash([5, 10]);
+      ctx.beginPath();
+      ctx.moveTo(handX, handY);
+      ctx.lineTo(W * 0.52, H * 0.48);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+
+      /* ── ground glow ── */
+      ctx.save();
+      const grd = ctx.createRadialGradient(cx, fy + 3, 0, cx, fy + 3, 38 * scale);
+      grd.addColorStop(0, `rgba(0,225,255,${flick * 0.28})`);
+      grd.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.ellipse(cx, fy + 5, 34 * scale, 7 * scale, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.restore(); // main flick
+
+      t++;
+      requestAnimationFrame(draw);
+    }
+
+    requestAnimationFrame(draw);
+  })();
+  </script>
 </body>
 </html>

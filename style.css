@@ -663,6 +663,16 @@ footer { background: var(--navy); color: white; padding: 48px 36px 24px; }
 .heatmap-sub { font-size: 0.7rem; color: #475569; margin-left: auto; }
 #heatmap-canvas { display: block; width: 100%; }
 
+/* Holo figure overlay */
+.heatmap-canvas-wrap { position: relative; display: block; }
+#holo-figure {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100% !important; height: 100% !important;
+  pointer-events: none;
+  z-index: 3;
+}
+
 /* ══════════════════════════════════════════
    ESSAY WRITER
 ══════════════════════════════════════════ */

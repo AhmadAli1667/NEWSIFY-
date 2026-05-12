@@ -8,6 +8,21 @@
 // ─── CONFIG ────────────────────────────────────────────
 const LOCAL_FALLBACK = "pictures/frontpage.jpg";
 
+// Pool of frontend pictures — used as guaranteed-unique fallbacks
+const FRONTEND_PICS = [
+  "frontend%20pictures/Screenshot%202026-05-12%20135233.jpg",
+  "frontend%20pictures/Screenshot%202026-05-12%20135304.jpg",
+  "frontend%20pictures/Screenshot%202026-05-12%20135338.jpg",
+  "frontend%20pictures/Screenshot%202026-05-12%20135407.jpg",
+  "frontend%20pictures/x.jpg",
+];
+let _fpIdx = 0;
+function nextFrontendPic() {
+  const url = FRONTEND_PICS[_fpIdx % FRONTEND_PICS.length];
+  _fpIdx++;
+  return url;
+}
+
 // ─── STATE ─────────────────────────────────────────────
 const state = {
   activePage: "home",
@@ -158,24 +173,32 @@ async function fetchPexelsImage(query) {
 const usedImageUrls = new Set();
 
 async function getArticleImage(article, category) {
-  // 1. Use urlToImage if present and not already used
+  // 1. Use article's own image if present and not yet shown
   if (article.urlToImage && article.urlToImage.startsWith("http") && !usedImageUrls.has(article.urlToImage)) {
     usedImageUrls.add(article.urlToImage);
     return article.urlToImage;
   }
-  // 2. Use title keywords first (each article title is unique → unique Pexels query)
+  // 2. Try Pexels with title keywords
   const titleKw = extractKeyword(article.title || "");
-  const keyword = titleKw || CATEGORY_KEYWORDS[category] || "world news";
+  const keyword  = titleKw || CATEGORY_KEYWORDS[category] || "world news";
   const url = await fetchPexelsImage(keyword);
-  // 3. If that URL is already shown, try category keyword as fallback
-  if (usedImageUrls.has(url)) {
-    const fallbackKw = CATEGORY_KEYWORDS[category] || "global news";
-    const alt = await fetchPexelsImage(fallbackKw + " " + Math.random().toString(36).slice(2, 5));
-    usedImageUrls.add(alt);
-    return alt;
+  if (!usedImageUrls.has(url)) {
+    usedImageUrls.add(url);
+    return url;
   }
-  usedImageUrls.add(url);
-  return url;
+  // 3. Try category keyword via Pexels
+  const catKw = CATEGORY_KEYWORDS[category] || "global news";
+  if (catKw !== keyword) {
+    const catUrl = await fetchPexelsImage(catKw);
+    if (!usedImageUrls.has(catUrl)) {
+      usedImageUrls.add(catUrl);
+      return catUrl;
+    }
+  }
+  // 4. Guaranteed unique: cycle through the 5 frontend pictures
+  const fp = nextFrontendPic();
+  usedImageUrls.add(fp);
+  return fp;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -234,6 +257,7 @@ async function fetchTopHeadlines() {
 // Build the homepage with real data
 async function loadHomeNews() {
   usedImageUrls.clear();
+  _fpIdx = 0; // reset frontend-pic rotation each load
 
   let headlines = [];
   try {
