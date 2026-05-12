@@ -887,22 +887,55 @@ function initEvents() {
     });
   });
 
-  // Home widget shortcut → Summarize page
-  const homeWidgetInput = document.getElementById("homeWidgetInput");
-  const homeWidgetBtn   = document.getElementById("homeWidgetBtn");
-  if (homeWidgetBtn) {
-    homeWidgetBtn.addEventListener("click", () => {
-      const txt = homeWidgetInput ? homeWidgetInput.value.trim() : "";
-      setPage("summarize");
-      setTimeout(() => {
-        if (summarizeInput && txt) summarizeInput.value = txt;
-        if (txt) handleSummarize();
-      }, 260);
+  // Theme toggle
+  const themeToggle = document.getElementById("themeToggle");
+  const savedTheme = localStorage.getItem("nf_theme") || "light";
+  document.documentElement.setAttribute("data-theme", savedTheme);
+  if (themeToggle) {
+    themeToggle.textContent = savedTheme === "dark" ? "☀️" : "🌙";
+    themeToggle.addEventListener("click", () => {
+      const cur  = document.documentElement.getAttribute("data-theme") || "light";
+      const next = cur === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("nf_theme", next);
+      themeToggle.textContent = next === "dark" ? "☀️" : "🌙";
     });
   }
-  if (homeWidgetInput) {
-    homeWidgetInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") homeWidgetBtn && homeWidgetBtn.click();
+
+  // Nav group dropdowns (News ▾ / Tools ▾)
+  document.querySelectorAll(".nav-group").forEach(group => {
+    const trigger = group.querySelector(".nav-group-trigger");
+    const menu    = group.querySelector(".nav-group-menu");
+    if (!trigger || !menu) return;
+    trigger.addEventListener("click", e => {
+      e.stopPropagation();
+      const open = group.classList.contains("open");
+      document.querySelectorAll(".nav-group").forEach(g => g.classList.remove("open"));
+      if (!open) group.classList.add("open");
+    });
+  });
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".nav-group").forEach(g => g.classList.remove("open"));
+  });
+
+  // Home briefing widget
+  const homeBriefingBtn    = document.getElementById("homeBriefingBtn");
+  const homeBriefingOutput = document.getElementById("homeBriefingOutput");
+  if (homeBriefingBtn) {
+    homeBriefingBtn.addEventListener("click", async () => {
+      homeBriefingBtn.disabled = true;
+      homeBriefingBtn.textContent = "⏳ Loading…";
+      if (homeBriefingOutput) { homeBriefingOutput.textContent = ""; homeBriefingOutput.style.display = "none"; }
+      try {
+        const data = await postJson("/api/briefing", {});
+        const text = data.briefing || data.summary || "";
+        if (homeBriefingOutput && text) {
+          homeBriefingOutput.textContent = text;
+          homeBriefingOutput.style.display = "block";
+        }
+      } catch {}
+      homeBriefingBtn.disabled = false;
+      homeBriefingBtn.textContent = "Get Briefing";
     });
   }
 

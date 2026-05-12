@@ -24,30 +24,47 @@
 
     <div class="navbar-center">
       <button class="nav-link active" data-view="home">Home</button>
-      <button class="nav-link" data-view="search">Search</button>
-      <button class="nav-link" data-view="summarize">Summarize</button>
-      <button class="nav-link" data-view="essay">Essay</button>
-      <button class="nav-link" data-view="lyrics">Lyrics</button>
-      <button class="nav-link" data-view="dictionary">Dictionary</button>
-      <button class="nav-link" data-view="analyzer">Analyzer</button>
-      <button class="nav-link" data-view="briefing">Briefing</button>
+
+      <!-- News dropdown -->
+      <div class="nav-group" id="navGroupNews">
+        <button class="nav-link nav-group-trigger" id="newsGroupBtn">News ▾</button>
+        <div class="nav-group-menu" id="newsGroupMenu">
+          <button class="nav-group-item" data-view="search">AI News Search</button>
+          <button class="nav-group-item" data-view="briefing">Daily Briefing</button>
+        </div>
+      </div>
+
+      <!-- Tools dropdown -->
+      <div class="nav-group" id="navGroupTools">
+        <button class="nav-link nav-group-trigger" id="toolsGroupBtn">Tools ▾</button>
+        <div class="nav-group-menu" id="toolsGroupMenu">
+          <button class="nav-group-item" data-view="summarize">Summarize Text</button>
+          <button class="nav-group-item" data-view="essay">Essay Writer</button>
+          <button class="nav-group-item" data-view="lyrics">Lyrics Analyzer</button>
+          <button class="nav-group-item" data-view="dictionary">Dictionary</button>
+          <button class="nav-group-item" data-view="analyzer">Content Analyzer</button>
+        </div>
+      </div>
     </div>
 
     <div class="navbar-right">
+      <button class="icon-btn" id="themeToggle" title="Toggle dark mode" aria-label="Toggle theme">🌙</button>
       <button class="icon-btn" id="searchToggle" title="Search News">🔍</button>
       <button class="icon-btn" id="helpBtn" title="Take a Tour">🗺</button>
-      <button class="btn-signin" id="aboutCreator">Sign In</button>
+      <button class="btn-signin" id="aboutCreator">About</button>
       <div style="position:relative;">
-        <button class="icon-btn" id="menuBtn" title="More Tools">☰</button>
+        <button class="icon-btn" id="menuBtn" title="More">☰</button>
         <div class="menu-dropdown" id="menuDropdown">
-          <button class="menu-item" data-view="search">🔍 AI News Search</button>
-          <button class="menu-item" data-view="summarize">✂️ Summarize Text</button>
-          <button class="menu-item" data-view="essay">📝 Essay Writer</button>
-          <button class="menu-item" data-view="lyrics">🎵 Lyrics Analyzer</button>
-          <button class="menu-item" data-view="dictionary">📖 Dictionary</button>
-          <button class="menu-item" data-view="analyzer">📊 Content Analyzer</button>
-          <button class="menu-item" data-view="briefing">📋 Daily Briefing</button>
-          <button class="menu-item" id="exampleBtn">🧪 Try Example</button>
+          <button class="menu-item" data-view="search">AI News Search</button>
+          <button class="menu-item" data-view="briefing">Daily Briefing</button>
+          <div class="menu-divider"></div>
+          <button class="menu-item" data-view="summarize">Summarize Text</button>
+          <button class="menu-item" data-view="essay">Essay Writer</button>
+          <button class="menu-item" data-view="lyrics">Lyrics Analyzer</button>
+          <button class="menu-item" data-view="dictionary">Dictionary</button>
+          <button class="menu-item" data-view="analyzer">Content Analyzer</button>
+          <div class="menu-divider"></div>
+          <button class="menu-item" id="exampleBtn">Try Example</button>
         </div>
       </div>
     </div>
@@ -200,21 +217,23 @@
 
         </div><!-- /home-left -->
 
-        <!-- RIGHT: Globe + Summarize Widget -->
+        <!-- RIGHT: News Heatmap + Briefing Widget -->
         <div class="home-right">
 
-          <div class="globe-section">
-            <canvas id="globe-canvas"></canvas>
+          <div class="heatmap-section">
+            <div class="heatmap-header">
+              <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+              <span class="heatmap-title">Global News Pulse</span>
+              <span class="heatmap-sub">Hover a dot to see the story</span>
+            </div>
+            <canvas id="heatmap-canvas"></canvas>
           </div>
 
-          <div class="summarize-widget">
-            <h4>Summarize News</h4>
-            <p>Paste a news article or text to get a quick AI summary.</p>
-            <textarea id="homeWidgetInput" placeholder="Enter URL or paste text here..."></textarea>
-            <button class="btn-summarize" id="homeWidgetBtn">
-              ✂️ Summarize
-            </button>
-            <p class="widget-powered">Powered by AI</p>
+          <div class="home-briefing-widget">
+            <h4>Today's AI Briefing</h4>
+            <p>One click — today's world in 4 paragraphs.</p>
+            <button class="btn-summarize" id="homeBriefingBtn">Get Briefing</button>
+            <div class="home-briefing-output" id="homeBriefingOutput"></div>
           </div>
 
         </div><!-- /home-right -->
@@ -294,67 +313,6 @@
             <div class="how-number" style="color:#059669;">03</div>
             <h3 style="color:#059669;">Get AI Insights</h3>
             <p>Receive clean, readable AI-generated summaries, analysis, and insights. Copy or expand results with one click.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── TRENDING IN CULTURE (dark) ── -->
-      <section class="culture-section">
-        <h2>Trending in Culture</h2>
-        <div class="culture-grid">
-          <div class="culture-block">
-            <h3>Music Radar</h3>
-            <div class="artist-grid">
-              <button class="artist-card" data-view="lyrics">
-                <img src="pictures/taylor%20swift.jpg" alt="Taylor Swift"
-                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#1e40af;display:block';" />
-                <span>Taylor Swift</span>
-              </button>
-              <button class="artist-card" data-view="lyrics">
-                <img src="pictures/the%20weeknd.jpg" alt="The Weeknd"
-                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#312e81;display:block';" />
-                <span>The Weeknd</span>
-              </button>
-              <button class="artist-card" data-view="lyrics">
-                <img src="pictures/travis%20scott.jpg" alt="Travis Scott"
-                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#7c3aed;display:block';" />
-                <span>Travis Scott</span>
-              </button>
-              <button class="artist-card" data-view="lyrics">
-                <img src="pictures/rihanna.jpg" alt="Rihanna"
-                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#9d174d;display:block';" />
-                <span>Rihanna</span>
-              </button>
-            </div>
-          </div>
-          <div class="culture-block">
-            <h3>Top Tracks</h3>
-            <div class="track-list">
-              <div class="track-item">
-                <img src="pictures/all%20too%20well.jpg" alt="All Too Well"
-                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#1e40af;display:block';" />
-                <div class="track-info">
-                  <strong>All Too Well</strong>
-                  <span>Taylor Swift</span>
-                </div>
-              </div>
-              <div class="track-item">
-                <img src="pictures/love%20story.jpg" alt="Love Story"
-                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#1e3a8a;display:block';" />
-                <div class="track-info">
-                  <strong>Love Story</strong>
-                  <span>Taylor Swift</span>
-                </div>
-              </div>
-              <div class="track-item">
-                <img src="pictures/moth%20to%20a%20flame.jpg" alt="Moth To A Flame"
-                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#312e81;display:block';" />
-                <div class="track-info">
-                  <strong>Moth To A Flame</strong>
-                  <span>The Weeknd</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -511,6 +469,58 @@
           <div class="result-body" id="lyricsResult"></div>
         </div>
       </div>
+
+      <!-- ── TRENDING IN CULTURE ── -->
+      <section class="culture-section">
+        <h2>Trending in Music — Try Analyzing These</h2>
+        <div class="culture-grid">
+          <div class="culture-block">
+            <h3>Popular Artists</h3>
+            <div class="artist-grid">
+              <button class="artist-card" data-view="lyrics">
+                <img src="pictures/taylor%20swift.jpg" alt="Taylor Swift"
+                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#1e40af;display:block';" />
+                <span>Taylor Swift</span>
+              </button>
+              <button class="artist-card" data-view="lyrics">
+                <img src="pictures/the%20weeknd.jpg" alt="The Weeknd"
+                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#312e81;display:block';" />
+                <span>The Weeknd</span>
+              </button>
+              <button class="artist-card" data-view="lyrics">
+                <img src="pictures/travis%20scott.jpg" alt="Travis Scott"
+                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#7c3aed;display:block';" />
+                <span>Travis Scott</span>
+              </button>
+              <button class="artist-card" data-view="lyrics">
+                <img src="pictures/rihanna.jpg" alt="Rihanna"
+                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#9d174d;display:block';" />
+                <span>Rihanna</span>
+              </button>
+            </div>
+          </div>
+          <div class="culture-block">
+            <h3>Top Tracks to Analyze</h3>
+            <div class="track-list">
+              <div class="track-item">
+                <img src="pictures/all%20too%20well.jpg" alt="All Too Well"
+                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#1e40af;display:block';" />
+                <div class="track-info"><strong>All Too Well</strong><span>Taylor Swift</span></div>
+              </div>
+              <div class="track-item">
+                <img src="pictures/love%20story.jpg" alt="Love Story"
+                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#1e3a8a;display:block';" />
+                <div class="track-info"><strong>Love Story</strong><span>Taylor Swift</span></div>
+              </div>
+              <div class="track-item">
+                <img src="pictures/moth%20to%20a%20flame.jpg" alt="Moth To A Flame"
+                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#312e81;display:block';" />
+                <div class="track-info"><strong>Moth To A Flame</strong><span>The Weeknd</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- ══════════════ DICTIONARY PAGE ══════════════ -->
@@ -707,7 +717,7 @@
         <img class="footer-logo" src="logo.png" alt="NEWSIFY"
           onerror="this.onerror=null;this.style.display='none';" />
         <div class="logo-text">NEWSIFY</div>
-        <p>Developed by Ahmad Ali &amp; Team | NUST SEECS (Software Engineering Coursework).</p>
+        <p>Built by <a href="https://github.com/AhmadAli1667" target="_blank" rel="noopener" style="color:var(--blue-light);text-decoration:none;">Ahmad Ali</a> · NUST SEECS</p>
       </div>
       <div class="footer-col">
         <h4>Quick Links</h4>
@@ -718,10 +728,10 @@
         <button data-view="analyzer">Content Analyzer</button>
       </div>
       <div class="footer-col">
-        <h4>Contact</h4>
-        <a href="https://github.com" target="_blank">GitHub</a>
-        <a href="https://linkedin.com" target="_blank">LinkedIn</a>
-        <a href="#">Email</a>
+        <h4>Connect</h4>
+        <a href="https://github.com/AhmadAli1667" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/ahmad-ali-686044383" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="mailto:ahmadsh2390@gmail.com">Email</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -789,359 +799,232 @@
   <div id="heroCarousel" style="display:none;"></div>
   <div id="heroDots" style="display:none;"></div>
 
-  <!-- ═══════════════════ GLOBE SCRIPT ═══════════════════ -->
+  <!-- ═══════════════════ HEATMAP SCRIPT (Phase 1) ═══════════════════ -->
   <script>
   (function() {
-    const canvas = document.getElementById('globe-canvas');
+    const canvas = document.getElementById('heatmap-canvas');
     if (!canvas) return;
 
-    let W, H, cx, cy, r;
-    let rotY = 0, rotX = 0;
-    let dragging = false, lastX = 0, lastY = 0;
-    const SPIN = 0.26;
+    let W, H;
+    let hoveredCity = null;
+    let mouseX = -999, mouseY = -999;
 
-    // GNews article pins — populated async after page load
-    let globePins = [];
-    let hoveredPin = null;
-    let mouseGX = -999, mouseGY = -999;
+    // Static major news cities with randomised animation phase
+    const CITIES = [
+      { n:'New York',     lat:40.7,  lon:-74.0 }, { n:'Washington DC', lat:38.9,  lon:-77.0 },
+      { n:'Los Angeles',  lat:34.0,  lon:-118.2}, { n:'London',        lat:51.5,  lon:-0.1  },
+      { n:'Paris',        lat:48.9,  lon:2.3   }, { n:'Berlin',        lat:52.5,  lon:13.4  },
+      { n:'Moscow',       lat:55.75, lon:37.6  }, { n:'Kyiv',          lat:50.5,  lon:30.5  },
+      { n:'Beijing',      lat:39.9,  lon:116.4 }, { n:'Shanghai',      lat:31.2,  lon:121.5 },
+      { n:'Tokyo',        lat:35.7,  lon:139.7 }, { n:'Mumbai',        lat:19.1,  lon:72.9  },
+      { n:'New Delhi',    lat:28.6,  lon:77.2  }, { n:'Islamabad',     lat:33.7,  lon:73.1  },
+      { n:'Tel Aviv',     lat:32.1,  lon:34.8  }, { n:'Gaza',          lat:31.5,  lon:34.5  },
+      { n:'Cairo',        lat:30.0,  lon:31.2  }, { n:'Dubai',         lat:25.2,  lon:55.3  },
+      { n:'Riyadh',       lat:24.7,  lon:46.7  }, { n:'Nairobi',       lat:-1.3,  lon:36.8  },
+      { n:'Lagos',        lat:6.5,   lon:3.4   }, { n:'Sydney',        lat:-33.9, lon:151.2 },
+      { n:'Singapore',    lat:1.4,   lon:103.8 }, { n:'São Paulo',     lat:-23.5, lon:-46.6 },
+      { n:'Toronto',      lat:43.7,  lon:-79.4 }, { n:'Ankara',        lat:39.9,  lon:32.9  },
+    ].map(c => ({ ...c, phase: Math.random() * Math.PI * 2, speed: 0.6 + Math.random() * 0.7 }));
 
-    // ── Geo keyword → lat/lon for pin placement ──────────────
-    const GEO = [
-      { lat: 37.09, lon:  -95.71, kw: ['united states','usa ',' us ','america','washington','new york','pentagon','congress','white house','biden','trump','nasa','silicon valley'] },
-      { lat: 51.5,  lon:   -0.1,  kw: ['united kingdom','britain','england','london',' uk ','scotland','parliament','sunak','buckingham'] },
-      { lat: 30.37, lon:   69.34, kw: ['pakistan','islamabad','lahore','karachi','psl','imran','nawaz','rawalpindi'] },
-      { lat: 20.59, lon:   78.96, kw: ['india','new delhi','mumbai','bangalore','modi','sensex','bollywood'] },
-      { lat: 51.16, lon:   10.45, kw: ['germany','berlin','münchen','bundestag','scholz','deutsche'] },
-      { lat: 46.22, lon:    2.21, kw: ['france','paris','macron','élysée','marseille'] },
-      { lat: 35.86, lon:  104.19, kw: ['china','beijing','shanghai','xi jinping','hong kong','taiwan','pla','yuan'] },
-      { lat:-25.27, lon:  133.77, kw: ['australia','sydney','melbourne','canberra','asx'] },
-      { lat: 56.13, lon: -106.34, kw: ['canada','ottawa','toronto','trudeau','montreal'] },
-      { lat:-14.23, lon:  -51.92, kw: ['brazil','brasília','são paulo','lula','rio','amazon'] },
-      { lat: 36.20, lon:  138.25, kw: ['japan','tokyo','osaka','yen','nikkei','kishida'] },
-      { lat: 61.52, lon:  105.31, kw: ['russia','moscow','kremlin','putin','ukraine','siberia'] },
-      { lat:-30.55, lon:   22.93, kw: ['south africa','johannesburg','cape town','anc','pretoria'] },
-      { lat: 31.0,  lon:   35.0,  kw: ['israel','gaza','hamas','west bank','netanyahu','idf','tel aviv'] },
-      { lat: 25.0,  lon:   45.0,  kw: ['saudi','riyadh','mbs','iran','tehran','middle east','gulf'] },
-      { lat: 38.96, lon:   35.24, kw: ['turkey','ankara','istanbul','erdogan'] },
-      { lat:  9.08, lon:    8.67, kw: ['nigeria','lagos','abuja'] },
-      { lat: 26.82, lon:   30.80, kw: ['egypt','cairo','suez'] },
-      { lat:  1.35, lon:  103.81, kw: ['singapore','asean'] },
-      { lat: 25.2,  lon:   55.27, kw: ['dubai','uae','abu dhabi','emirates'] },
-      { lat: 48.8,  lon:    2.35, kw: ['europe','european union','eu ','nato'] },
-      { lat: 33.7,  lon:   73.1,  kw: ['islamabad'] },
+    // GNews article pins (Phase 2: dynamically populated)
+    let gNewsPins = [];
+
+    const GEO_KW = [
+      { lat:40.7,  lon:-74.0,  kw:['united states','usa','america','washington','new york','congress','white house','biden','trump'] },
+      { lat:51.5,  lon:-0.1,   kw:['united kingdom','britain','england','london','uk ','scotland','parliament'] },
+      { lat:30.37, lon:69.34,  kw:['pakistan','islamabad','lahore','karachi','psl','imran','nawaz'] },
+      { lat:20.59, lon:78.96,  kw:['india','new delhi','mumbai','bangalore','modi','sensex'] },
+      { lat:51.16, lon:10.45,  kw:['germany','berlin','bundestag','scholz','deutsche'] },
+      { lat:46.22, lon:2.21,   kw:['france','paris','macron','marseille'] },
+      { lat:35.86, lon:104.19, kw:['china','beijing','shanghai','xi jinping','hong kong','taiwan'] },
+      { lat:-25.27,lon:133.77, kw:['australia','sydney','melbourne','canberra'] },
+      { lat:56.13, lon:-106.34,kw:['canada','ottawa','toronto','trudeau'] },
+      { lat:-14.23,lon:-51.92, kw:['brazil','brasília','são paulo','lula','rio','amazon'] },
+      { lat:36.20, lon:138.25, kw:['japan','tokyo','osaka','yen','nikkei'] },
+      { lat:61.52, lon:105.31, kw:['russia','moscow','kremlin','putin','ukraine','siberia'] },
+      { lat:31.0,  lon:35.0,   kw:['israel','gaza','hamas','west bank','netanyahu','idf','tel aviv'] },
+      { lat:25.0,  lon:45.0,   kw:['saudi','riyadh','iran','tehran','middle east','gulf'] },
+      { lat:38.96, lon:35.24,  kw:['turkey','ankara','istanbul','erdogan'] },
     ];
 
-    function guessGeo(text) {
-      const t = text.toLowerCase();
-      for (const g of GEO) {
-        if (g.kw.some(k => t.includes(k))) return { lat: g.lat, lon: g.lon };
-      }
-      return null;
-    }
-
-    async function loadGlobePins() {
+    async function loadGNewsPins() {
       try {
         const res = await fetch('/api/gnews');
         const data = await res.json();
         const pins = [];
         (data.articles || []).forEach(a => {
-          const coords = guessGeo((a.title || '') + ' ' + (a.description || ''));
-          if (coords) {
-            pins.push({ lat: coords.lat, lon: coords.lon, label: a.title, url: a.url, source: a.source?.name || '' });
+          const text = ((a.title||'') + ' ' + (a.description||'')).toLowerCase();
+          for (const g of GEO_KW) {
+            if (g.kw.some(k => text.includes(k))) {
+              pins.push({ lat:g.lat, lon:g.lon, label:a.title, url:a.url, source:a.source?.name||'' });
+              break;
+            }
           }
         });
-        globePins = pins;
+        gNewsPins = pins;
       } catch {}
     }
 
-    // ── Stars (generated once) ────────────────────────────
-    const STARS = Array.from({ length: 90 }, () => ({
-      a: Math.random() * Math.PI * 2,
-      d: 0.52 + Math.random() * 0.42,
-      s: 0.5 + Math.random() * 1.2,
-      o: 0.3 + Math.random() * 0.5
-    }));
-
-    // ── Land masses ───────────────────────────────────────
-    // [lat, lon, rlat, rlon, color]
+    // Continent blobs [lat, lon, rlat°, rlon°]
     const LAND = [
-      // North America
-      [60, -120, 10, 14, '#3a7a32'], [55,  -95, 10, 14, '#3d7a34'],
-      [49,  -85,  8, 12, '#4a8c3f'], [48,  -65,  6,  8, '#4a8c3f'],
-      [44,  -98,  7, 15, '#4a8c3f'], [37,  -96,  7, 15, '#5a9e48'],
-      [30,  -90,  5, 12, '#6aaa50'], [29, -108,  5,  8, '#8fa060'],
-      [35, -118,  5,  6, '#6aaa50'], [23,  -99,  8,  7, '#6aaa50'],
-      [12,  -85,  5,  4, '#6aaa50'],
-      // Caribbean
-      [18,  -75,  2,  4, '#6aaa50'],
-      // South America
-      [ 6,  -60,  6,  9, '#3d7a34'], [-5,  -52, 10, 10, '#4a8c3f'],
-      [-18, -55,  9,  9, '#5a9e48'], [-28, -65,  8,  8, '#4a8c3f'],
-      [-42, -68,  5,  4, '#4a8c3f'],
-      // Greenland + Iceland
-      [72,  -42,  8, 13, '#cce4ee'], [65,  -18,  3,  4, '#4a8c3f'],
-      // British Isles
-      [54,   -3,  4,  3, '#4a8c3f'],
-      // Europe
-      [63,   15,  5,  8, '#4a8c3f'], [56,   10,  3,  3, '#4a8c3f'],
-      [51,   10,  5,  9, '#5a9e48'], [46,   13,  4,  8, '#5a9e48'],
-      [40,   -6,  4,  5, '#6aaa50'], [41,   22,  4,  5, '#5a9e48'],
-      // Russia/Asia
-      [65,   40,  8, 14, '#4a8c3f'], [65,   80,  8, 22, '#4a8c3f'],
-      [62,  130,  7, 14, '#4a8c3f'], [52,   70,  6, 12, '#8fa060'],
-      [38,   55,  5,  6, '#8fa060'], [40,   28,  4,  5, '#6aaa50'],
-      [35,  100,  8, 14, '#4a8c3f'], [33,  116,  6, 10, '#5a9e48'],
-      [22,   80,  9,  8, '#6aaa50'], [12,   80,  5,  3, '#6aaa50'],
-      [14,  102,  5,  5, '#4a8c3f'], [ 4,  108,  4,  5, '#4a8c3f'],
-      [36,  136,  5,  2, '#5a9e48'],
-      // Middle East
-      [25,   45,  7,  7, '#c8a050'], [31,   35,  3,  4, '#c8a050'],
-      // Africa
-      [15,   17, 12, 14, '#b89040'], [18,   32, 10, 10, '#b89040'],
-      [10,   22, 15, 16, '#c8a050'], [-5,   23, 10, 12, '#b47a30'],
-      [ 8,   40,  6,  4, '#b89040'], [-15,  32,  8,  6, '#c8a050'],
-      [-28,  25,  8,  8, '#b89040'], [-18,  46,  4,  3, '#6aaa50'],
-      // Australia/Oceania
-      [-23, 132, 12, 16, '#c8a050'], [-35, 150,  3,  2, '#4a8c3f'],
-      [-42, 172,  3,  2, '#4a8c3f'],
-      // Ice caps
-      [ 83,   0,  7, 90, '#dff0f8'], [-83,  0,  7, 90, '#e4f4fb'],
-    ];
-
-    const CLOUDS = [
-      [48, -35, 5, 14, 0.50], [62,  22, 4,  8, 0.40],
-      [-8, -12, 3,  9, 0.45], [22,  62, 3,  7, 0.38],
-      [-38, 82, 4,  9, 0.42], [30, -80, 4,  8, 0.38],
+      [60,-105,11,20],[47,-97,9,18],[35,-95,8,17],[29,-100,6,13],[23,-101,8,7],[12,-85,5,4],
+      [5,-61,7,8],[-10,-52,12,10],[-28,-65,9,8],[-42,-68,4,4],
+      [73,-42,8,13],[65,-18,3,4],[54,-3,4,3],
+      [63,15,5,8],[56,10,3,3],[51,10,5,9],[46,12,4,8],[40,-6,4,5],[41,22,4,5],
+      [15,18,14,18],[-10,24,12,12],[-28,26,8,8],[-18,46,4,3],[8,40,6,4],
+      [65,60,9,30],[63,125,8,16],[40,75,7,12],[36,105,9,16],[22,80,9,8],[14,103,6,6],
+      [36,138,5,2],[25,45,7,7],[31,35,3,4],
+      [-23,132,12,17],[-35,150,3,2],[-42,172,3,2],
+      [82,0,6,90],[-82,0,6,90],
     ];
 
     function resize() {
-      const s = Math.min(canvas.parentElement.offsetWidth, 460);
-      canvas.width = canvas.height = s;
-      cx = cy = s / 2; r = s * 0.46; W = H = s;
+      W = canvas.parentElement.offsetWidth || 480;
+      H = Math.round(W * 0.54);
+      canvas.width = W; canvas.height = H;
     }
 
-    function project(lat, lon) {
-      const phi = (90 - lat) * Math.PI / 180;
-      const lam = lon * Math.PI / 180;
-      let vx = Math.sin(phi) * Math.cos(lam);
-      let vy = -Math.cos(phi);
-      let vz = Math.sin(phi) * Math.sin(lam);
-      // Y-axis rotation (horizontal)
-      const cY = Math.cos(rotY * Math.PI / 180), sY = Math.sin(rotY * Math.PI / 180);
-      const vx1 = vx*cY + vz*sY; const vz1 = -vx*sY + vz*cY;
-      vx = vx1; vz = vz1;
-      // X-axis rotation (vertical tilt)
-      const cX = Math.cos(rotX), sX = Math.sin(rotX);
-      const vy2 = vy*cX - vz*sX; const vz2 = vy*sX + vz*cX;
-      vy = vy2; vz = vz2;
-      return { x: cx + r*vx, y: cy + r*vy, z: vz };
+    function px(lat, lon) {
+      return { x: (lon + 180) / 360 * W, y: (90 - lat) / 180 * H };
     }
 
-    function drawLand(ctx, lat, lon, rlat, rlon, color) {
-      const p = project(lat, lon);
-      if (p.z < -0.05) return;
-      const fade = Math.min(1, (p.z + 0.15) * 5);
-      const hw = r * (rlon * Math.PI / 180) * Math.max(0.05, Math.abs(p.z));
-      const hh = r * (rlat * Math.PI / 180);
-      ctx.save();
-      ctx.globalAlpha = fade;
-      ctx.fillStyle = color;
-      ctx.shadowColor = 'rgba(0,0,0,0.22)';
-      ctx.shadowBlur = 5;
-      ctx.beginPath();
-      ctx.ellipse(p.x, p.y, Math.max(1, hw), Math.max(1, hh), 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-
-    function drawGrid(ctx) {
-      ctx.strokeStyle = 'rgba(100,160,255,0.09)';
-      ctx.lineWidth = 0.6;
-      for (let lat = -60; lat <= 60; lat += 30) {
-        ctx.beginPath(); let first = true;
-        for (let lon = -180; lon <= 182; lon += 5) {
-          const p = project(lat, lon);
-          if (p.z < 0) { first = true; continue; }
-          first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); first = false;
-        }
-        ctx.stroke();
-      }
-      for (let lon = 0; lon < 360; lon += 30) {
-        ctx.beginPath(); let first = true;
-        for (let lat = -88; lat <= 88; lat += 5) {
-          const p = project(lat, lon);
-          if (p.z < 0) { first = true; continue; }
-          first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); first = false;
-        }
-        ctx.stroke();
-      }
-    }
-
-    function draw() {
+    function draw(t) {
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, W, H);
 
-      // ── Dark space background ──
-      const spaceBg = ctx.createRadialGradient(cx, cy, r * 0.7, cx, cy, r * 1.35);
-      spaceBg.addColorStop(0, '#050d1a');
-      spaceBg.addColorStop(1, '#000510');
-      ctx.beginPath(); ctx.arc(cx, cy, r * 1.35, 0, Math.PI * 2);
-      ctx.fillStyle = spaceBg; ctx.fill();
+      // Ocean background
+      const bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0,   '#010d1f');
+      bg.addColorStop(0.5, '#020f24');
+      bg.addColorStop(1,   '#010914');
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
-      // ── Stars ──
-      STARS.forEach(s => {
-        const sx = cx + Math.cos(s.a) * r * s.d;
-        const sy = cy + Math.sin(s.a) * r * s.d;
+      // Lat/lon grid
+      ctx.strokeStyle = 'rgba(37,99,235,0.10)';
+      ctx.lineWidth = 0.6;
+      for (let lon = -180; lon <= 180; lon += 30) {
+        const x = (lon + 180) / 360 * W;
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let lat = -90; lat <= 90; lat += 30) {
+        const y = (90 - lat) / 180 * H;
+        ctx.strokeStyle = lat === 0 ? 'rgba(37,99,235,0.28)' : 'rgba(37,99,235,0.10)';
+        ctx.lineWidth = lat === 0 ? 0.9 : 0.6;
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+
+      // Continent fills
+      LAND.forEach(([lat, lon, rlat, rlon]) => {
+        const p = px(lat, lon);
+        const hw = rlon / 360 * W * 2;
+        const hh = rlat / 180 * H * 2;
         ctx.save();
-        ctx.globalAlpha = s.o;
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#0e2a45';
+        ctx.shadowColor = 'rgba(37,99,235,0.15)';
+        ctx.shadowBlur = 8;
         ctx.beginPath();
-        ctx.arc(sx, sy, s.s, 0, Math.PI * 2);
+        ctx.ellipse(p.x, p.y, Math.max(2, hw), Math.max(2, hh), 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       });
 
-      // ── Outer atmosphere glow ──
-      const atmo = ctx.createRadialGradient(cx, cy, r * 0.88, cx, cy, r * 1.20);
-      atmo.addColorStop(0,   'rgba(59,130,246,0.40)');
-      atmo.addColorStop(0.4, 'rgba(37,99,235,0.14)');
-      atmo.addColorStop(1,   'rgba(10,40,180,0)');
-      ctx.beginPath(); ctx.arc(cx, cy, r * 1.20, 0, Math.PI * 2);
-      ctx.fillStyle = atmo; ctx.fill();
-
-      // ── Ocean sphere ──
-      const ocean = ctx.createRadialGradient(cx - r*0.26, cy - r*0.26, r*0.04, cx, cy, r);
-      ocean.addColorStop(0,    '#5ab4ff');
-      ocean.addColorStop(0.22, '#2878e8');
-      ocean.addColorStop(0.60, '#0e44b0');
-      ocean.addColorStop(1,    '#061838');
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fillStyle = ocean; ctx.fill();
-
-      drawGrid(ctx);
-
-      LAND.forEach(([lat, lon, rlat, rlon, color]) => drawLand(ctx, lat, lon, rlat, rlon, color));
-
-      // ── Clouds ──
-      CLOUDS.forEach(([lat, lon, rlat, rlon, alpha]) => {
-        const p = project(lat, lon);
-        if (p.z < 0) return;
-        const fade = Math.min(1, p.z * 4) * alpha;
-        const hw = r * (rlon * Math.PI / 180) * Math.max(0.05, p.z);
-        const hh = r * (rlat * Math.PI / 180);
-        ctx.save(); ctx.globalAlpha = fade; ctx.fillStyle = 'white';
-        ctx.filter = 'blur(3px)';
-        ctx.beginPath();
-        ctx.ellipse(p.x, p.y, Math.max(1, hw), Math.max(1, hh), 0, 0, Math.PI * 2);
-        ctx.fill(); ctx.restore();
-      });
-
-      // ── Specular highlight ──
-      const spec = ctx.createRadialGradient(cx - r*0.30, cy - r*0.30, 0, cx - r*0.08, cy - r*0.08, r*0.65);
-      spec.addColorStop(0,   'rgba(255,255,255,0.24)');
-      spec.addColorStop(0.4, 'rgba(255,255,255,0.06)');
-      spec.addColorStop(1,   'rgba(255,255,255,0)');
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fillStyle = spec; ctx.fill();
-
-      // ── GNews article pins ──
-      hoveredPin = null;
-      const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.004);
-      globePins.forEach(pin => {
-        const p = project(pin.lat, pin.lon);
-        if (p.z < 0.05) return;
-        const dx = p.x - mouseGX, dy = p.y - mouseGY;
-        const near = Math.sqrt(dx*dx + dy*dy) < 14;
-        if (near) hoveredPin = { ...pin, px: p.x, py: p.y };
-        const sz = near ? 5 + pulse * 2 : 3 + pulse * 1.2;
+      // Continent edge highlight (subtle)
+      LAND.forEach(([lat, lon, rlat, rlon]) => {
+        const p = px(lat, lon);
+        const hw = rlon / 360 * W * 2;
+        const hh = rlat / 180 * H * 2;
         ctx.save();
-        ctx.globalAlpha = 0.9;
-        ctx.fillStyle = near ? '#facc15' : '#ef4444';
-        ctx.shadowColor = near ? '#facc15' : '#ef4444';
-        ctx.shadowBlur = near ? 12 : 6;
-        ctx.beginPath(); ctx.arc(p.x, p.y, sz, 0, Math.PI * 2); ctx.fill();
-        // Pulse ring
-        ctx.globalAlpha = 0.3 * (1 - pulse);
-        ctx.beginPath(); ctx.arc(p.x, p.y, sz + 4 + pulse * 4, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(30,80,160,0.35)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, Math.max(2, hw), Math.max(2, hh), 0, 0, Math.PI * 2);
+        ctx.stroke();
         ctx.restore();
       });
 
-      // ── Tooltip for hovered pin ──
-      if (hoveredPin) {
-        const label = hoveredPin.label.length > 42 ? hoveredPin.label.slice(0, 42) + '…' : hoveredPin.label;
-        const tw = 220, th = 52;
-        const tx = Math.min(W - tw - 8, Math.max(8, hoveredPin.px - tw / 2));
-        const ty = Math.max(8, hoveredPin.py - th - 14);
+      // Static city pins with animated pulse
+      hoveredCity = null;
+      CITIES.forEach(city => {
+        const p = px(city.lat, city.lon);
+        const wave = (Math.sin(t * 0.001 * city.speed + city.phase) + 1) / 2;
+        const dx = p.x - mouseX, dy = p.y - mouseY;
+        const near = Math.sqrt(dx*dx + dy*dy) < 16;
+        if (near) hoveredCity = { ...city, px: p.x, py: p.y };
+
+        // Pulse rings
+        for (let i = 0; i < 2; i++) {
+          const rp = (wave + i * 0.5) % 1;
+          ctx.save();
+          ctx.globalAlpha = (1 - rp) * 0.35;
+          ctx.strokeStyle = near ? '#facc15' : '#f97316';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 4 + rp * 16, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Core dot
         ctx.save();
-        ctx.globalAlpha = 0.92;
-        ctx.fillStyle = '#0a0f24';
-        if (ctx.roundRect) ctx.roundRect(tx, ty, tw, th, 8);
-        else ctx.rect(tx, ty, tw, th);
+        ctx.fillStyle = near ? '#facc15' : '#f97316';
+        ctx.shadowColor = near ? '#facc15' : '#f97316';
+        ctx.shadowBlur = near ? 14 : 7;
+        ctx.globalAlpha = 0.95;
+        ctx.beginPath(); ctx.arc(p.x, p.y, near ? 4 : 2.8, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      });
+
+      // GNews article pins (smaller, blue)
+      gNewsPins.forEach(pin => {
+        const p = px(pin.lat, pin.lon);
+        const dx = p.x - mouseX, dy = p.y - mouseY;
+        const near = Math.sqrt(dx*dx + dy*dy) < 14;
+        if (near && !hoveredCity) hoveredCity = { n: pin.label, px: p.x, py: p.y, url: pin.url, source: pin.source };
+        ctx.save();
+        ctx.fillStyle = near ? '#a5f3fc' : '#38bdf8';
+        ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 8; ctx.globalAlpha = 0.85;
+        ctx.beginPath(); ctx.arc(p.x, p.y, near ? 3.5 : 2.2, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      });
+
+      // Tooltip
+      if (hoveredCity) {
+        const label = (hoveredCity.n||'').length > 40 ? hoveredCity.n.slice(0,40)+'…' : hoveredCity.n;
+        const sub = hoveredCity.source || '';
+        const tw = Math.min(W - 16, 240), th = sub ? 52 : 36;
+        const tx = Math.min(W - tw - 8, Math.max(8, hoveredCity.px - tw / 2));
+        const ty = Math.max(8, hoveredCity.py - th - 12);
+        ctx.save();
+        ctx.globalAlpha = 0.94;
+        ctx.fillStyle = '#020c1e';
+        if (ctx.roundRect) ctx.roundRect(tx, ty, tw, th, 7); else ctx.rect(tx, ty, tw, th);
         ctx.fill();
         ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 1; ctx.stroke();
         ctx.globalAlpha = 1;
-        ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 10px Inter,sans-serif';
-        ctx.fillText(label, tx + 9, ty + 18);
-        ctx.fillStyle = '#60a5fa'; ctx.font = '9px Inter,sans-serif';
-        ctx.fillText(hoveredPin.source, tx + 9, ty + 34);
+        ctx.fillStyle = '#f1f5f9'; ctx.font = `bold 10px Inter,system-ui,sans-serif`;
+        ctx.fillText(label, tx + 10, ty + 18);
+        if (sub) { ctx.fillStyle = '#60a5fa'; ctx.font = `9px Inter,system-ui,sans-serif`; ctx.fillText(sub, tx + 10, ty + 34); }
         ctx.restore();
       }
 
-      // ── Dark night-side limb ──
-      const limb = ctx.createRadialGradient(cx + r*0.48, cy + r*0.28, r*0.18, cx, cy, r);
-      limb.addColorStop(0,   'rgba(0,0,0,0)');
-      limb.addColorStop(0.65,'rgba(0,0,0,0)');
-      limb.addColorStop(1,   'rgba(0,8,30,0.60)');
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fillStyle = limb; ctx.fill();
-
-      // ── Clip canvas to circle (clean edge) ──
-      ctx.save();
-      ctx.globalCompositeOperation = 'destination-in';
-      ctx.beginPath(); ctx.arc(cx, cy, r * 1.36, 0, Math.PI * 2); ctx.fill();
-      ctx.restore();
-
-      if (!dragging) {
-        rotY += SPIN * 0.016;
-        rotX = Math.sin(Date.now() * 0.00018) * 0.38;
-      }
-      canvas.style.cursor = hoveredPin ? 'pointer' : (dragging ? 'grabbing' : 'grab');
+      canvas.style.cursor = hoveredCity ? 'pointer' : 'default';
       requestAnimationFrame(draw);
     }
 
-    canvas.addEventListener('mousedown', e => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
-    canvas.addEventListener('touchstart', e => { dragging = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; }, { passive: true });
-    window.addEventListener('mousemove', e => {
-      if (!dragging) return;
-      rotY += (e.clientX - lastX) * 0.35;
-      rotX += (e.clientY - lastY) * 0.006;
-      rotX = Math.max(-1.0, Math.min(1.0, rotX));
-      lastX = e.clientX; lastY = e.clientY;
-    });
-    window.addEventListener('touchmove', e => {
-      if (!dragging) return;
-      rotY += (e.touches[0].clientX - lastX) * 0.35;
-      rotX += (e.touches[0].clientY - lastY) * 0.006;
-      rotX = Math.max(-1.0, Math.min(1.0, rotX));
-      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
-    }, { passive: true });
-    window.addEventListener('mouseup', () => { dragging = false; });
-    window.addEventListener('touchend', () => { dragging = false; });
-
     canvas.addEventListener('mousemove', e => {
       const rect = canvas.getBoundingClientRect();
-      mouseGX = (e.clientX - rect.left) * (W / rect.width);
-      mouseGY = (e.clientY - rect.top)  * (H / rect.height);
+      mouseX = (e.clientX - rect.left) * (W / rect.width);
+      mouseY = (e.clientY - rect.top)  * (H / rect.height);
     });
-    canvas.addEventListener('mouseleave', () => { mouseGX = mouseGY = -999; });
+    canvas.addEventListener('mouseleave', () => { mouseX = mouseY = -999; });
     canvas.addEventListener('click', () => {
-      if (hoveredPin && hoveredPin.url) window.open(hoveredPin.url, '_blank', 'noopener');
+      if (hoveredCity && hoveredCity.url) window.open(hoveredCity.url, '_blank', 'noopener');
     });
 
     resize();
-    draw();
-    window.addEventListener('resize', resize);
-    loadGlobePins();
+    requestAnimationFrame(draw);
+    window.addEventListener('resize', () => { resize(); });
+    loadGNewsPins();
   })();
   </script>
 
