@@ -215,16 +215,14 @@ function safeText(str, max = 120) {
 // ═══════════════════════════════════════════════════════
 
 async function fetchTopHeadlines() {
-  // Try GNews first — articles have real images (urlToImage) for variety
   try {
     const res = await fetch("/api/gnews");
     if (res.ok) {
       const data = await res.json();
       const articles = data.articles || [];
-      if (articles.length >= 6) return articles;
+      if (articles.length) return articles;
     }
   } catch {}
-  // Fall back to briefing endpoint (NewsAPI headlines)
   try {
     const data = await postJson("/api/briefing", {});
     return data.headlines || [];
@@ -236,114 +234,156 @@ async function fetchTopHeadlines() {
 // Build the homepage with real data
 async function loadHomeNews() {
   usedImageUrls.clear();
-  const topStoryCard = document.querySelector(".top-story-card");
-  const sideCardsEl  = document.querySelector(".side-cards");
-  const latestItemsEl= document.querySelector(".latest-news-items");
-  const tickerContent= document.querySelector(".ticker-content");
-
-  // Show skeleton while loading
-  if (topStoryCard) {
-    topStoryCard.style.opacity = "0.5";
-  }
 
   let headlines = [];
   try {
-    headlines = await fetchTopHeadlines(10);
+    headlines = await fetchTopHeadlines();
   } catch (e) {
     console.warn("Could not fetch headlines:", e);
   }
 
-  // If API failed or returned nothing, keep the static fallback content as-is
-  if (!headlines || headlines.length === 0) {
-    if (topStoryCard) topStoryCard.style.opacity = "1";
-    return;
-  }
+  const tickerContent = document.querySelector(".ticker-content");
 
-  // headlines may be strings (titles) or objects — normalise
-  const articles = headlines.map(h => typeof h === "string" ? { title: h, urlToImage: null, publishedAt: null, url: "#", source: { name: "" } } : h);
+  if (!headlines || headlines.length === 0) return;
 
-  // ── TOP STORY (article[0]) ──────────────────────────
+  const articles = headlines.map(h =>
+    typeof h === "string"
+      ? { title: h, urlToImage: null, publishedAt: null, url: "#", source: { name: "" } }
+      : h
+  );
+
+  // ── 1. EDITORIAL HERO (article[0]) ─────────────────────
   const top = articles[0];
-  if (top && topStoryCard) {
-    const cat = categoryFromSource(top);
-    const img = await getArticleImage(top, cat);
+  if (top) {
+    const cat   = categoryFromSource(top);
+    const img   = await getArticleImage(top, cat);
+    const label = cat.charAt(0).toUpperCase() + cat.slice(1);
 
-    topStoryCard.innerHTML = `
-      <div class="top-story-inner">
-        <div class="top-story-img">
-          <img src="${img}" alt="Top story"
-            onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';" />
-        </div>
-        <div class="top-story-body">
-          <span class="top-story-badge">TOP STORY</span>
-          <h2 class="top-story-headline">${safeText(top.title, 120)}</h2>
-          <p class="top-story-description">${safeText(top.description || "", 200)}</p>
-          <div class="top-story-meta">
-            <span>${timeAgo(top.publishedAt) || "Recent"}</span>
-            <span class="sep">|</span>
-            <span class="cat cat-${cat}">${cat.charAt(0).toUpperCase()+cat.slice(1)}</span>
-          </div>
-        </div>
-      </div>
-    `;
-    topStoryCard.style.opacity = "1";
-    if (top.url && top.url !== "#") {
-      topStoryCard.style.cursor = "pointer";
-      topStoryCard.onclick = () => window.open(top.url, "_blank", "noopener");
+    const imgEl = document.getElementById("editorialHeroImg");
+    if (imgEl) imgEl.src = img;
+
+    const headlineEl = document.getElementById("editorialHeadline");
+    if (headlineEl) headlineEl.textContent = safeText(top.title, 120);
+
+    const descEl = document.getElementById("editorialDesc");
+    if (descEl) descEl.textContent = safeText(top.description || "", 200);
+
+    const catEl = document.getElementById("editorialCat");
+    if (catEl) { catEl.className = `cat cat-${cat}`; catEl.textContent = label; }
+
+    const timeEl = document.getElementById("editorialTime");
+    if (timeEl) timeEl.textContent = timeAgo(top.publishedAt) || "Recent";
+
+    const mainEl = document.getElementById("editorialHeroMain");
+    if (mainEl && top.url && top.url !== "#") {
+      mainEl.style.cursor = "pointer";
+      mainEl.onclick = () => window.open(top.url, "_blank", "noopener");
     }
   }
 
-  // ── SIDE CARDS (articles 1-4) ───────────────────────
-  const sideArticles = articles.slice(1, 5);
-  if (sideCardsEl && sideArticles.length) {
-    const sideImgs = await Promise.all(sideArticles.map(a => getArticleImage(a, categoryFromSource(a))));
-    sideCardsEl.innerHTML = sideArticles.map((a, i) => {
-      const cat = categoryFromSource(a);
-      const catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
+  // ── 2. EDITORIAL SIDEBAR (articles[1-3]) ───────────────
+  const sidebarEl    = document.getElementById("editorialSidebar");
+  const sideArticles = articles.slice(1, 4);
+  if (sidebarEl && sideArticles.length) {
+    sidebarEl.innerHTML = sideArticles.map((a, i) => {
+      const cat   = categoryFromSource(a);
+      const label = cat.charAt(0).toUpperCase() + cat.slice(1);
+      const url   = a.url && a.url !== "#" ? a.url : null;
       return `
-        <div class="side-card-item" data-cat="${cat}" onclick="window.open('${a.url || "#"}','_blank','noopener')">
-          <img src="${sideImgs[i]}" alt="${safeText(a.title,40)}"
-            onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';" />
-          <div class="side-card-text">
-            <strong>${safeText(a.title, 80)}</strong>
-            <div class="side-card-meta">
-              <span>${timeAgo(a.publishedAt) || "Recent"}</span>
-              <span class="sep">|</span>
-              <span class="cat cat-${cat}">${catLabel}</span>
-            </div>
+        <div class="editorial-sidebar-item" ${url ? `onclick="window.open('${url}','_blank','noopener')"` : ""}>
+          <span class="editorial-sidebar-num">0${i + 2}</span>
+          <div class="editorial-sidebar-body">
+            <span class="editorial-sidebar-cat cat-${cat}">${label}</span>
+            <div class="editorial-sidebar-title">${safeText(a.title, 90)}</div>
+            <div class="editorial-sidebar-time">${timeAgo(a.publishedAt) || "Recent"}</div>
           </div>
         </div>`;
     }).join("");
   }
 
-  // ── LATEST NEWS (articles 5-9) ──────────────────────
-  const latestArticles = articles.slice(5, 10);
-  if (latestItemsEl && latestArticles.length) {
-    const latestImgs = await Promise.all(latestArticles.map(a => getArticleImage(a, categoryFromSource(a))));
-    latestItemsEl.innerHTML = latestArticles.map((a, i) => {
-      const cat = categoryFromSource(a);
-      const catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
+  // ── 3. TRENDING NOW (articles[4-9]) ────────────────────
+  const trendingEl       = document.getElementById("trendingScroll");
+  const trendingArticles = articles.slice(4, Math.min(10, articles.length));
+  if (trendingEl && trendingArticles.length) {
+    const trendImgs = await Promise.all(
+      trendingArticles.map(a => getArticleImage(a, categoryFromSource(a)))
+    );
+    trendingEl.innerHTML = trendingArticles.map((a, i) => {
+      const cat   = categoryFromSource(a);
+      const label = cat.charAt(0).toUpperCase() + cat.slice(1);
+      const url   = a.url && a.url !== "#" ? a.url : null;
       return `
-        <div class="latest-news-item" onclick="window.open('${a.url || "#"}','_blank','noopener')">
-          <img src="${latestImgs[i]}" alt="${safeText(a.title,40)}"
+        <div class="trending-card" ${url ? `onclick="window.open('${url}','_blank','noopener')"` : ""}>
+          <div class="trending-card-imgwrap">
+            <img class="trending-card-img" src="${trendImgs[i]}" alt=""
+              onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';" />
+            <span class="trending-card-cat tc-${cat}">${label}</span>
+          </div>
+          <div class="trending-card-body">
+            <div class="trending-card-title">${safeText(a.title, 70)}</div>
+            <div class="trending-card-time">${timeAgo(a.publishedAt) || "Recent"}</div>
+          </div>
+        </div>`;
+    }).join("");
+  } else if (trendingEl) {
+    trendingEl.innerHTML = "";
+  }
+
+  // ── 4. EDITOR'S PICKS — feature ────────────────────────
+  const epIdx     = Math.min(articles.length - 1, 9);
+  const epArticle = articles[epIdx] || articles[0];
+  if (epArticle) {
+    const cat   = categoryFromSource(epArticle);
+    const label = cat.charAt(0).toUpperCase() + cat.slice(1);
+    const img   = await getArticleImage(epArticle, cat);
+
+    const epImg = document.getElementById("epFeatureImg");
+    if (epImg) epImg.src = img;
+
+    const epCatEl = document.getElementById("epCat");
+    if (epCatEl) { epCatEl.className = `ep-cat cat-${cat}`; epCatEl.textContent = label; }
+
+    const epTitleEl = document.getElementById("epTitle");
+    if (epTitleEl) epTitleEl.textContent = safeText(epArticle.title, 100);
+
+    const epDescEl = document.getElementById("epDesc");
+    if (epDescEl) epDescEl.textContent = safeText(epArticle.description || "", 200);
+
+    const epTimeEl = document.getElementById("epTime");
+    if (epTimeEl) epTimeEl.textContent = timeAgo(epArticle.publishedAt) || "Recent";
+
+    const epEl = document.getElementById("epFeature");
+    if (epEl && epArticle.url && epArticle.url !== "#") {
+      epEl.style.cursor = "pointer";
+      epEl.onclick = () => window.open(epArticle.url, "_blank", "noopener");
+    }
+  }
+
+  // ── 5. EDITOR'S PICKS — updates (last 3) ───────────────
+  const epUpdatesEl   = document.getElementById("epUpdatesList");
+  const updateStart   = Math.max(0, articles.length - 4);
+  const updateArticles = articles.slice(updateStart, articles.length - 1);
+  if (epUpdatesEl && updateArticles.length) {
+    const updateImgs = await Promise.all(
+      updateArticles.map(a => getArticleImage(a, categoryFromSource(a)))
+    );
+    epUpdatesEl.innerHTML = updateArticles.map((a, i) => {
+      const url = a.url && a.url !== "#" ? a.url : null;
+      return `
+        <div class="ep-update-item" ${url ? `onclick="window.open('${url}','_blank','noopener')"` : ""}>
+          <img class="ep-update-img" src="${updateImgs[i]}" alt=""
             onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';" />
-          <div class="latest-news-text">
-            <strong>${safeText(a.title, 90)}</strong>
-            <p class="latest-news-desc">${safeText(a.description || "", 120)}</p>
-            <div class="latest-news-meta">
-              <span>${timeAgo(a.publishedAt) || "Recent"}</span>
-              <span class="sep">|</span>
-              <span class="cat cat-${cat}">${catLabel}</span>
-            </div>
+          <div>
+            <div class="ep-update-title">${safeText(a.title, 80)}</div>
+            <div class="ep-update-time">${timeAgo(a.publishedAt) || "Recent"}</div>
           </div>
         </div>`;
     }).join("");
   }
 
-  // ── BREAKING TICKER (all article titles) ────────────
+  // ── 6. TICKER ──────────────────────────────────────────
   if (tickerContent && articles.length) {
-    const titles = articles.map(a => safeText(a.title, 80)).filter(Boolean);
-    // Duplicate for seamless loop
+    const titles  = articles.map(a => safeText(a.title, 80)).filter(Boolean);
     const doubled = [...titles, ...titles];
     tickerContent.innerHTML = doubled.map(t => `<span>${t} &nbsp;·&nbsp;</span>`).join("");
   }

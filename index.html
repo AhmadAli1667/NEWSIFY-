@@ -127,120 +127,119 @@
         </div>
       </div>
 
-      <!-- Hero Grid: Left news + Right globe -->
-      <div class="home-hero">
+      <!-- ══ EDITORIAL HERO ══ -->
+      <div class="editorial-hero">
+        <div class="editorial-hero-main" id="editorialHeroMain">
+          <img class="editorial-hero-img" id="editorialHeroImg"
+            src="frontend%20pictures/x.jpg" alt="Top Story"
+            onerror="this.onerror=null;this.src='pictures/frontpage.jpg';" />
+          <div class="editorial-hero-overlay"></div>
+          <div class="editorial-hero-text">
+            <span class="editorial-tag">Top Story</span>
+            <h2 class="editorial-headline" id="editorialHeadline">AI Revolution Drives Unprecedented Growth in Global Tech Sector</h2>
+            <p class="editorial-desc" id="editorialDesc">Artificial intelligence investments surge as major corporations race to integrate machine learning into core operations, transforming industries from healthcare to finance.</p>
+            <div class="editorial-meta">
+              <span class="cat cat-technology" id="editorialCat">Technology</span>
+              <span class="editorial-meta-dot">·</span>
+              <span id="editorialTime">2h ago</span>
+            </div>
+          </div>
+        </div>
+        <div class="editorial-sidebar" id="editorialSidebar">
+          <div class="editorial-sidebar-item">
+            <span class="editorial-sidebar-num">02</span>
+            <div class="editorial-sidebar-body">
+              <span class="editorial-sidebar-cat cat-world">World</span>
+              <div class="editorial-sidebar-title">EU Leaders Agree on Historic Climate Plan for Carbon Neutral Future</div>
+              <div class="editorial-sidebar-time">4h ago</div>
+            </div>
+          </div>
+          <div class="editorial-sidebar-item">
+            <span class="editorial-sidebar-num">03</span>
+            <div class="editorial-sidebar-body">
+              <span class="editorial-sidebar-cat cat-business">Business</span>
+              <div class="editorial-sidebar-title">Markets Rally as Federal Reserve Signals Possible Rate Cut</div>
+              <div class="editorial-sidebar-time">5h ago</div>
+            </div>
+          </div>
+          <div class="editorial-sidebar-item">
+            <span class="editorial-sidebar-num">04</span>
+            <div class="editorial-sidebar-body">
+              <span class="editorial-sidebar-cat cat-sports">Sports</span>
+              <div class="editorial-sidebar-title">Championship Finals Draw Record 95 Million Viewers Worldwide</div>
+              <div class="editorial-sidebar-time">1h ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <!-- LEFT: News Cards -->
-        <div class="home-left">
+      <!-- ══ TRENDING NOW ══ -->
+      <section class="trending-section">
+        <div class="trending-header">
+          <span class="trending-title">Trending Now <em class="trending-arrow">→</em></span>
+          <button class="trending-view-all" data-view="search">View all trending →</button>
+        </div>
+        <div class="trending-scroll" id="trendingScroll">
+          <div class="trending-card-skeleton"></div>
+          <div class="trending-card-skeleton"></div>
+          <div class="trending-card-skeleton"></div>
+          <div class="trending-card-skeleton"></div>
+          <div class="trending-card-skeleton"></div>
+        </div>
+      </section>
 
-          <!-- Top Story -->
-          <div class="top-story-card">
-            <div class="top-story-inner">
-              <div class="top-story-img">
-                <img src="pictures/frontpage.jpg" alt="Top Story"
-                  onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
+      <!-- ══ EDITOR'S PICKS ══ -->
+      <section class="editors-picks">
+        <div class="editors-picks-main">
+          <div class="editors-picks-head">
+            Editor's Picks <span class="ep-star">✦</span>
+          </div>
+          <div class="ep-feature" id="epFeature">
+            <img class="ep-feature-img" id="epFeatureImg"
+              src="frontend%20pictures/Screenshot%202026-05-12%20135304.jpg" alt=""
+              onerror="this.onerror=null;this.src='pictures/frontpage.jpg';" />
+            <span class="ep-cat cat-technology" id="epCat">Technology</span>
+            <div class="ep-title" id="epTitle">The Future of Cities: Smart, Sustainable and Human-First</div>
+            <p class="ep-desc" id="epDesc">How AI and cutting-edge design are shaping the cities that care for people and the planet, driving human innovation forward.</p>
+            <div class="ep-meta">
+              <span id="epTime">3h ago</span>
+            </div>
+          </div>
+        </div>
+        <div class="editors-picks-sidebar">
+          <div class="ep-sidebar-title">Latest Updates</div>
+          <div id="epUpdatesList">
+            <div class="ep-update-item">
+              <img class="ep-update-img" src="pictures/frontpage2.jpg" alt=""
+                onerror="this.onerror=null;this.src='pictures/frontpage.jpg';" />
+              <div>
+                <div class="ep-update-title">Breakthrough in Renewable Energy Storage Could Power Millions</div>
+                <div class="ep-update-time">6m ago</div>
               </div>
-              <div class="top-story-body">
-                <span class="top-story-badge">TOP STORY</span>
-                <h2 class="top-story-headline">AI Revolution Drives Unprecedented Growth in Global Tech Sector</h2>
-                <p class="top-story-description">Artificial intelligence investments surge as major corporations race to integrate machine learning into core operations, transforming industries from healthcare to finance.</p>
-                <div class="top-story-meta">
-                  <span>2h ago</span>
-                  <span class="sep">|</span>
-                  <span class="cat cat-technology">Technology</span>
-                </div>
+            </div>
+            <div class="ep-update-item">
+              <img class="ep-update-img" src="pictures/frontpage3.jpg" alt=""
+                onerror="this.onerror=null;this.src='pictures/frontpage.jpg';" />
+              <div>
+                <div class="ep-update-title">New Study Reveals Surprising Benefits of Morning Walks</div>
+                <div class="ep-update-time">20m ago</div>
+              </div>
+            </div>
+            <div class="ep-update-item">
+              <img class="ep-update-img" src="pictures/frontpage4.jpg" alt=""
+                onerror="this.onerror=null;this.src='pictures/frontpage.jpg';" />
+              <div>
+                <div class="ep-update-title">Cybersecurity Threats Rise 40% in the Last Quarter</div>
+                <div class="ep-update-time">35m ago</div>
               </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          <!-- Side Cards (2-col) -->
-          <div class="side-cards">
-            <div class="side-card-item" data-cat="world">
-              <img src="pictures/frontpage3.jpg" alt="World"
-                onerror="this.onerror=null;this.style.cssText='width:72px;height:72px;background:#1c2a45;display:block;border-radius:9px';" />
-              <div class="side-card-text">
-                <strong>EU Leaders Agree on New Climate Plan</strong>
-                <div class="side-card-meta">
-                  <span>4h ago</span>
-                  <span class="sep">|</span>
-                  <span class="cat cat-world">World</span>
-                </div>
-              </div>
-            </div>
-            <div class="side-card-item" data-cat="politics">
-              <img src="pictures/frontpage5.jpg" alt="Politics"
-                onerror="this.onerror=null;this.style.cssText='width:72px;height:72px;background:#1c2a45;display:block;border-radius:9px';" />
-              <div class="side-card-text">
-                <strong>Senate Passes Bill to Improve Healthcare Access</strong>
-                <div class="side-card-meta">
-                  <span>5h ago</span>
-                  <span class="sep">|</span>
-                  <span class="cat cat-politics">Politics</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Latest News -->
-          <div class="latest-news">
-            <div class="latest-news-header">Latest News</div>
-            <div class="latest-news-items">
-              <div class="latest-news-item">
-                <img src="pictures/frontpage2.jpg" alt="Tech"
-                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#1c2a45;display:block;border-radius:9px';" />
-                <div class="latest-news-text">
-                  <strong>New Smartphone Launches With AI Features</strong>
-                  <p class="latest-news-desc">The latest device promises smarter performance and longer battery life.</p>
-                  <div class="latest-news-meta">
-                    <span>1h ago</span><span class="sep">|</span>
-                    <span class="cat cat-technology">Technology</span>
-                  </div>
-                </div>
-              </div>
-              <div class="latest-news-item">
-                <img src="pictures/news2.jpg" alt="Sports"
-                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#1c2a45;display:block;border-radius:9px';" />
-                <div class="latest-news-text">
-                  <strong>City United Wins Thriller in Extra Time</strong>
-                  <p class="latest-news-desc">A dramatic 3-2 victory keeps their championship hopes alive.</p>
-                  <div class="latest-news-meta">
-                    <span>3h ago</span><span class="sep">|</span>
-                    <span class="cat cat-sports">Sports</span>
-                  </div>
-                </div>
-              </div>
-              <div class="latest-news-item">
-                <img src="pictures/frontpage4.jpg" alt="Entertainment"
-                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#1c2a45;display:block;border-radius:9px';" />
-                <div class="latest-news-text">
-                  <strong>New Film Breaks Box Office Records</strong>
-                  <p class="latest-news-desc">The weekend hit draws huge crowds worldwide.</p>
-                  <div class="latest-news-meta">
-                    <span>6h ago</span><span class="sep">|</span>
-                    <span class="cat cat-entertainment">Entertainment</span>
-                  </div>
-                </div>
-              </div>
-              <div class="latest-news-item">
-                <img src="pictures/summary.jpg" alt="Health"
-                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#1c2a45;display:block;border-radius:9px';" />
-                <div class="latest-news-text">
-                  <strong>Study Finds Daily Walks Boost Mental Health</strong>
-                  <p class="latest-news-desc">Researchers say even short walks can reduce stress and improve mood.</p>
-                  <div class="latest-news-meta">
-                    <span>7h ago</span><span class="sep">|</span>
-                    <span class="cat cat-health">Health</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div><!-- /home-left -->
-
-        <!-- RIGHT: News Heatmap + Briefing Widget -->
-        <div class="home-right">
-
+      <!-- ══ GLOBAL NEWS PULSE ══ -->
+      <section class="pulse-section">
+        <div class="pulse-map">
           <div class="heatmap-section">
             <div class="heatmap-header">
               <span class="live-badge"><span class="live-dot"></span>LIVE</span>
@@ -249,7 +248,8 @@
             </div>
             <canvas id="heatmap-canvas"></canvas>
           </div>
-
+        </div>
+        <div class="pulse-widget">
           <div class="home-briefing-widget">
             <h4>Today's AI Briefing</h4>
             <p>One click — today's world in 4 paragraphs.</p>
@@ -258,10 +258,8 @@
             </button>
             <div class="home-briefing-output" id="homeBriefingOutput"></div>
           </div>
-
-        </div><!-- /home-right -->
-
-      </div><!-- /home-hero -->
+        </div>
+      </section>
 
       <!-- ── FEATURE CARDS ── -->
       <section class="features-section">
