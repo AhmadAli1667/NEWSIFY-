@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NEWSIFY — AI-Powered News</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
 </head>
 <body>
 
@@ -25,7 +26,6 @@
     <div class="navbar-center">
       <button class="nav-link active" data-view="home">Home</button>
 
-      <!-- News dropdown -->
       <div class="nav-group" id="navGroupNews">
         <button class="nav-link nav-group-trigger" id="newsGroupBtn">News ▾</button>
         <div class="nav-group-menu" id="newsGroupMenu">
@@ -34,7 +34,6 @@
         </div>
       </div>
 
-      <!-- Tools dropdown -->
       <div class="nav-group" id="navGroupTools">
         <button class="nav-link nav-group-trigger" id="toolsGroupBtn">Tools ▾</button>
         <div class="nav-group-menu" id="toolsGroupMenu">
@@ -48,12 +47,20 @@
     </div>
 
     <div class="navbar-right">
-      <button class="icon-btn" id="themeToggle" title="Toggle dark mode" aria-label="Toggle theme">🌙</button>
-      <button class="icon-btn" id="searchToggle" title="Search News">🔍</button>
-      <button class="icon-btn" id="helpBtn" title="Take a Tour">🗺</button>
+      <button class="icon-btn" id="themeToggle" title="Toggle light mode" aria-label="Toggle theme">
+        <i class="ti ti-sun"></i>
+      </button>
+      <button class="icon-btn" id="searchToggle" title="Search News">
+        <i class="ti ti-search"></i>
+      </button>
+      <button class="icon-btn" id="helpBtn" title="Take a Tour">
+        <i class="ti ti-map-2"></i>
+      </button>
       <button class="btn-signin" id="aboutCreator">About</button>
       <div style="position:relative;">
-        <button class="icon-btn" id="menuBtn" title="More">☰</button>
+        <button class="icon-btn" id="menuBtn" title="More">
+          <i class="ti ti-menu-2"></i>
+        </button>
         <div class="menu-dropdown" id="menuDropdown">
           <button class="menu-item" data-view="search">AI News Search</button>
           <button class="menu-item" data-view="briefing">Daily Briefing</button>
@@ -79,7 +86,9 @@
 
       <!-- Breaking Ticker -->
       <div class="ticker-section">
-        <span class="ticker-badge">🔴 BREAKING</span>
+        <span class="ticker-badge">
+          <span class="ticker-live-dot"></span>LIVE
+        </span>
         <div class="ticker-track">
           <div class="ticker-content">
             <span>AI Breakthroughs Reshape Global Economy &nbsp;·&nbsp;</span>
@@ -102,6 +111,28 @@
         </div>
       </div>
 
+      <!-- Neural Network Hero -->
+      <div class="neural-hero">
+        <canvas id="nn-canvas"></canvas>
+        <div class="neural-hero-content">
+          <div class="neural-hero-label">
+            <i class="ti ti-brain"></i> AI-POWERED NEWS INTELLIGENCE
+          </div>
+          <h1 class="neural-hero-title">
+            Stay Informed.<br><span>Stay Ahead.</span>
+          </h1>
+          <p class="neural-hero-sub">Real headlines · Gemini AI synthesis · Live global tracking</p>
+          <div class="neural-hero-cta">
+            <button class="btn-primary" data-view="search">
+              <i class="ti ti-search"></i> Search News
+            </button>
+            <button class="btn-outline" data-view="briefing">
+              Get Today's Briefing
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Hero Grid: Left news + Right globe -->
       <div class="home-hero">
 
@@ -113,7 +144,7 @@
             <div class="top-story-inner">
               <div class="top-story-img">
                 <img src="pictures/frontpage.jpg" alt="Top Story"
-                  onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:block';" />
+                  onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
               </div>
               <div class="top-story-body">
                 <span class="top-story-badge">TOP STORY</span>
@@ -130,9 +161,9 @@
 
           <!-- Side Cards (2-col) -->
           <div class="side-cards">
-            <div class="side-card-item">
-              <img src="pictures/frontpage3.jpg" alt="Politics"
-                onerror="this.onerror=null;this.style.cssText='width:72px;height:72px;background:#3b82f6;display:block;border-radius:9px';" />
+            <div class="side-card-item" data-cat="world">
+              <img src="pictures/frontpage3.jpg" alt="World"
+                onerror="this.onerror=null;this.style.cssText='width:72px;height:72px;background:#1c2a45;display:block;border-radius:9px';" />
               <div class="side-card-text">
                 <strong>EU Leaders Agree on New Climate Plan</strong>
                 <div class="side-card-meta">
@@ -142,9 +173,9 @@
                 </div>
               </div>
             </div>
-            <div class="side-card-item">
+            <div class="side-card-item" data-cat="politics">
               <img src="pictures/frontpage5.jpg" alt="Politics"
-                onerror="this.onerror=null;this.style.cssText='width:72px;height:72px;background:#ef4444;display:block;border-radius:9px';" />
+                onerror="this.onerror=null;this.style.cssText='width:72px;height:72px;background:#1c2a45;display:block;border-radius:9px';" />
               <div class="side-card-text">
                 <strong>Senate Passes Bill to Improve Healthcare Access</strong>
                 <div class="side-card-meta">
@@ -162,52 +193,48 @@
             <div class="latest-news-items">
               <div class="latest-news-item">
                 <img src="pictures/frontpage2.jpg" alt="Tech"
-                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#8b5cf6;display:block;border-radius:9px';" />
+                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#1c2a45;display:block;border-radius:9px';" />
                 <div class="latest-news-text">
                   <strong>New Smartphone Launches With AI Features</strong>
                   <p class="latest-news-desc">The latest device promises smarter performance and longer battery life.</p>
                   <div class="latest-news-meta">
-                    <span>1h ago</span>
-                    <span class="sep">|</span>
+                    <span>1h ago</span><span class="sep">|</span>
                     <span class="cat cat-technology">Technology</span>
                   </div>
                 </div>
               </div>
               <div class="latest-news-item">
                 <img src="pictures/news2.jpg" alt="Sports"
-                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#f97316;display:block;border-radius:9px';" />
+                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#1c2a45;display:block;border-radius:9px';" />
                 <div class="latest-news-text">
                   <strong>City United Wins Thriller in Extra Time</strong>
                   <p class="latest-news-desc">A dramatic 3-2 victory keeps their championship hopes alive.</p>
                   <div class="latest-news-meta">
-                    <span>3h ago</span>
-                    <span class="sep">|</span>
+                    <span>3h ago</span><span class="sep">|</span>
                     <span class="cat cat-sports">Sports</span>
                   </div>
                 </div>
               </div>
               <div class="latest-news-item">
                 <img src="pictures/frontpage4.jpg" alt="Entertainment"
-                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#ec4899;display:block;border-radius:9px';" />
+                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#1c2a45;display:block;border-radius:9px';" />
                 <div class="latest-news-text">
                   <strong>New Film Breaks Box Office Records</strong>
                   <p class="latest-news-desc">The weekend hit draws huge crowds worldwide.</p>
                   <div class="latest-news-meta">
-                    <span>6h ago</span>
-                    <span class="sep">|</span>
+                    <span>6h ago</span><span class="sep">|</span>
                     <span class="cat cat-entertainment">Entertainment</span>
                   </div>
                 </div>
               </div>
               <div class="latest-news-item">
                 <img src="pictures/summary.jpg" alt="Health"
-                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#06b6d4;display:block;border-radius:9px';" />
+                  onerror="this.onerror=null;this.style.cssText='width:58px;height:58px;background:#1c2a45;display:block;border-radius:9px';" />
                 <div class="latest-news-text">
                   <strong>Study Finds Daily Walks Boost Mental Health</strong>
                   <p class="latest-news-desc">Researchers say even short walks can reduce stress and improve mood.</p>
                   <div class="latest-news-meta">
-                    <span>7h ago</span>
-                    <span class="sep">|</span>
+                    <span>7h ago</span><span class="sep">|</span>
                     <span class="cat cat-health">Health</span>
                   </div>
                 </div>
@@ -232,7 +259,9 @@
           <div class="home-briefing-widget">
             <h4>Today's AI Briefing</h4>
             <p>One click — today's world in 4 paragraphs.</p>
-            <button class="btn-summarize" id="homeBriefingBtn">Get Briefing</button>
+            <button class="btn-summarize" id="homeBriefingBtn">
+              <i class="ti ti-news"></i> Get Briefing
+            </button>
             <div class="home-briefing-output" id="homeBriefingOutput"></div>
           </div>
 
@@ -244,50 +273,50 @@
       <section class="features-section">
         <div class="section-header">
           <h2>Explore Our AI Tools</h2>
-          <p>Six powerful features to keep you informed and insightful</p>
+          <p>Seven powerful features to keep you informed and insightful</p>
         </div>
         <div class="feature-grid">
           <div class="feature-card fc-blue" data-view="search">
-            <div class="feature-icon">🔍</div>
-            <h3 style="color:#1e40af;">AI News Search</h3>
+            <div class="feature-icon"><i class="ti ti-search"></i></div>
+            <h3>AI News Search</h3>
             <p>Ask any question, get answers from real live headlines.</p>
             <span class="feature-link">Try Now →</span>
           </div>
           <div class="feature-card fc-purple" data-view="summarize">
-            <div class="feature-icon">✂️</div>
-            <h3 style="color:#6d28d9;">Article Summarizer</h3>
+            <div class="feature-icon"><i class="ti ti-scissors"></i></div>
+            <h3>Article Summarizer</h3>
             <p>Paste any article, essay, or report. Crisp summary instantly.</p>
-            <span class="feature-link" style="color:#6d28d9;">Try Now →</span>
+            <span class="feature-link">Try Now →</span>
           </div>
           <div class="feature-card fc-green" data-view="lyrics">
-            <div class="feature-icon">🎵</div>
-            <h3 style="color:#065f46;">Lyrics Analyzer</h3>
+            <div class="feature-icon"><i class="ti ti-music"></i></div>
+            <h3>Lyrics Analyzer</h3>
             <p>Decode the deeper meaning behind songs with AI.</p>
-            <span class="feature-link" style="color:#059669;">Try Now →</span>
+            <span class="feature-link">Try Now →</span>
           </div>
           <div class="feature-card fc-orange" data-view="dictionary">
-            <div class="feature-icon">📖</div>
-            <h3 style="color:#9a3412;">Smart Dictionary</h3>
+            <div class="feature-icon"><i class="ti ti-book"></i></div>
+            <h3>Smart Dictionary</h3>
             <p>Instant definitions, synonyms, and AI usage examples.</p>
-            <span class="feature-link" style="color:#ea580c;">Try Now →</span>
+            <span class="feature-link">Try Now →</span>
           </div>
           <div class="feature-card fc-blue" data-view="analyzer">
-            <div class="feature-icon">📊</div>
-            <h3 style="color:#1e40af;">Content Analyzer</h3>
+            <div class="feature-icon"><i class="ti ti-chart-bar"></i></div>
+            <h3>Content Analyzer</h3>
             <p>Deep analysis of articles, book excerpts, and lyrics.</p>
             <span class="feature-link">Try Now →</span>
           </div>
           <div class="feature-card fc-pink" data-view="briefing">
-            <div class="feature-icon">📋</div>
-            <h3 style="color:#9d174d;">Daily Briefing</h3>
+            <div class="feature-icon"><i class="ti ti-news"></i></div>
+            <h3>Daily Briefing</h3>
             <p>One click. Today's world in 4 paragraphs.</p>
-            <span class="feature-link" style="color:#ec4899;">Try Now →</span>
+            <span class="feature-link">Try Now →</span>
           </div>
           <div class="feature-card fc-green" data-view="essay">
-            <div class="feature-icon">📝</div>
-            <h3 style="color:#065f46;">Essay Writer</h3>
+            <div class="feature-icon"><i class="ti ti-pencil"></i></div>
+            <h3>Essay Writer</h3>
             <p>Generate a full structured essay — pick type, set word count, done.</p>
-            <span class="feature-link" style="color:#059669;">Try Now →</span>
+            <span class="feature-link">Try Now →</span>
           </div>
         </div>
       </section>
@@ -300,18 +329,18 @@
         </div>
         <div class="how-grid">
           <div class="how-card">
-            <div class="how-number" style="color:#2563eb;">01</div>
-            <h3 style="color:#2563eb;">Choose a Tool</h3>
-            <p>Pick from 6 AI-powered tools — search, summarize, analyze lyrics, look up words, deep-analyze content, or get a morning briefing.</p>
+            <div class="how-number" style="color:#5b8af5;">01</div>
+            <h3 style="color:#5b8af5;">Choose a Tool</h3>
+            <p>Pick from 7 AI-powered tools — search, summarize, analyze lyrics, look up words, deep-analyze content, or get a morning briefing.</p>
           </div>
           <div class="how-card">
-            <div class="how-number" style="color:#7c3aed;">02</div>
-            <h3 style="color:#7c3aed;">Input Your Content</h3>
+            <div class="how-number" style="color:#a78bfa;">02</div>
+            <h3 style="color:#a78bfa;">Input Your Content</h3>
             <p>Type a question, paste an article, enter lyrics, or click a button. NEWSIFY handles the rest with Gemini AI + NewsAPI.</p>
           </div>
           <div class="how-card">
-            <div class="how-number" style="color:#059669;">03</div>
-            <h3 style="color:#059669;">Get AI Insights</h3>
+            <div class="how-number" style="color:#10b981;">03</div>
+            <h3 style="color:#10b981;">Get AI Insights</h3>
             <p>Receive clean, readable AI-generated summaries, analysis, and insights. Copy or expand results with one click.</p>
           </div>
         </div>
@@ -331,13 +360,17 @@
             <button type="button" class="star">★</button>
           </div>
           <textarea id="feedbackText" placeholder="Tell us what you think about NEWSIFY..." rows="4" required></textarea>
-          <button type="submit" class="feedback-btn">Send Feedback ✉️</button>
+          <button type="submit" class="feedback-btn">
+            <i class="ti ti-send"></i> Send Feedback
+          </button>
         </form>
-        <div class="feedback-success" id="feedbackSuccess">✅ Thank you! Your feedback has been received.</div>
+        <div class="feedback-success" id="feedbackSuccess">
+          <i class="ti ti-circle-check"></i> Thank you! Your feedback has been received.
+        </div>
         <div class="feedback-links">
           <a href="#">Privacy Policy</a>
           <span class="separator">·</span>
-          <a href="https://github.com" target="_blank">GitHub</a>
+          <a href="https://github.com/AhmadAli1667" target="_blank">GitHub</a>
           <span class="separator">·</span>
           <a href="#">Contact</a>
         </div>
@@ -349,43 +382,49 @@
     <div class="page" id="page-search">
       <div class="inner-page">
         <div class="page-header">
-          <h1>🔍 AI News Search</h1>
+          <h1><i class="ti ti-search"></i> AI News Search</h1>
           <p>Ask any question — get AI answers from real headlines</p>
           <div class="accent-line"></div>
         </div>
         <div class="page-hero">
           <img src="pictures/frontpage.jpg" alt="Search"
-            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:block';" />
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
             <h1>Ask the News</h1>
             <p>Real headlines. AI-powered answers.</p>
           </div>
         </div>
         <div class="category-pills">
-          <button class="category-pill" data-category="world news today">🌍 World</button>
-          <button class="category-pill" data-category="politics government">🏛 Politics</button>
-          <button class="category-pill" data-category="business economy">💼 Business</button>
-          <button class="category-pill" data-category="technology AI">💻 Technology</button>
-          <button class="category-pill" data-category="sports">⚽ Sports</button>
-          <button class="category-pill" data-category="entertainment film music">🎬 Entertainment</button>
-          <button class="category-pill" data-category="health medicine">🏥 Health</button>
-          <button class="category-pill" data-category="science space">🔬 Science</button>
+          <button class="category-pill" data-category="world news today"><i class="ti ti-world"></i> World</button>
+          <button class="category-pill" data-category="politics government"><i class="ti ti-building"></i> Politics</button>
+          <button class="category-pill" data-category="business economy"><i class="ti ti-briefcase"></i> Business</button>
+          <button class="category-pill" data-category="technology AI"><i class="ti ti-cpu"></i> Technology</button>
+          <button class="category-pill" data-category="sports"><i class="ti ti-trophy"></i> Sports</button>
+          <button class="category-pill" data-category="entertainment film music"><i class="ti ti-movie"></i> Entertainment</button>
+          <button class="category-pill" data-category="health medicine"><i class="ti ti-heart-rate-monitor"></i> Health</button>
+          <button class="category-pill" data-category="science space"><i class="ti ti-microscope"></i> Science</button>
         </div>
         <div class="form-card">
-          <label for="searchInput">💬 Your Question</label>
+          <label for="searchInput">Your Question</label>
           <input type="text" id="searchInput" placeholder="e.g. What are the latest developments in AI?" />
-          <button class="btn-primary full" id="searchBtn">🔍 Search News</button>
+          <button class="btn-primary full" id="searchBtn">
+            <i class="ti ti-search"></i> Search News
+          </button>
           <span class="powered-by">Powered by Gemini AI + NewsAPI</span>
         </div>
         <div class="result-card" id="searchResultCard">
           <div class="result-actions">
-            <button class="result-btn" data-action="copy" data-target="searchResult">📋 Copy</button>
-            <button class="result-btn" data-action="expand" data-target="searchResult">⛶ Expand</button>
+            <button class="result-btn" data-action="copy" data-target="searchResult">
+              <i class="ti ti-clipboard"></i> Copy
+            </button>
+            <button class="result-btn" data-action="expand" data-target="searchResult">
+              <i class="ti ti-arrows-maximize"></i> Expand
+            </button>
           </div>
           <div class="result-body" id="searchResult"></div>
         </div>
         <div class="info-panel">
-          <button class="info-toggle">ℹ️ How does AI News Search work?</button>
+          <button class="info-toggle"><i class="ti ti-info-circle"></i> How does AI News Search work?</button>
           <p>Our AI fetches real headlines from NewsAPI and uses Google Gemini to generate a comprehensive answer — not just training data, but actual live articles.</p>
         </div>
       </div>
@@ -395,20 +434,20 @@
     <div class="page" id="page-summarize">
       <div class="inner-page">
         <div class="page-header">
-          <h1>✂️ Article Summarizer</h1>
+          <h1><i class="ti ti-scissors"></i> Article Summarizer</h1>
           <p>Paste anything. Get a crisp summary in seconds.</p>
-          <div class="accent-line" style="background:#7c3aed;"></div>
+          <div class="accent-line" style="background:#a78bfa;"></div>
         </div>
         <div class="page-hero">
           <img src="pictures/summary.jpg" alt="Summarize"
-            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#1e40af);display:block';" />
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
             <h1>Summarize Any Text</h1>
             <p>Articles · Essays · Research Papers</p>
           </div>
         </div>
         <div class="form-card">
-          <label for="summarizeInput">📄 Paste Your Text</label>
+          <label for="summarizeInput">Paste Your Text</label>
           <textarea id="summarizeInput" placeholder="Paste an article, essay, or any long text here..."></textarea>
           <div>
             <label>Summary Length</label>
@@ -418,13 +457,19 @@
               <button data-value="long">Long</button>
             </div>
           </div>
-          <button class="btn-primary full" id="summarizeBtn">✂️ Summarize Now</button>
+          <button class="btn-primary full" id="summarizeBtn">
+            <i class="ti ti-scissors"></i> Summarize Now
+          </button>
           <span class="powered-by">Powered by Google Gemini AI</span>
         </div>
         <div class="result-card" id="summarizeResultCard">
           <div class="result-actions">
-            <button class="result-btn" data-action="copy" data-target="summarizeResult">📋 Copy</button>
-            <button class="result-btn" data-action="expand" data-target="summarizeResult">⛶ Expand</button>
+            <button class="result-btn" data-action="copy" data-target="summarizeResult">
+              <i class="ti ti-clipboard"></i> Copy
+            </button>
+            <button class="result-btn" data-action="expand" data-target="summarizeResult">
+              <i class="ti ti-arrows-maximize"></i> Expand
+            </button>
           </div>
           <div class="result-body" id="summarizeResult"></div>
         </div>
@@ -435,20 +480,20 @@
     <div class="page" id="page-lyrics">
       <div class="inner-page">
         <div class="page-header">
-          <h1>🎵 Lyrics Analyzer</h1>
+          <h1><i class="ti ti-music"></i> Lyrics Analyzer</h1>
           <p>Decode the hidden meaning behind any song</p>
-          <div class="accent-line" style="background:#7c3aed;"></div>
+          <div class="accent-line" style="background:#a78bfa;"></div>
         </div>
         <div class="page-hero">
           <img src="pictures/music1.jpg" alt="Lyrics"
-            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#ec4899);display:block';" />
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
             <h1>Lyrics Intelligence</h1>
             <p>AI-powered music analysis &amp; insights</p>
           </div>
         </div>
         <div class="form-card">
-          <label for="lyricsInput">🎶 Paste Song Lyrics</label>
+          <label for="lyricsInput">Paste Song Lyrics</label>
           <textarea id="lyricsInput" placeholder="Paste song lyrics here..."></textarea>
           <div>
             <label>Analysis Type</label>
@@ -458,13 +503,19 @@
               <button data-value="creative">Creative Ideas</button>
             </div>
           </div>
-          <button class="btn-primary full" id="lyricsBtn">🎵 Analyze Lyrics</button>
+          <button class="btn-primary full" id="lyricsBtn">
+            <i class="ti ti-music"></i> Analyze Lyrics
+          </button>
           <span class="powered-by">Powered by Google Gemini AI</span>
         </div>
         <div class="result-card" id="lyricsResultCard">
           <div class="result-actions">
-            <button class="result-btn" data-action="copy" data-target="lyricsResult">📋 Copy</button>
-            <button class="result-btn" data-action="expand" data-target="lyricsResult">⛶ Expand</button>
+            <button class="result-btn" data-action="copy" data-target="lyricsResult">
+              <i class="ti ti-clipboard"></i> Copy
+            </button>
+            <button class="result-btn" data-action="expand" data-target="lyricsResult">
+              <i class="ti ti-arrows-maximize"></i> Expand
+            </button>
           </div>
           <div class="result-body" id="lyricsResult"></div>
         </div>
@@ -479,22 +530,22 @@
             <div class="artist-grid">
               <button class="artist-card" data-view="lyrics">
                 <img src="pictures/taylor%20swift.jpg" alt="Taylor Swift"
-                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#1e40af;display:block';" />
+                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#1c2a45;display:block';" />
                 <span>Taylor Swift</span>
               </button>
               <button class="artist-card" data-view="lyrics">
                 <img src="pictures/the%20weeknd.jpg" alt="The Weeknd"
-                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#312e81;display:block';" />
+                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#1c2a45;display:block';" />
                 <span>The Weeknd</span>
               </button>
               <button class="artist-card" data-view="lyrics">
                 <img src="pictures/travis%20scott.jpg" alt="Travis Scott"
-                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#7c3aed;display:block';" />
+                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#1c2a45;display:block';" />
                 <span>Travis Scott</span>
               </button>
               <button class="artist-card" data-view="lyrics">
                 <img src="pictures/rihanna.jpg" alt="Rihanna"
-                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#9d174d;display:block';" />
+                  onerror="this.onerror=null;this.style.cssText='width:76px;height:76px;border-radius:50%;background:#1c2a45;display:block';" />
                 <span>Rihanna</span>
               </button>
             </div>
@@ -504,17 +555,17 @@
             <div class="track-list">
               <div class="track-item">
                 <img src="pictures/all%20too%20well.jpg" alt="All Too Well"
-                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#1e40af;display:block';" />
+                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#1c2a45;display:block';" />
                 <div class="track-info"><strong>All Too Well</strong><span>Taylor Swift</span></div>
               </div>
               <div class="track-item">
                 <img src="pictures/love%20story.jpg" alt="Love Story"
-                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#1e3a8a;display:block';" />
+                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#1c2a45;display:block';" />
                 <div class="track-info"><strong>Love Story</strong><span>Taylor Swift</span></div>
               </div>
               <div class="track-item">
                 <img src="pictures/moth%20to%20a%20flame.jpg" alt="Moth To A Flame"
-                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#312e81;display:block';" />
+                  onerror="this.onerror=null;this.style.cssText='width:50px;height:50px;border-radius:10px;background:#1c2a45;display:block';" />
                 <div class="track-info"><strong>Moth To A Flame</strong><span>The Weeknd</span></div>
               </div>
             </div>
@@ -527,39 +578,47 @@
     <div class="page" id="page-dictionary">
       <div class="inner-page">
         <div class="page-header">
-          <h1>📖 Smart Dictionary</h1>
+          <h1><i class="ti ti-book"></i> Smart Dictionary</h1>
           <p>Instant definitions, synonyms, and AI usage examples</p>
-          <div class="accent-line" style="background:#ea580c;"></div>
+          <div class="accent-line" style="background:#f59e0b;"></div>
         </div>
         <div class="page-hero">
           <img src="pictures/dictionary.jpg" alt="Dictionary"
-            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#f97316,#1e40af);display:block';" />
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
             <h1>Word Intelligence</h1>
             <p>Free definitions — no API key required</p>
           </div>
         </div>
         <div class="form-card">
-          <label for="dictionaryInput">🔤 Enter a Word</label>
+          <label for="dictionaryInput">Enter a Word</label>
           <input type="text" id="dictionaryInput" placeholder="e.g. serendipity, ephemeral, ubiquitous..." />
-          <button class="btn-primary full" id="dictionaryBtn">📖 Look Up Definition</button>
+          <button class="btn-primary full" id="dictionaryBtn">
+            <i class="ti ti-book"></i> Look Up Definition
+          </button>
           <span class="powered-by">Free · Powered by DictionaryAPI.dev · No key needed</span>
         </div>
         <div class="result-card" id="dictionaryResultCard">
           <div class="result-actions">
-            <button class="result-btn" data-action="copy" data-target="dictionaryResult">📋 Copy</button>
+            <button class="result-btn" data-action="copy" data-target="dictionaryResult">
+              <i class="ti ti-clipboard"></i> Copy
+            </button>
           </div>
           <div class="result-body" id="dictionaryResult"></div>
         </div>
         <div class="form-card" style="margin-top:0;">
-          <label>🤖 Ask Gemini AI About This Word</label>
+          <label>Ask Gemini AI About This Word</label>
           <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">Look up a word above — a prompt will appear here automatically</p>
           <input type="text" id="dictionaryPrompt" placeholder="Gemini prompt will appear here after word lookup..." />
-          <button class="btn-primary full" id="dictionaryAsk">Ask Gemini AI</button>
+          <button class="btn-primary full" id="dictionaryAsk">
+            <i class="ti ti-brain"></i> Ask Gemini AI
+          </button>
         </div>
         <div class="result-card" id="dictionaryGeminiCard">
           <div class="result-actions">
-            <button class="result-btn" data-action="copy" data-target="dictionaryGemini">📋 Copy</button>
+            <button class="result-btn" data-action="copy" data-target="dictionaryGemini">
+              <i class="ti ti-clipboard"></i> Copy
+            </button>
           </div>
           <div class="result-body" id="dictionaryGemini"></div>
         </div>
@@ -570,13 +629,13 @@
     <div class="page" id="page-analyzer">
       <div class="inner-page">
         <div class="page-header">
-          <h1>📊 Content Analyzer</h1>
+          <h1><i class="ti ti-chart-bar"></i> Content Analyzer</h1>
           <p>Deep AI analysis for articles, books, and lyrics</p>
           <div class="accent-line"></div>
         </div>
         <div class="page-hero">
           <img src="pictures/analyzing.jpg" alt="Analyzer"
-            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#1e40af,#10b981);display:block';" />
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
             <h1>Deep Content Analysis</h1>
             <p>AI-powered insights for any content type</p>
@@ -584,11 +643,11 @@
         </div>
         <div class="form-card">
           <div>
-            <label>📁 Content Type</label>
+            <label>Content Type</label>
             <div class="button-group" id="analyzerType" style="margin-top:8px;">
-              <button data-value="newspaper" class="active">📰 Article</button>
-              <button data-value="lyrics">🎵 Lyrics</button>
-              <button data-value="book">📚 Book Excerpt</button>
+              <button data-value="newspaper" class="active">Article</button>
+              <button data-value="lyrics">Lyrics</button>
+              <button data-value="book">Book Excerpt</button>
             </div>
           </div>
           <div>
@@ -599,18 +658,24 @@
             <label>Analysis Focus</label>
             <div class="button-group" id="analyzerFocus" style="margin-top:8px;"></div>
           </div>
-          <button class="btn-primary full" id="analyzerBtn">📊 Analyze Now</button>
+          <button class="btn-primary full" id="analyzerBtn">
+            <i class="ti ti-chart-bar"></i> Analyze Now
+          </button>
           <span class="powered-by">Powered by Google Gemini AI</span>
         </div>
         <div class="result-card" id="analyzerResultCard">
           <div class="result-actions">
-            <button class="result-btn" data-action="copy" data-target="analyzerResult">📋 Copy</button>
-            <button class="result-btn" data-action="expand" data-target="analyzerResult">⛶ Expand</button>
+            <button class="result-btn" data-action="copy" data-target="analyzerResult">
+              <i class="ti ti-clipboard"></i> Copy
+            </button>
+            <button class="result-btn" data-action="expand" data-target="analyzerResult">
+              <i class="ti ti-arrows-maximize"></i> Expand
+            </button>
           </div>
           <div class="result-body" id="analyzerResult"></div>
         </div>
         <div class="info-panel">
-          <button class="info-toggle">ℹ️ What can the Content Analyzer do?</button>
+          <button class="info-toggle"><i class="ti ti-info-circle"></i> What can the Content Analyzer do?</button>
           <p>Analyze newspaper articles for key facts and summaries, song lyrics for meaning and artist insights, or book excerpts for themes and plot analysis — all powered by Gemini AI.</p>
         </div>
       </div>
@@ -620,33 +685,41 @@
     <div class="page" id="page-briefing">
       <div class="inner-page">
         <div class="page-header">
-          <h1>📋 Daily Briefing</h1>
+          <h1><i class="ti ti-news"></i> Daily Briefing</h1>
           <p>Your AI-powered morning digest — one click to know the world</p>
-          <div class="accent-line" style="background:#059669;"></div>
+          <div class="accent-line" style="background:#10b981;"></div>
         </div>
         <div class="page-hero">
           <img src="pictures/frontpage2.jpg" alt="Briefing"
-            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#059669,#1e40af);display:block';" />
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
-            <h1>☀️ Today's World at a Glance</h1>
+            <h1>Today's World at a Glance</h1>
           </div>
         </div>
         <div class="briefing-card">
           <div class="briefing-actions">
-            <button class="btn-primary" id="briefingBtn">📋 Get AI Briefing</button>
-            <button class="btn-outline" id="headlinesBtn">📰 Show Headlines</button>
+            <button class="btn-primary" id="briefingBtn">
+              <i class="ti ti-news"></i> Get AI Briefing
+            </button>
+            <button class="btn-outline" id="headlinesBtn">
+              <i class="ti ti-list"></i> Show Headlines
+            </button>
           </div>
           <div class="result-card" id="briefingResult">
             <div class="result-actions">
-              <button class="result-btn" data-action="copy" data-target="briefingText">📋 Copy</button>
-              <button class="result-btn" data-action="expand" data-target="briefingText">⛶ Expand</button>
+              <button class="result-btn" data-action="copy" data-target="briefingText">
+                <i class="ti ti-clipboard"></i> Copy
+              </button>
+              <button class="result-btn" data-action="expand" data-target="briefingText">
+                <i class="ti ti-arrows-maximize"></i> Expand
+              </button>
             </div>
             <div class="result-body" id="briefingText"></div>
           </div>
           <div class="headline-list" id="headlineList"></div>
         </div>
         <div class="info-panel">
-          <button class="info-toggle">ℹ️ What is the Daily Briefing?</button>
+          <button class="info-toggle"><i class="ti ti-info-circle"></i> What is the Daily Briefing?</button>
           <p>NewsAPI fetches today's top headlines and Gemini AI synthesises them into a concise, readable 4-paragraph summary covering world events, technology, business, sports, and more.</p>
         </div>
       </div>
@@ -656,25 +729,24 @@
     <div class="page" id="page-essay">
       <div class="inner-page">
         <div class="page-header">
-          <h1>📝 Essay Writer</h1>
+          <h1><i class="ti ti-pencil"></i> Essay Writer</h1>
           <p>Generate a full, structured essay with AI in seconds</p>
-          <div class="accent-line" style="background:#059669;"></div>
+          <div class="accent-line" style="background:#10b981;"></div>
         </div>
         <div class="page-hero">
           <img src="pictures/summary.jpg" alt="Essay"
-            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#059669,#1e40af);display:block';" />
+            onerror="this.onerror=null;this.style.cssText='width:100%;height:100%;background:linear-gradient(135deg,#0f1525,#1c2a45);display:block';" />
           <div class="hero-overlay">
             <h1>Write Any Essay</h1>
             <p>Academic · Argumentative · Comparative · Narrative</p>
           </div>
         </div>
         <div class="form-card">
-          <label for="essayTopic">✏️ Essay Topic</label>
+          <label for="essayTopic">Essay Topic</label>
           <input type="text" id="essayTopic" placeholder="e.g. The impact of social media on mental health" />
-
           <div class="essay-controls">
             <div class="essay-control-group">
-              <label for="essayType">📁 Essay Type</label>
+              <label for="essayType">Essay Type</label>
               <select id="essayType" class="essay-select">
                 <option value="academic">Academic</option>
                 <option value="argumentative">Argumentative</option>
@@ -686,23 +758,28 @@
               </select>
             </div>
             <div class="essay-control-group">
-              <label for="essayWords">🔢 Word Count</label>
+              <label for="essayWords">Word Count</label>
               <input type="number" id="essayWords" min="100" max="2000" value="500" placeholder="500" class="essay-number" />
             </div>
           </div>
-
-          <button class="btn-primary full" id="essayBtn">📝 Generate Essay</button>
+          <button class="btn-primary full" id="essayBtn">
+            <i class="ti ti-pencil"></i> Generate Essay
+          </button>
           <span class="powered-by">Powered by Google Gemini AI</span>
         </div>
         <div class="result-card" id="essayResultCard">
           <div class="result-actions">
-            <button class="result-btn" data-action="copy" data-target="essayResult">📋 Copy</button>
-            <button class="result-btn" data-action="expand" data-target="essayResult">⛶ Expand</button>
+            <button class="result-btn" data-action="copy" data-target="essayResult">
+              <i class="ti ti-clipboard"></i> Copy
+            </button>
+            <button class="result-btn" data-action="expand" data-target="essayResult">
+              <i class="ti ti-arrows-maximize"></i> Expand
+            </button>
           </div>
           <div class="result-body essay-body" id="essayResult"></div>
         </div>
         <div class="info-panel">
-          <button class="info-toggle">ℹ️ How does the Essay Writer work?</button>
+          <button class="info-toggle"><i class="ti ti-info-circle"></i> How does the Essay Writer work?</button>
           <p>Enter your topic, choose an essay type (academic, argumentative, comparative, etc.), set your target word count (100–2000 words), and Gemini AI writes a complete, structured essay with introduction, body paragraphs, and conclusion.</p>
         </div>
       </div>
@@ -717,7 +794,7 @@
         <img class="footer-logo" src="logo.png" alt="NEWSIFY"
           onerror="this.onerror=null;this.style.display='none';" />
         <div class="logo-text">NEWSIFY</div>
-        <p>Built by <a href="https://github.com/AhmadAli1667" target="_blank" rel="noopener" style="color:var(--blue-light);text-decoration:none;">Ahmad Ali</a> · NUST SEECS</p>
+        <p>Built by <a href="https://github.com/AhmadAli1667" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none;">Ahmad Ali</a> · NUST SEECS</p>
       </div>
       <div class="footer-col">
         <h4>Quick Links</h4>
@@ -741,7 +818,9 @@
   </footer>
 
   <!-- Back to Top -->
-  <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <i class="ti ti-arrow-up"></i>
+  </button>
 
   <!-- Expand Modal -->
   <div class="modal" id="expandModal" aria-hidden="true">
@@ -755,16 +834,16 @@
   <div class="modal" id="apiKeyModal" aria-hidden="true">
     <div class="modal-card api-key-card">
       <button class="modal-close" id="apiKeyClose">×</button>
-      <h2 class="api-key-title">⚡ API Limit Reached</h2>
+      <h2 class="api-key-title"><i class="ti ti-zap"></i> API Limit Reached</h2>
       <p class="api-key-body">The shared API key has reached its limit. Use your own free Gemini API key to continue — it takes 30 seconds to get one.</p>
       <div class="api-key-buttons">
-        <button class="btn-primary" id="apiKeyUseOwn">🔑 Use My Own API Key</button>
-        <button class="btn-outline" id="apiKeyTutorial">📖 How to Get a Free Key</button>
+        <button class="btn-primary" id="apiKeyUseOwn"><i class="ti ti-key"></i> Use My Own API Key</button>
+        <button class="btn-outline" id="apiKeyTutorial"><i class="ti ti-book"></i> How to Get a Free Key</button>
       </div>
       <div class="api-key-input-section" id="apiKeyInputSection" style="display:none;">
         <label>Enter Your Gemini API Key</label>
         <input type="password" id="apiKeyInput" placeholder="AIzaSy..." />
-        <button class="btn-primary" id="apiKeySave">✅ Save &amp; Continue</button>
+        <button class="btn-primary" id="apiKeySave"><i class="ti ti-check"></i> Save &amp; Continue</button>
       </div>
       <div class="api-key-tutorial" id="apiKeyTutorialSection" style="display:none;">
         <h3>Get Your Free Gemini API Key</h3>
@@ -774,10 +853,10 @@
           <li>Click <strong>"Create API Key"</strong></li>
           <li>Copy and paste the key above</li>
         </ol>
-        <p class="tutorial-note">⚡ Completely free with generous limits!</p>
+        <p class="tutorial-note">Completely free with generous limits!</p>
       </div>
       <div class="api-key-trust">
-        <p>🔒 Your API key is stored only in this browser session.</p>
+        <p><i class="ti ti-lock"></i> Your API key is stored only in this browser session.</p>
       </div>
     </div>
   </div>
@@ -799,7 +878,115 @@
   <div id="heroCarousel" style="display:none;"></div>
   <div id="heroDots" style="display:none;"></div>
 
-  <!-- ═══════════════════ HEATMAP SCRIPT (Phase 1) ═══════════════════ -->
+  <!-- ═══════════════════ NEURAL NETWORK SCRIPT ═══════════════════ -->
+  <script>
+  (function() {
+    const canvas = document.getElementById('nn-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, nodes = [], raf;
+    const NODE_COUNT = 80;
+    const CONNECT_DIST = 140;
+
+    function resize() {
+      W = canvas.parentElement.offsetWidth || 1200;
+      H = canvas.parentElement.offsetHeight || 420;
+      canvas.width = W; canvas.height = H;
+    }
+
+    function initNodes() {
+      nodes = Array.from({ length: NODE_COUNT }, function(_, i) {
+        return {
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.45,
+          vy: (Math.random() - 0.5) * 0.45,
+          r: i < 7 ? 4.5 + Math.random() * 2 : 1.5 + Math.random() * 2.5,
+          phase: Math.random() * Math.PI * 2,
+          speed: 0.4 + Math.random() * 0.8,
+          hub: i < 7
+        };
+      });
+    }
+
+    function getColors() {
+      var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      return isLight ? {
+        node: '#3b6fef', hub: '#6d28d9',
+        edge: '79,70,229', pulse: '#e11d48'
+      } : {
+        node: '#5b8af5', hub: '#a78bfa',
+        edge: '91,138,245', pulse: '#f43f5e'
+      };
+    }
+
+    function draw(t) {
+      ctx.clearRect(0, 0, W, H);
+      var c = getColors();
+
+      nodes.forEach(function(n) {
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > W) { n.vx *= -1; n.x = Math.max(0, Math.min(W, n.x)); }
+        if (n.y < 0 || n.y > H) { n.vy *= -1; n.y = Math.max(0, Math.min(H, n.y)); }
+      });
+
+      // Draw edges
+      for (var i = 0; i < nodes.length; i++) {
+        for (var j = i + 1; j < nodes.length; j++) {
+          var dx = nodes[i].x - nodes[j].x;
+          var dy = nodes[i].y - nodes[j].y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < CONNECT_DIST) {
+            var alpha = (1 - dist / CONNECT_DIST) * 0.5;
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.strokeStyle = 'rgba(' + c.edge + ',' + alpha + ')';
+            ctx.lineWidth = (nodes[i].hub || nodes[j].hub) ? 1.2 : 0.6;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw nodes
+      nodes.forEach(function(n) {
+        var pulse = (Math.sin(t * 0.001 * n.speed + n.phase) + 1) / 2;
+        var r = n.r * (0.8 + pulse * 0.45);
+        var color = n.hub ? c.hub : c.node;
+
+        ctx.save();
+        ctx.shadowColor = color;
+        ctx.shadowBlur = n.hub ? 28 : 12;
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.6 + pulse * 0.4;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (n.hub) {
+          ctx.globalAlpha = 0.1 + pulse * 0.08;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, r * 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+
+      raf = requestAnimationFrame(draw);
+    }
+
+    function start() {
+      if (raf) cancelAnimationFrame(raf);
+      resize(); initNodes();
+      raf = requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', start);
+    start();
+  })();
+  </script>
+
+  <!-- ═══════════════════ HEATMAP SCRIPT ═══════════════════ -->
   <script>
   (function() {
     const canvas = document.getElementById('heatmap-canvas');
@@ -809,7 +996,6 @@
     let hoveredCity = null;
     let mouseX = -999, mouseY = -999;
 
-    // Static major news cities with randomised animation phase
     const CITIES = [
       { n:'New York',     lat:40.7,  lon:-74.0 }, { n:'Washington DC', lat:38.9,  lon:-77.0 },
       { n:'Los Angeles',  lat:34.0,  lon:-118.2}, { n:'London',        lat:51.5,  lon:-0.1  },
@@ -826,7 +1012,6 @@
       { n:'Toronto',      lat:43.7,  lon:-79.4 }, { n:'Ankara',        lat:39.9,  lon:32.9  },
     ].map(c => ({ ...c, phase: Math.random() * Math.PI * 2, speed: 0.6 + Math.random() * 0.7 }));
 
-    // GNews article pins (Phase 2: dynamically populated)
     let gNewsPins = [];
 
     const GEO_KW = [
@@ -865,7 +1050,6 @@
       } catch {}
     }
 
-    // Continent blobs [lat, lon, rlat°, rlon°]
     const LAND = [
       [60,-105,11,20],[47,-97,9,18],[35,-95,8,17],[29,-100,6,13],[23,-101,8,7],[12,-85,5,4],
       [5,-61,7,8],[-10,-52,12,10],[-28,-65,9,8],[-42,-68,4,4],
@@ -892,15 +1076,13 @@
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, W, H);
 
-      // Ocean background
       const bg = ctx.createLinearGradient(0, 0, 0, H);
       bg.addColorStop(0,   '#010d1f');
       bg.addColorStop(0.5, '#020f24');
       bg.addColorStop(1,   '#010914');
       ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
-      // Lat/lon grid
-      ctx.strokeStyle = 'rgba(37,99,235,0.10)';
+      ctx.strokeStyle = 'rgba(91,138,245,0.10)';
       ctx.lineWidth = 0.6;
       for (let lon = -180; lon <= 180; lon += 30) {
         const x = (lon + 180) / 360 * W;
@@ -908,19 +1090,18 @@
       }
       for (let lat = -90; lat <= 90; lat += 30) {
         const y = (90 - lat) / 180 * H;
-        ctx.strokeStyle = lat === 0 ? 'rgba(37,99,235,0.28)' : 'rgba(37,99,235,0.10)';
+        ctx.strokeStyle = lat === 0 ? 'rgba(91,138,245,0.28)' : 'rgba(91,138,245,0.10)';
         ctx.lineWidth = lat === 0 ? 0.9 : 0.6;
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
       }
 
-      // Continent fills
       LAND.forEach(([lat, lon, rlat, rlon]) => {
         const p = px(lat, lon);
         const hw = rlon / 360 * W * 2;
         const hh = rlat / 180 * H * 2;
         ctx.save();
         ctx.fillStyle = '#0e2a45';
-        ctx.shadowColor = 'rgba(37,99,235,0.15)';
+        ctx.shadowColor = 'rgba(91,138,245,0.15)';
         ctx.shadowBlur = 8;
         ctx.beginPath();
         ctx.ellipse(p.x, p.y, Math.max(2, hw), Math.max(2, hh), 0, 0, Math.PI * 2);
@@ -928,7 +1109,6 @@
         ctx.restore();
       });
 
-      // Continent edge highlight (subtle)
       LAND.forEach(([lat, lon, rlat, rlon]) => {
         const p = px(lat, lon);
         const hw = rlon / 360 * W * 2;
@@ -942,7 +1122,6 @@
         ctx.restore();
       });
 
-      // Static city pins with animated pulse
       hoveredCity = null;
       CITIES.forEach(city => {
         const p = px(city.lat, city.lon);
@@ -951,7 +1130,6 @@
         const near = Math.sqrt(dx*dx + dy*dy) < 16;
         if (near) hoveredCity = { ...city, px: p.x, py: p.y };
 
-        // Pulse rings
         for (let i = 0; i < 2; i++) {
           const rp = (wave + i * 0.5) % 1;
           ctx.save();
@@ -964,7 +1142,6 @@
           ctx.restore();
         }
 
-        // Core dot
         ctx.save();
         ctx.fillStyle = near ? '#facc15' : '#f97316';
         ctx.shadowColor = near ? '#facc15' : '#f97316';
@@ -974,7 +1151,6 @@
         ctx.restore();
       });
 
-      // GNews article pins (smaller, blue)
       gNewsPins.forEach(pin => {
         const p = px(pin.lat, pin.lon);
         const dx = p.x - mouseX, dy = p.y - mouseY;
@@ -987,7 +1163,6 @@
         ctx.restore();
       });
 
-      // Tooltip
       if (hoveredCity) {
         const label = (hoveredCity.n||'').length > 40 ? hoveredCity.n.slice(0,40)+'…' : hoveredCity.n;
         const sub = hoveredCity.source || '';
@@ -999,11 +1174,11 @@
         ctx.fillStyle = '#020c1e';
         if (ctx.roundRect) ctx.roundRect(tx, ty, tw, th, 7); else ctx.rect(tx, ty, tw, th);
         ctx.fill();
-        ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.strokeStyle = '#5b8af5'; ctx.lineWidth = 1; ctx.stroke();
         ctx.globalAlpha = 1;
-        ctx.fillStyle = '#f1f5f9'; ctx.font = `bold 10px Inter,system-ui,sans-serif`;
+        ctx.fillStyle = '#dce4f5'; ctx.font = `bold 10px Inter,system-ui,sans-serif`;
         ctx.fillText(label, tx + 10, ty + 18);
-        if (sub) { ctx.fillStyle = '#60a5fa'; ctx.font = `9px Inter,system-ui,sans-serif`; ctx.fillText(sub, tx + 10, ty + 34); }
+        if (sub) { ctx.fillStyle = '#5b8af5'; ctx.font = `9px Inter,system-ui,sans-serif`; ctx.fillText(sub, tx + 10, ty + 34); }
         ctx.restore();
       }
 

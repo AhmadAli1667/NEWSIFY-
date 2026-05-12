@@ -301,7 +301,7 @@ async function loadHomeNews() {
       const cat = categoryFromSource(a);
       const catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
       return `
-        <div class="side-card-item" onclick="window.open('${a.url || "#"}','_blank','noopener')">
+        <div class="side-card-item" data-cat="${cat}" onclick="window.open('${a.url || "#"}','_blank','noopener')">
           <img src="${sideImgs[i]}" alt="${safeText(a.title,40)}"
             onerror="this.onerror=null;this.src='${LOCAL_FALLBACK}';" />
           <div class="side-card-text">
@@ -443,8 +443,8 @@ function updateAnalyzerOptions() {
 
 function setLoading(button, resultCard, resultBody) {
   button.disabled = true;
-  button.dataset.original = button.textContent;
-  button.textContent = "⏳ Analyzing...";
+  button.dataset.original = button.innerHTML;
+  button.innerHTML = '<i class="ti ti-loader-2 ti-spin"></i> Analyzing…';
   resultBody.textContent = "";
   resultBody.classList.add("shimmer");
   resultCard.classList.add("show");
@@ -452,7 +452,7 @@ function setLoading(button, resultCard, resultBody) {
 
 function clearLoading(button, resultBody) {
   button.disabled = false;
-  button.textContent = button.dataset.original || "Submit";
+  button.innerHTML = button.dataset.original || "Submit";
   resultBody.classList.remove("shimmer");
 }
 
@@ -480,6 +480,17 @@ async function postJson(url, payload) {
 
 // ── Tool handlers ──────────────────────────────────────
 
+function refreshTickerFromGNews() {
+  fetch("/api/gnews").then(r => r.ok ? r.json() : null).then(data => {
+    if (!data || !data.articles || !data.articles.length) return;
+    const tickerContent = document.querySelector(".ticker-content");
+    if (!tickerContent) return;
+    const titles = data.articles.map(a => a.title || "").filter(Boolean);
+    const doubled = [...titles, ...titles];
+    tickerContent.innerHTML = doubled.map(t => `<span>${t.length > 80 ? t.slice(0,80) + "…" : t} &nbsp;·&nbsp;</span>`).join("");
+  }).catch(() => {});
+}
+
 async function handleSearch() {
   const question = searchInput.value.trim();
   if (!question) { searchInput.focus(); return; }
@@ -487,6 +498,7 @@ async function handleSearch() {
   try {
     const data = await postJson("/api/search", { question });
     showResult(searchResultCard, searchResult, data.summary || data.result || data.response || "");
+    refreshTickerFromGNews();
   } catch {
     showResult(searchResultCard, searchResult, "Unable to fetch results right now.");
   } finally {
@@ -887,18 +899,22 @@ function initEvents() {
     });
   });
 
-  // Theme toggle
+  // Theme toggle (dark is default)
   const themeToggle = document.getElementById("themeToggle");
-  const savedTheme = localStorage.getItem("nf_theme") || "light";
+  const savedTheme = localStorage.getItem("nf_theme") || "dark";
   document.documentElement.setAttribute("data-theme", savedTheme);
   if (themeToggle) {
-    themeToggle.textContent = savedTheme === "dark" ? "☀️" : "🌙";
+    themeToggle.innerHTML = savedTheme === "dark"
+      ? '<i class="ti ti-sun"></i>'
+      : '<i class="ti ti-moon"></i>';
     themeToggle.addEventListener("click", () => {
-      const cur  = document.documentElement.getAttribute("data-theme") || "light";
+      const cur  = document.documentElement.getAttribute("data-theme") || "dark";
       const next = cur === "dark" ? "light" : "dark";
       document.documentElement.setAttribute("data-theme", next);
       localStorage.setItem("nf_theme", next);
-      themeToggle.textContent = next === "dark" ? "☀️" : "🌙";
+      themeToggle.innerHTML = next === "dark"
+        ? '<i class="ti ti-sun"></i>'
+        : '<i class="ti ti-moon"></i>';
     });
   }
 
@@ -924,7 +940,7 @@ function initEvents() {
   if (homeBriefingBtn) {
     homeBriefingBtn.addEventListener("click", async () => {
       homeBriefingBtn.disabled = true;
-      homeBriefingBtn.textContent = "⏳ Loading…";
+      homeBriefingBtn.innerHTML = '<i class="ti ti-loader-2 ti-spin"></i> Loading…';
       if (homeBriefingOutput) { homeBriefingOutput.textContent = ""; homeBriefingOutput.style.display = "none"; }
       try {
         const data = await postJson("/api/briefing", {});
@@ -935,7 +951,7 @@ function initEvents() {
         }
       } catch {}
       homeBriefingBtn.disabled = false;
-      homeBriefingBtn.textContent = "Get Briefing";
+      homeBriefingBtn.innerHTML = '<i class="ti ti-news"></i> Get Briefing';
     });
   }
 
@@ -1002,8 +1018,9 @@ function init() {
   initEvents();
   updateScrollProgress();
 
-  // Load real news (non-blocking — page renders immediately, news fills in)
-  loadHomeNews().catch(() => console.warn("Home news load failed silently"));
+  // Load real news and live ticker (non-blocking)
+  loadHomeNews().catch(() => {});
+  refreshTickerFromGNews();
 }
 
 init();
