@@ -639,10 +639,10 @@ html, body { overflow-x: hidden; max-width: 100%; }
   }
   .editorial-sidebar-item { flex: 0 0 240px; border-bottom: none; border-right: 1px solid var(--border); }
 
-  .editors-picks { grid-template-columns: 1fr; }
+  .editors-picks { grid-template-columns: 1fr !important; }
   .editors-picks-main { border-right: none; border-bottom: 1px solid var(--border); }
 
-  .pulse-section { grid-template-columns: 1fr; }
+  .pulse-section { grid-template-columns: 1fr !important; }
   .pulse-map { padding: 16px 20px; }
   .pulse-widget { border-left: none; border-top: 1px solid var(--border); padding: 20px; }
 
@@ -687,11 +687,11 @@ html, body { overflow-x: hidden; max-width: 100%; }
   .trending-card-imgwrap { height: 110px; }
 
   /* Editor's picks */
-  .editors-picks-main { padding: 24px 16px; }
-  .editors-picks-sidebar { padding: 20px 16px; }
-  .ep-feature-img { height: 190px; }
-  .ep-title { font-size: 1.1rem; }
-  .editors-picks-head { font-size: 1.2rem; }
+  .editors-picks-main { padding: 20px 16px; }
+  .editors-picks-sidebar { padding: 16px; }
+  .ep-feature-img { height: 170px; }
+  .ep-title { font-size: 0.95rem; line-height: 1.35; }
+  .editors-picks-head { font-size: 1.1rem; }
 
   /* Pulse */
   .pulse-map { padding: 14px 16px; }
@@ -705,11 +705,16 @@ html, body { overflow-x: hidden; max-width: 100%; }
   .section-header h2 { font-size: 1.3rem; }
   .section-header p { font-size: 0.87rem; }
 
-  /* How it works */
-  .how-section { padding: 36px 16px; }
-  .how-grid { grid-template-columns: 1fr; gap: 16px; }
-  .how-number { font-size: 1.8rem; }
-  .how-card { padding: 20px; }
+  /* How it works — compact on mobile */
+  .how-section { padding: 20px 16px; }
+  .how-grid { grid-template-columns: 1fr; gap: 10px; }
+  .how-number { font-size: 1.2rem; margin-bottom: 6px; }
+  .how-card { padding: 14px 16px; }
+  .how-card h3 { font-size: 0.88rem; margin-bottom: 4px; }
+  .how-card p { font-size: 0.78rem; line-height: 1.55; }
+  .how-section .section-header { margin-bottom: 14px; }
+  .how-section .section-header h2 { font-size: 1.1rem; }
+  .how-section .section-header p { font-size: 0.8rem; }
 
   /* Culture / lyrics */
   .culture-section { padding: 36px 16px; }
@@ -742,11 +747,62 @@ html, body { overflow-x: hidden; max-width: 100%; }
 @media (max-width: 480px) {
   .feature-grid { grid-template-columns: 1fr; }
   .neural-hero { height: 300px; }
-  .trending-card { min-width: 155px; max-width: 155px; }
+  .trending-card { min-width: 152px; max-width: 152px; }
   .trending-card-imgwrap { height: 95px; }
-  .editorial-hero-main { min-height: 260px; }
-  .ep-feature-img { height: 160px; }
+  .editorial-hero-main { min-height: 250px; }
+  .ep-feature-img { height: 145px; }
+  .ep-title { font-size: 0.88rem !important; }
+  .ep-desc { display: none; }
+  .how-section { padding: 16px 14px; }
+  .how-card { padding: 12px 14px; }
 }
+
+/* ══════════════════════════════════════════
+   MOBILE TOOLS BUTTON & SLIDE PANEL
+══════════════════════════════════════════ */
+.mobile-tools-btn { display: none; }
+
+@media (max-width: 768px) {
+  .mobile-tools-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: 8px;
+    border: 1.5px solid var(--border);
+    color: var(--text-muted); flex-shrink: 0;
+    font-size: 1.1rem; transition: all 0.15s; background: none;
+  }
+  .mobile-tools-btn:hover,
+  .mobile-tools-btn.active { background: var(--bg-elevated); color: var(--blue); border-color: var(--blue); }
+}
+
+.mobile-tools-panel {
+  position: fixed; top: 0; left: -290px; width: 270px; height: 100vh;
+  background: var(--bg-card); border-right: 1px solid var(--border);
+  padding: 72px 10px 24px; z-index: 500;
+  transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; flex-direction: column; gap: 3px;
+  overflow-y: auto;
+}
+.mobile-tools-panel.open { left: 0; }
+.mobile-tools-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+  z-index: 499; display: none; cursor: pointer;
+}
+.mobile-tools-overlay.show { display: block; }
+.mtp-header {
+  font-size: 0.62rem; font-weight: 900; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--blue);
+  padding: 0 8px 12px; border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+.mtp-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; border-radius: 10px;
+  font-size: 0.88rem; font-weight: 600; color: var(--text);
+  text-align: left; transition: all 0.15s; width: 100%;
+  background: none; border: none; cursor: pointer; font-family: inherit;
+}
+.mtp-item i { font-size: 1.05rem; color: var(--blue); width: 20px; flex-shrink: 0; }
+.mtp-item:hover { background: var(--bg-elevated); color: var(--blue); }
 
 /* ══════════════════════════════════════════
    NAV GROUP DROPDOWNS

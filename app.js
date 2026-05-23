@@ -327,7 +327,7 @@ async function loadHomeNews() {
 
   // ── 3. TRENDING NOW (articles[4-9]) ────────────────────
   const trendingEl       = document.getElementById("trendingScroll");
-  const trendingArticles = articles.slice(4, Math.min(10, articles.length));
+  const trendingArticles = articles.slice(3, Math.min(10, articles.length));
   if (trendingEl && trendingArticles.length) {
     const trendImgs = await Promise.all(
       trendingArticles.map(a => getArticleImage(a, categoryFromSource(a)))
@@ -1029,6 +1029,31 @@ function initEvents() {
   // Search toggle icon → go to search page
   const searchToggle = document.getElementById("searchToggle");
   if (searchToggle) searchToggle.addEventListener("click", () => setPage("search"));
+
+  // Mobile tools panel
+  const mobileToolsBtn     = document.getElementById("mobileToolsBtn");
+  const mobileToolsPanel   = document.getElementById("mobileToolsPanel");
+  const mobileToolsOverlay = document.getElementById("mobileToolsOverlay");
+  function closeMobileTools() {
+    if (mobileToolsPanel)   mobileToolsPanel.classList.remove("open");
+    if (mobileToolsOverlay) mobileToolsOverlay.classList.remove("show");
+    if (mobileToolsBtn)     mobileToolsBtn.classList.remove("active");
+  }
+  if (mobileToolsBtn) {
+    mobileToolsBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      const isOpen = mobileToolsPanel && mobileToolsPanel.classList.contains("open");
+      if (isOpen) { closeMobileTools(); } else {
+        if (mobileToolsPanel)   mobileToolsPanel.classList.add("open");
+        if (mobileToolsOverlay) mobileToolsOverlay.classList.add("show");
+        mobileToolsBtn.classList.add("active");
+      }
+    });
+  }
+  if (mobileToolsOverlay) mobileToolsOverlay.addEventListener("click", closeMobileTools);
+  document.querySelectorAll(".mtp-item").forEach(btn => {
+    btn.addEventListener("click", () => closeMobileTools());
+  });
 
   // Menu
   if (menuBtn) menuBtn.addEventListener("click", () => menuDropdown.classList.toggle("show"));

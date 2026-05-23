@@ -12,8 +12,25 @@
 
   <div class="progress-bar" id="scrollProgress"></div>
 
+  <!-- Mobile tools slide panel (hidden on desktop) -->
+  <div class="mobile-tools-panel" id="mobileToolsPanel">
+    <div class="mtp-header">All Tools</div>
+    <button class="mtp-item" data-view="search"><i class="ti ti-search"></i> News Search</button>
+    <button class="mtp-item" data-view="briefing"><i class="ti ti-news"></i> Daily Briefing</button>
+    <button class="mtp-item" data-view="dictionary"><i class="ti ti-book"></i> Dictionary</button>
+    <button class="mtp-item" data-view="lyrics"><i class="ti ti-music"></i> Lyrics Analyzer</button>
+    <button class="mtp-item" data-view="essay"><i class="ti ti-pencil"></i> Essay Writer</button>
+    <button class="mtp-item" data-view="summarize"><i class="ti ti-scissors"></i> Summarize Text</button>
+    <button class="mtp-item" data-view="analyzer"><i class="ti ti-chart-bar"></i> Content Analyzer</button>
+  </div>
+  <div class="mobile-tools-overlay" id="mobileToolsOverlay"></div>
+
   <!-- ═══════════════════ NAVBAR ═══════════════════ -->
   <nav class="navbar">
+
+    <button class="mobile-tools-btn" id="mobileToolsBtn" title="All Tools" aria-label="Open tools menu">
+      <i class="ti ti-layout-grid"></i>
+    </button>
 
     <button class="logo-button">
       <img class="logo" src="logo.png" alt="NEWSIFY"
