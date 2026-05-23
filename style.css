@@ -619,26 +619,133 @@ footer { background: var(--navy); color: white; padding: 48px 36px 24px; }
 /* ══════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════ */
+
+/* ── Prevent ALL horizontal overflow ── */
+html, body { overflow-x: hidden; max-width: 100%; }
+* { box-sizing: border-box; }
+
+/* ── Tablet: 1100px ── */
 @media (max-width: 1100px) {
-  .home-hero { grid-template-columns: 1fr; }
-  .home-right { padding: 0 36px 36px; }
   .feature-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ── Tablet: 900px — new editorial sections stack ── */
+@media (max-width: 900px) {
+  .editorial-hero { grid-template-columns: 1fr; min-height: auto; }
+  .editorial-hero-main { min-height: 380px; }
+  .editorial-sidebar {
+    border-left: none; border-top: 1px solid var(--border);
+    flex-direction: row; overflow-x: auto; min-height: 0;
+  }
+  .editorial-sidebar-item { flex: 0 0 240px; border-bottom: none; border-right: 1px solid var(--border); }
+
+  .editors-picks { grid-template-columns: 1fr; }
+  .editors-picks-main { border-right: none; border-bottom: 1px solid var(--border); }
+
+  .pulse-section { grid-template-columns: 1fr; }
+  .pulse-map { padding: 16px 20px; }
+  .pulse-widget { border-left: none; border-top: 1px solid var(--border); padding: 20px; }
+
+  .trending-section { padding: 24px 20px 18px; }
+  .trending-card { min-width: 195px; max-width: 195px; }
+}
+
+/* ── Mobile: 768px — full phone layout ── */
 @media (max-width: 768px) {
-  .navbar { padding: 0 18px; gap: 10px; }
+  /* Navbar */
+  .navbar { padding: 0 16px; gap: 8px; }
   .navbar-center { display: none; }
-  .neural-hero { height: 300px; }
-  .neural-hero-title { font-size: 1.9rem; }
-  .home-left { padding: 18px; }
-  .top-story-inner { flex-direction: column; }
-  .top-story-img { width: 100%; height: 180px; }
-  .side-cards { grid-template-columns: 1fr; }
-  .culture-grid { grid-template-columns: 1fr; gap: 36px; }
-  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+  .logo-tagline { display: none; }
+  .btn-signin { padding: 7px 14px; font-size: 0.8rem; }
+  .icon-btn { width: 32px; height: 32px; }
+
+  /* Ticker */
+  .ticker-section { padding: 10px 16px; gap: 12px; }
+  .ticker-content { font-size: 0.82rem; }
+  .ticker-badge { font-size: 0.65rem; padding: 4px 9px; }
+
+  /* Neural hero */
+  .neural-hero { height: 340px; }
+  .neural-hero-content { padding: 0 20px; gap: 14px; }
+  .neural-hero-title { font-size: clamp(1.5rem, 7vw, 2rem); letter-spacing: -0.5px; }
+  .neural-hero-sub { font-size: 0.85rem; }
+  .neural-hero-cta { flex-direction: column; align-items: stretch; gap: 10px; width: 100%; max-width: 300px; }
+  .neural-hero-cta .btn-primary,
+  .neural-hero-cta .btn-outline { justify-content: center; text-align: center; }
+
+  /* Editorial hero */
+  .editorial-hero-main { min-height: 300px; }
+  .editorial-hero-text { padding: 24px 20px 22px; gap: 10px; }
+  .editorial-headline { font-size: clamp(1.2rem, 5.5vw, 1.65rem); }
+  .editorial-desc { font-size: 0.85rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .editorial-sidebar { display: none; } /* too cramped — sidebar hides on phone */
+
+  /* Trending */
+  .trending-section { padding: 20px 16px 14px; }
+  .trending-title { font-size: 1.2rem; }
+  .trending-card { min-width: 170px; max-width: 170px; }
+  .trending-card-imgwrap { height: 110px; }
+
+  /* Editor's picks */
+  .editors-picks-main { padding: 24px 16px; }
+  .editors-picks-sidebar { padding: 20px 16px; }
+  .ep-feature-img { height: 190px; }
+  .ep-title { font-size: 1.1rem; }
+  .editors-picks-head { font-size: 1.2rem; }
+
+  /* Pulse */
+  .pulse-map { padding: 14px 16px; }
+  .pulse-widget { padding: 16px; }
+  .home-briefing-widget { margin-top: 0; }
+
+  /* Feature grid */
+  .features-section { padding: 36px 16px; }
+  .feature-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .feature-card { padding: 16px; }
+  .section-header h2 { font-size: 1.3rem; }
+  .section-header p { font-size: 0.87rem; }
+
+  /* How it works */
+  .how-section { padding: 36px 16px; }
+  .how-grid { grid-template-columns: 1fr; gap: 16px; }
+  .how-number { font-size: 1.8rem; }
+  .how-card { padding: 20px; }
+
+  /* Culture / lyrics */
+  .culture-section { padding: 36px 16px; }
+  .culture-grid { grid-template-columns: 1fr; gap: 32px; }
+
+  /* Testimonials */
+  .testimonials-section { margin-top: 36px; }
+  .testimonials-grid { grid-template-columns: 1fr; gap: 16px; }
+  .testimonial-card { padding: 18px 16px; }
+
+  /* Feedback */
+  .feedback-form-section { padding: 36px 16px; }
+
+  /* Footer */
+  footer { padding: 36px 16px 20px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+
+  /* Inner pages */
+  .inner-page { padding: 28px 16px; }
+  .page-header h1 { font-size: 1.35rem; }
+  .category-pills { gap: 6px; }
+  .category-pill { padding: 6px 13px; font-size: 0.78rem; }
+
+  /* Back to top */
+  .back-to-top { bottom: 20px; right: 16px; width: 38px; height: 38px; }
+}
+
+/* ── Small phones: 480px ── */
+@media (max-width: 480px) {
   .feature-grid { grid-template-columns: 1fr; }
-  .how-grid { grid-template-columns: 1fr; }
-  .inner-page { padding: 24px 18px; }
-  .home-right { padding: 18px; }
+  .neural-hero { height: 300px; }
+  .trending-card { min-width: 155px; max-width: 155px; }
+  .trending-card-imgwrap { height: 95px; }
+  .editorial-hero-main { min-height: 260px; }
+  .ep-feature-img { height: 160px; }
 }
 
 /* ══════════════════════════════════════════
@@ -997,18 +1104,3 @@ footer { background: var(--navy); color: white; padding: 48px 36px 24px; }
   justify-content: center; gap: 0;
 }
 
-/* ── Responsive ── */
-@media (max-width: 900px) {
-  .editorial-hero { grid-template-columns: 1fr; min-height: auto; }
-  .editorial-sidebar { border-left: none; border-top: 1px solid var(--border); flex-direction: row; overflow-x: auto; }
-  .editorial-sidebar-item { flex: 0 0 260px; border-bottom: none; border-right: 1px solid var(--border); }
-  .editors-picks { grid-template-columns: 1fr; }
-  .editors-picks-main { border-right: none; border-bottom: 1px solid var(--border); }
-  .pulse-section { grid-template-columns: 1fr; }
-  .pulse-widget { border-left: none; border-top: 1px solid var(--border); }
-  .trending-section { padding: 24px 16px 16px; }
-}
-@media (max-width: 640px) {
-  .editorial-hero-text { padding: 32px 24px 28px; }
-  .navbar-center { display: none; }
-}
